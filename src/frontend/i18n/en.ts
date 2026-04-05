@@ -267,6 +267,10 @@ export default {
   "admin.saved": "Saved ✓",
   "admin.deleteUserConfirm": "Really delete user \"{name}\"? All data will be removed.",
 
+  // Common (Searchable Select)
+  "common.search": "Search...",
+  "common.noResults": "No results",
+
   // Toasts
   "toast.bookmarkDeleted": "Bookmark deleted",
   "toast.importing": "Importing…",

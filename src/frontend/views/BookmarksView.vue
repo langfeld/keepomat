@@ -24,13 +24,13 @@
         </select>
 
         <!-- Tag-Filter -->
-        <select
-          v-model="selectedTag"
-          class="bg-white dark:bg-gray-800 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white text-sm"
-        >
-          <option value="">{{ t('bookmarks.filterAllTags') }}</option>
-          <option v-for="tag in tags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
-        </select>
+        <SearchableSelect
+          :model-value="selectedTag"
+          :options="tagOptions"
+          :placeholder="t('bookmarks.filterAllTags')"
+          @update:model-value="selectedTag = String($event)"
+          trigger-class="!py-2 !text-sm"
+        />
 
         <!-- Ansicht -->
         <div class="flex items-center bg-gray-100 dark:bg-gray-800 p-0.5 rounded-xl">
@@ -168,7 +168,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useBookmarksStore } from "../stores/bookmarks";
 import { useI18n } from "../composables/useI18n";
@@ -177,6 +177,8 @@ import { useToast } from "../composables/useToast";
 import { useLocalStorage } from "../composables/useLocalStorage";
 import BookmarkCard from "../components/BookmarkCard.vue";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
+import SearchableSelect from "../components/SearchableSelect.vue";
+import type { SelectOption } from "../components/SearchableSelect.vue";
 
 const route = useRoute();
 const bookmarksStore = useBookmarksStore();
@@ -189,6 +191,9 @@ const selectedTag = ref("");
 const viewMode = useLocalStorage<"list" | "grid">("viewMode", "list");
 const showScreenshots = useLocalStorage("showScreenshots", false);
 const tags = ref<any[]>([]);
+const tagOptions = computed<SelectOption[]>(() =>
+  tags.value.map((tag) => ({ value: String(tag.id), label: tag.name }))
+);
 const showExportMenu = ref(false);
 const exportMenuRef = ref<HTMLElement>();
 const importHtmlInput = ref<HTMLInputElement>();

@@ -269,6 +269,10 @@ export default {
   "admin.saved": "Gespeichert ✓",
   "admin.deleteUserConfirm": "Benutzer \"{name}\" wirklich löschen? Alle Daten werden entfernt.",
 
+  // Common (Searchable Select)
+  "common.search": "Suchen...",
+  "common.noResults": "Keine Ergebnisse",
+
   // Toasts
   "toast.bookmarkDeleted": "Lesezeichen gelöscht",
   "toast.importing": "Import läuft…",

@@ -71,32 +71,22 @@
                     </button>
                   </span>
                 </div>
-                <select
-                  @change="addFolder($event)"
-                  class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
-                >
-                  <option value="">{{ t('addBookmark.addFolder') }}</option>
-                  <option
-                    v-for="folder in availableFolders"
-                    :key="folder.id"
-                    :value="folder.id"
-                  >
-                    {{ '\u00A0\u00A0'.repeat(folder.depth) }}{{ folder.name }}
-                  </option>
-                </select>
+                <SearchableSelect
+                  :model-value="''"
+                  :options="availableFolderOptions"
+                  :placeholder="t('addBookmark.addFolder')"
+                  @update:model-value="addFolderById"
+                />
               </div>
 
               <!-- Single-Folder-Modus -->
-              <select
+              <SearchableSelect
                 v-else
-                v-model="singleFolderId"
-                class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
-              >
-                <option value="">{{ t('common.noFolder') }}</option>
-                <option v-for="folder in flatFolders" :key="folder.id" :value="folder.id">
-                  {{ '\u00A0\u00A0'.repeat(folder.depth) }}{{ folder.name }}
-                </option>
-              </select>
+                :model-value="singleFolderId"
+                :options="allFolderOptions"
+                :placeholder="t('common.noFolder')"
+                @update:model-value="singleFolderId = String($event)"
+              />
             </div>
 
             <!-- Tags -->
@@ -147,6 +137,8 @@ import { useBookmarksStore } from "../stores/bookmarks";
 import { useFoldersStore } from "../stores/folders";
 import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
+import SearchableSelect from "./SearchableSelect.vue";
+import type { SelectOption } from "./SearchableSelect.vue";
 
 const emit = defineEmits(["close"]);
 const bookmarksStore = useBookmarksStore();
@@ -190,6 +182,29 @@ function flattenFolders(folders: any[], depth = 0): FlatFolder[] {
 
 function getFolderName(id: number): string {
   return flatFolders.value.find((f) => f.id === id)?.name || String(id);
+}
+
+function folderToOption(f: FlatFolder): SelectOption {
+  return {
+    value: f.id,
+    label: f.name,
+    displayHtml: '\u00A0\u00A0'.repeat(f.depth) + f.name,
+  };
+}
+
+const allFolderOptions = computed<SelectOption[]>(() =>
+  flatFolders.value.map(folderToOption)
+);
+
+const availableFolderOptions = computed<SelectOption[]>(() =>
+  availableFolders.value.map(folderToOption)
+);
+
+function addFolderById(val: string | number) {
+  const id = typeof val === "string" ? parseInt(val) : val;
+  if (id && !selectedFolderIds.value.includes(id)) {
+    selectedFolderIds.value.push(id);
+  }
 }
 
 function addFolder(e: Event) {

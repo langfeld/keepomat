@@ -135,15 +135,12 @@
             <!-- Merge -->
             <div v-if="tags.length > 1">
               <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('tags.mergeInto') }}</label>
-              <select
-                v-model="mergeTargetId"
-                class="bg-gray-50 dark:bg-gray-800 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white text-sm"
-              >
-                <option value="">{{ t('tags.noMerge') }}</option>
-                <option v-for="t2 in tags.filter(tg => tg.id !== editingTag!.id)" :key="t2.id" :value="t2.id">
-                  {{ t2.name }} ({{ t2.count }})
-                </option>
-              </select>
+              <SearchableSelect
+                :model-value="mergeTargetId"
+                :options="mergeTagOptions"
+                :placeholder="t('tags.noMerge')"
+                @update:model-value="mergeTargetId = $event === '' ? '' : Number($event)"
+              />
               <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('tags.mergeHint') }}</p>
             </div>
 
@@ -172,6 +169,8 @@ import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
 import { useLocalStorage } from "../composables/useLocalStorage";
+import SearchableSelect from "../components/SearchableSelect.vue";
+import type { SelectOption } from "../components/SearchableSelect.vue";
 import type { Tag } from "../../shared/types";
 
 interface TagWithCount extends Tag {
@@ -190,6 +189,12 @@ const editName = ref("");
 const editColor = ref("");
 const mergeTargetId = ref<number | "">("");
 const saving = ref(false);
+
+const mergeTagOptions = computed<SelectOption[]>(() =>
+  tags.value
+    .filter((tg) => editingTag.value && tg.id !== editingTag.value.id)
+    .map((tg) => ({ value: tg.id, label: `${tg.name} (${tg.count})` }))
+);
 
 const sortedTags = computed(() => {
   const sorted = [...tags.value];
