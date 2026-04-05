@@ -1,2 +1,0 @@
-[      50ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775
-[      50ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775

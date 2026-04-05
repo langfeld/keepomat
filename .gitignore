@@ -44,3 +44,7 @@ data/
 
 # Playwright test artifacts
 .playwright-mcp/*cookies.txt
+
+# Dev artifacts
+cookies.txt
+.playwright-mcp/
