@@ -174,6 +174,7 @@ import { useBookmarksStore } from "../stores/bookmarks";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
+import { useLocalStorage } from "../composables/useLocalStorage";
 import BookmarkCard from "../components/BookmarkCard.vue";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
 
@@ -185,8 +186,8 @@ const toast = useToast();
 
 const filter = ref("");
 const selectedTag = ref("");
-const viewMode = ref<"list" | "grid">("list");
-const showScreenshots = ref(false);
+const viewMode = useLocalStorage<"list" | "grid">("viewMode", "list");
+const showScreenshots = useLocalStorage("showScreenshots", false);
 const tags = ref<any[]>([]);
 const showExportMenu = ref(false);
 const exportMenuRef = ref<HTMLElement>();
