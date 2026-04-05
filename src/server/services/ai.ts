@@ -94,11 +94,16 @@ export function getDefaultModelForProvider(provider: string): string {
   }
 }
 
-// Effektive AI-Config: User-Einstellung → System-Fallback
+// Effektive AI-Config: User-Einstellung → System-Fallback (wenn freigegeben)
 export function getEffectiveAiConfig(userId?: string): AiConfig {
   if (userId) {
     const userConfig = getUserAiConfig(userId);
     if (userConfig) return userConfig;
+  }
+  // System-AI nur als Fallback wenn freigegeben
+  if (!isSystemAiShared()) {
+    // Leere Config zurückgeben – getClient() wird null liefern
+    return { provider: "none", model: "", apiKey: undefined, baseURL: "", thinkingEnabled: false };
   }
   return getSystemAiConfig();
 }
@@ -305,10 +310,19 @@ export function isAiConfigured(): boolean {
   return !!(config.apiKey || config.provider === "ollama");
 }
 
-// Prüft ob für einen User AI verfügbar ist (eigene Config oder System-Config)
+// Prüft ob die System-AI für alle User freigegeben ist
+export function isSystemAiShared(): boolean {
+  const setting = getSystemSetting("ai_shared_enabled");
+  // Default: true (abwärtskompatibel – System-AI ist standardmäßig freigegeben)
+  return setting !== "false";
+}
+
+// Prüft ob für einen User AI verfügbar ist (eigene Config oder System-Config wenn freigegeben)
 export function isAiConfiguredForUser(userId: string): boolean {
   const userConfig = getUserAiConfig(userId);
   if (userConfig) return true;
+  // System-AI nur nutzen wenn freigegeben
+  if (!isSystemAiShared()) return false;
   return isAiConfigured();
 }
 

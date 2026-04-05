@@ -144,6 +144,30 @@
           </div>
 
           <div>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiShared') }}</label>
+            <div class="flex items-center gap-3">
+              <button
+                @click="updateSystemSetting('ai_shared_enabled', aiSharedEnabled ? 'false' : 'true'); aiSharedEnabled = !aiSharedEnabled"
+                :class="[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition',
+                  aiSharedEnabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'
+                ]"
+              >
+                <span
+                  :class="[
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                    aiSharedEnabled ? 'translate-x-6' : 'translate-x-1'
+                  ]"
+                />
+              </button>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">
+                {{ aiSharedEnabled ? t('admin.enabled') : t('admin.disabled') }}
+              </span>
+            </div>
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('admin.aiSharedHint') }}</p>
+          </div>
+
+          <div>
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiProvider') }}</label>
             <select
               v-model="aiProvider"
@@ -261,6 +285,7 @@ const stats = ref({ users: 0, bookmarks: 0, folders: 0, tags: 0 });
 const users = ref<any[]>([]);
 const saved = ref(false);
 const registrationEnabled = ref(true);
+const aiSharedEnabled = ref(true);
 const aiProvider = ref("kimi");
 const aiApiKey = ref("");
 const aiModel = ref("");
@@ -296,6 +321,7 @@ async function loadData() {
     if (settingsRes.ok) {
       const data = await settingsRes.json();
       registrationEnabled.value = data.registration_enabled !== "false";
+      aiSharedEnabled.value = data.ai_shared_enabled !== "false";
       aiProvider.value = data.ai_provider || "kimi";
       aiApiKey.value = data.moonshot_api_key || "";
       aiModel.value = data.ai_model || "";

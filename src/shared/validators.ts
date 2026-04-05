@@ -113,6 +113,7 @@ export const updateSystemSettingsSchema = z.object({
   ai_model: z.string().optional(),
   ai_provider: z.enum(["kimi", "openai", "anthropic", "ollama"]).optional(),
   ai_thinking_enabled: z.enum(["true", "false"]).optional(),
+  ai_shared_enabled: z.enum(["true", "false"]).optional(),
   ollama_url: z.string().url().optional(),
   registration_enabled: z.enum(["true", "false"]).optional(),
   telegram_bot_token: z.string().optional(),

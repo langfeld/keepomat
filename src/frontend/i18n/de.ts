@@ -258,6 +258,8 @@ export default {
   "admin.aiApiKeyPlaceholder": "sk-...",
   "admin.aiModel": "AI Modell",
   "admin.aiModelPlaceholder": "kimi-k2-turbo-preview",
+  "admin.aiShared": "System-AI für alle Benutzer",
+  "admin.aiSharedHint": "Wenn deaktiviert, muss jeder Benutzer seinen eigenen AI-Provider in den Einstellungen konfigurieren.",
   "admin.aiThinking": "AI Thinking-Modus",
   "admin.aiThinkingEnabled": "Thinking (langsam, komplex)",
   "admin.aiThinkingDisabled": "Fast (schnell, strukturiert)",

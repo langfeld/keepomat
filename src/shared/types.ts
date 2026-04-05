@@ -118,6 +118,7 @@ export interface SystemSettings {
   ai_model?: string;
   ai_provider?: "kimi" | "openai" | "anthropic" | "ollama";
   ai_thinking_enabled?: string;
+  ai_shared_enabled?: string;
   ollama_url?: string;
   registration_enabled?: string;
   telegram_bot_token?: string;

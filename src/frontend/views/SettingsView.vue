@@ -328,7 +328,7 @@ onMounted(async () => {
   language.value = settingsStore.settings?.language || "de";
   // AI-Einstellungen laden
   aiProvider.value = settingsStore.settings?.aiProvider || "";
-  aiApiKey.value = ""; // Nie den maskierten Key vorausfüllen
+  aiApiKey.value = settingsStore.settings?.aiApiKey || ""; // Maskierter Wert z.B. "****5678"
   aiModel.value = settingsStore.settings?.aiModel || "";
   aiBaseUrl.value = settingsStore.settings?.aiBaseUrl || "";
   await loadApiKeys();
