@@ -60,7 +60,8 @@ export async function analyzeBookmark(
   title: string | null,
   description: string | null,
   existingTags: Tag[],
-  existingFolders: Folder[]
+  existingFolders: Folder[],
+  language: string = "de"
 ): Promise<AiSuggestion | null> {
   const client = getClient();
   if (!client) return null;
@@ -69,7 +70,15 @@ export async function analyzeBookmark(
   const tagNames = existingTags.map((t) => t.name);
   const folderTree = buildFolderContext(existingFolders);
 
+  const langLabel = language === "de" ? "Deutsch" : "English";
+  const langInstruction = language === "de"
+    ? "Alle Tags, Ordnernamen und die Zusammenfassung MÜSSEN auf Deutsch sein."
+    : "All tags, folder names and the summary MUST be in English.";
+
   const prompt = `Du bist ein intelligenter Bookmark-Organizer. Analysiere den folgenden Link und gib eine JSON-Antwort zurück.
+
+Sprache: ${langLabel}
+${langInstruction}
 
 URL: ${url}
 Titel: ${title || "unbekannt"}
@@ -94,10 +103,10 @@ Antworte NUR mit folgendem JSON-Format:
 }
 
 Wenn ein existierender Ordner passt, setze "folderId" auf die ID und "folderName" auf den Namen.
-Tags sollen kleingeschrieben sein, ohne Sonderzeichen, auf Deutsch oder Englisch je nach Inhalt.`;
+Tags sollen kleingeschrieben sein, ohne Sonderzeichen, ausschließlich auf ${langLabel}.`;
 
   try {
-    const completion = await client.chat.completions.create({
+    const params: Record<string, any> = {
       model: config.model,
       messages: [
         {
@@ -106,9 +115,16 @@ Tags sollen kleingeschrieben sein, ohne Sonderzeichen, auf Deutsch oder Englisch
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.3,
       response_format: { type: "json_object" },
-    });
+    };
+
+    if (config.provider === "kimi") {
+      params.thinking = { type: config.thinkingEnabled ? "enabled" : "disabled" };
+    } else {
+      params.temperature = 0.3;
+    }
+
+    const completion = await client.chat.completions.create(params as any);
 
     const content = completion.choices[0]?.message?.content;
     if (!content) return null;

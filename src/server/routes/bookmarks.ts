@@ -446,7 +446,15 @@ async function analyzeAndUpdateBookmark(
       .where(eq(schema.folders.userId, userId))
       .all();
 
-    const suggestion = await analyzeBookmark(url, title, description, existingTags, existingFolders);
+    // Benutzersprache für AI-Tags/Summary lesen
+    const settings = db
+      .select()
+      .from(schema.userSettings)
+      .where(eq(schema.userSettings.userId, userId))
+      .get();
+    const language = settings?.language || "de";
+
+    const suggestion = await analyzeBookmark(url, title, description, existingTags, existingFolders, language);
 
     if (!suggestion) return;
 

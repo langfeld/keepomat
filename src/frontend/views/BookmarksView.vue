@@ -197,6 +197,17 @@ const editingBookmark = ref<any>(null);
 const currentFolder = ref<any>(null);
 
 // Ordner aus Route
+// Tag-Filter aus Query-Parameter übernehmen
+watch(
+  () => route.query.tag,
+  (tagId) => {
+    if (tagId && typeof tagId === 'string') {
+      selectedTag.value = tagId;
+    }
+  },
+  { immediate: true }
+);
+
 watch(
   () => route.params.folderId,
   async (folderId) => {
