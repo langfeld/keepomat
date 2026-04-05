@@ -205,6 +205,8 @@ export default {
   "admin.aiThinkingEnabled": "Thinking (langsam, komplex)",
   "admin.aiThinkingDisabled": "Fast (schnell, strukturiert)",
   "admin.aiThinkingHint": "Thinking aktiviert tiefes Reasoning – besser für komplexe Aufgaben. Fast ist schneller und ideal für strukturierte Ausgaben wie JSON.",
+  "admin.aiTest": "Verbindung testen",
+  "admin.aiTesting": "Teste...",
   "admin.saved": "Gespeichert ✓",
   "admin.deleteUserConfirm": "Benutzer \"{name}\" wirklich löschen? Alle Daten werden entfernt.",
 } as const;

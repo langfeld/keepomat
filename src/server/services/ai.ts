@@ -224,3 +224,47 @@ export function isAiConfigured(): boolean {
   const config = getAiConfig();
   return !!(config.apiKey || config.provider === "ollama");
 }
+
+export async function testAiConnection(): Promise<{ success: boolean; message: string; duration: number }> {
+  const config = getAiConfig();
+  const client = getClient();
+
+  if (!client) {
+    return { success: false, message: "No API key configured", duration: 0 };
+  }
+
+  const start = Date.now();
+  try {
+    const params: Record<string, any> = {
+      model: config.model,
+      messages: [
+        { role: "user", content: "Respond with exactly: OK" },
+      ],
+      max_tokens: 10,
+    };
+
+    if (config.provider === "kimi") {
+      params.thinking = { type: "disabled" };
+      delete params.max_tokens;
+    } else {
+      params.temperature = 0;
+    }
+
+    const completion = await client.chat.completions.create(params as any);
+    const content = completion.choices[0]?.message?.content || "";
+    const duration = Date.now() - start;
+
+    return {
+      success: true,
+      message: `${config.provider}/${config.model} – "${content.trim().slice(0, 50)}"`,
+      duration,
+    };
+  } catch (error: any) {
+    const duration = Date.now() - start;
+    return {
+      success: false,
+      message: error?.message || "Unknown error",
+      duration,
+    };
+  }
+}

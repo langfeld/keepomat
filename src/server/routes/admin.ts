@@ -139,6 +139,13 @@ adminRoutes.patch("/settings", async (c) => {
   return c.json({ success: true });
 });
 
+// AI-Verbindung testen
+adminRoutes.post("/ai-test", async (c) => {
+  const { testAiConnection } = await import("../services/ai");
+  const result = await testAiConnection();
+  return c.json(result);
+});
+
 // Registrierungsstatus prüfen (öffentlich zugänglich via separater Route)
 adminRoutes.get("/registration-status", async (c) => {
   const userCount = db.select({ count: sql<number>`count(*)` }).from(schema.users).get();

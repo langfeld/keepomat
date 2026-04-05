@@ -203,6 +203,37 @@
             </div>
             <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('admin.aiThinkingHint') }}</p>
           </div>
+
+          <!-- AI Test -->
+          <div class="pt-2 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-3">
+              <button
+                @click="testAi"
+                :disabled="aiTesting"
+                class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 px-4 py-2 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition"
+              >
+                <svg v-if="aiTesting" class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                {{ aiTesting ? t('admin.aiTesting') : t('admin.aiTest') }}
+              </button>
+              <div v-if="aiTestResult" class="flex items-center gap-2 text-sm">
+                <span
+                  :class="aiTestResult.success ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'"
+                >
+                  {{ aiTestResult.success ? '✓' : '✗' }}
+                  {{ aiTestResult.message }}
+                </span>
+                <span v-if="aiTestResult.duration" class="text-gray-400 text-xs">
+                  ({{ aiTestResult.duration }}ms)
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -230,6 +261,8 @@ const aiProvider = ref("kimi");
 const aiApiKey = ref("");
 const aiModel = ref("");
 const aiThinkingEnabled = ref(false);
+const aiTesting = ref(false);
+const aiTestResult = ref<{ success: boolean; message: string; duration: number } | null>(null);
 
 function getInitials(name: string) {
   return name
@@ -301,6 +334,19 @@ async function updateSystemSetting(key: string, value: string) {
     if (key === 'registration_enabled') registrationEnabled.value = value !== "false";
     showSaved();
   } catch {}
+}
+
+async function testAi() {
+  aiTesting.value = true;
+  aiTestResult.value = null;
+  try {
+    const res = await fetch("/api/admin/ai-test", { method: "POST" });
+    aiTestResult.value = await res.json();
+  } catch (e: any) {
+    aiTestResult.value = { success: false, message: e.message || "Connection failed", duration: 0 };
+  } finally {
+    aiTesting.value = false;
+  }
 }
 
 function showSaved() {
