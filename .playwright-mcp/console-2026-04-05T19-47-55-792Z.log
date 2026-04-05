@@ -1,0 +1,115 @@
+[      41ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775
+[   27682ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[   27683ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[   27683ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[   27684ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[   27684ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[   27690ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418503323:45:4)
+[   27694ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775418503323:50:4
+[   27714ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[   27714ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[   27715ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[   27715ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[   27715ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[   27731ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418503344:45:4)
+[   27735ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775418503344:50:4
+[   99965ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[   99973ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418575632:45:4)
+[   99970ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[   99970ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[   99971ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[   99971ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[   99983ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775418575632:50:4
+[  100009ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  100011ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  100011ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[  100011ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  100011ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[  100018ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418575635:45:4)
+[  100020ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775418575635:50:4
+[  100033ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  100034ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  100038ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418575690:45:4)
+[  131600ms] [WARNING] [Vue warn]: Property "retakeScreenshot" was accessed during render but is not defined on instance. 
+  at <BookmarksView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  131600ms] [WARNING] [Vue warn]: Property "retakeScreenshot" was accessed during render but is not defined on instance. 
+  at <BookmarksView onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  147699ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  147700ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  147701ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[  147701ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  147702ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[  147711ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418623359:45:4)
+[  147712ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775418623359:50:4
+[  147745ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  147750ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  147752ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[  147753ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  147756ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[  147764ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418623362:45:4)
+[  147765ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775418623362:50:4
+[  147787ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  147801ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775418623423:45:4)
+[  147800ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  564611ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:968
+[  566945ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775

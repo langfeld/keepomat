@@ -1,0 +1,130 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Keepomat
+    - navigation [ref=e10]:
+      - link "Dashboard" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - text: Dashboard
+      - link "Lesezeichen" [ref=e14] [cursor=pointer]:
+        - /url: /bookmarks
+        - img [ref=e15]
+        - text: Lesezeichen
+      - link "Suche" [ref=e17] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e18]
+        - text: Suche
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Ordner
+          - button "Neuer Ordner" [ref=e23]:
+            - img [ref=e24]
+        - paragraph [ref=e26]: Keine Ordner
+    - generic [ref=e27]:
+      - link "Einstellungen" [ref=e28] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e29]
+        - text: Einstellungen
+      - link "Admin" [ref=e32] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e33]
+        - text: Admin
+      - generic [ref=e35]:
+        - generic [ref=e36]: M
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Marco
+          - paragraph [ref=e39]: mhx030@gmail.com
+        - button "Abmelden" [ref=e40]:
+          - img [ref=e41]
+  - generic [ref=e43]:
+    - banner [ref=e44]:
+      - generic [ref=e46]:
+        - img [ref=e47]
+        - searchbox "Suche..." [ref=e49]
+        - generic [ref=e50]: /
+      - generic [ref=e51]:
+        - 'button "Design: System" [ref=e53]':
+          - img [ref=e54]
+        - button "Lesezeichen" [ref=e56]:
+          - img [ref=e57]
+          - generic [ref=e59]: Lesezeichen
+    - main [ref=e60]:
+      - generic [ref=e61]:
+        - heading "Administration" [level=1] [ref=e62]
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - paragraph [ref=e66]: "1"
+              - paragraph [ref=e67]: Benutzer
+            - generic [ref=e68]:
+              - paragraph [ref=e69]: "1"
+              - paragraph [ref=e70]: Lesezeichen
+            - generic [ref=e71]:
+              - paragraph [ref=e72]: "0"
+              - paragraph [ref=e73]: Ordner
+            - generic [ref=e74]:
+              - paragraph [ref=e75]: "0"
+              - paragraph [ref=e76]: Tags
+          - generic [ref=e77]:
+            - heading "Benutzer" [level=2] [ref=e78]
+            - table [ref=e80]:
+              - rowgroup [ref=e81]:
+                - row "Name E-Mail Lesezeichen Rolle Status Aktionen" [ref=e82]:
+                  - columnheader "Name" [ref=e83]
+                  - columnheader "E-Mail" [ref=e84]
+                  - columnheader "Lesezeichen" [ref=e85]
+                  - columnheader "Rolle" [ref=e86]
+                  - columnheader "Status" [ref=e87]
+                  - columnheader "Aktionen" [ref=e88]
+              - rowgroup [ref=e89]:
+                - row "M Marco mhx030@gmail.com 0 Benutzer Aktiv" [ref=e90]:
+                  - cell "M Marco" [ref=e91]:
+                    - generic [ref=e92]:
+                      - generic [ref=e93]: M
+                      - generic [ref=e94]: Marco
+                  - cell "mhx030@gmail.com" [ref=e95]
+                  - cell "0" [ref=e96]
+                  - cell "Benutzer" [ref=e97]:
+                    - generic [ref=e98]: Benutzer
+                  - cell "Aktiv" [ref=e99]:
+                    - generic [ref=e100]: Aktiv
+                  - cell [ref=e101]:
+                    - generic [ref=e102]:
+                      - button "Zum Admin machen" [disabled] [ref=e103]:
+                        - img [ref=e104]
+                      - button "Sperren" [disabled] [ref=e106]:
+                        - img [ref=e107]
+                      - button "Löschen" [disabled] [ref=e109]:
+                        - img [ref=e110]
+          - generic [ref=e112]:
+            - heading "System-Einstellungen" [level=2] [ref=e113]
+            - generic [ref=e114]:
+              - generic [ref=e115]:
+                - generic [ref=e116]: Registrierung
+                - generic [ref=e117]:
+                  - button [ref=e118]
+                  - generic [ref=e120]: Aktiviert
+              - generic [ref=e121]:
+                - generic [ref=e122]: AI-Provider
+                - combobox [ref=e123]:
+                  - option "Moonshot (Kimi)" [selected]
+                  - option "OpenAI"
+                  - option "Anthropic"
+                  - option "Ollama (lokal)"
+              - generic [ref=e124]:
+                - generic [ref=e125]: AI API-Schlüssel
+                - textbox "sk-..." [ref=e126]
+              - generic [ref=e127]:
+                - generic [ref=e128]: AI Modell
+                - textbox "kimi-k2-turbo-preview" [ref=e129]
+              - generic [ref=e130]:
+                - generic [ref=e131]: AI Thinking-Modus
+                - generic [ref=e132]:
+                  - button [ref=e133]
+                  - generic [ref=e135]: Fast (schnell, strukturiert)
+                - paragraph [ref=e136]: Thinking aktiviert tiefes Reasoning – besser für komplexe Aufgaben. Fast ist schneller und ideal für strukturierte Ausgaben wie JSON.
+              - button "Verbindung testen" [ref=e139]:
+                - img [ref=e140]
+                - text: Verbindung testen

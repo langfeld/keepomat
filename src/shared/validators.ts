@@ -60,6 +60,11 @@ export const updateSettingsSchema = z.object({
   folderMode: z.enum(["single", "multi"]).optional(),
   language: z.string().min(2).max(5).optional(),
   defaultFolderId: z.number().int().positive().nullable().optional(),
+  // User-eigene AI-Konfiguration
+  aiProvider: z.enum(["openai", "anthropic", "groq", "mistral", "ollama", "kimi"]).nullable().optional(),
+  aiApiKey: z.string().max(500).nullable().optional(),
+  aiModel: z.string().max(100).nullable().optional(),
+  aiBaseUrl: z.string().url().max(500).nullable().optional(),
 });
 
 // ── API Key ──

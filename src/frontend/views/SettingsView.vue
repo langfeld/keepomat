@@ -139,6 +139,119 @@
         </p>
       </div>
 
+      <!-- Eigener AI-Provider -->
+      <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+        <div class="flex justify-between items-center mb-2">
+          <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.ai') }}</h2>
+          <span
+            v-if="settingsStore.settings.aiProvider && settingsStore.settings.aiApiKey"
+            class="bg-green-100 dark:bg-green-900/20 px-2.5 py-1 rounded-full text-green-700 dark:text-green-400 text-xs font-medium"
+          >
+            {{ t('settings.aiActive') }}
+          </span>
+          <span
+            v-else
+            class="bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-full text-gray-500 dark:text-gray-400 text-xs font-medium"
+          >
+            {{ t('settings.aiUsingSystem') }}
+          </span>
+        </div>
+        <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">{{ t('settings.aiDescription') }}</p>
+
+        <div class="space-y-4">
+          <!-- Provider -->
+          <div>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.aiProvider') }}</label>
+            <select
+              v-model="aiProvider"
+              @change="onAiProviderChange"
+              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
+            >
+              <option value="">{{ t('settings.aiProviderNone') }}</option>
+              <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic (Claude)</option>
+              <option value="groq">Groq</option>
+              <option value="mistral">Mistral</option>
+              <option value="ollama">Ollama (lokal)</option>
+              <option value="kimi">Kimi (Moonshot)</option>
+            </select>
+          </div>
+
+          <!-- API Key (nur wenn Provider gewählt) -->
+          <div v-if="aiProvider && aiProvider !== 'ollama'">
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.aiApiKey') }}</label>
+            <input
+              v-model="aiApiKey"
+              type="password"
+              :placeholder="t('settings.aiApiKeyPlaceholder')"
+              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
+            />
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('settings.aiApiKeyHint') }}</p>
+          </div>
+
+          <!-- Modell -->
+          <div v-if="aiProvider">
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.aiModel') }}</label>
+            <input
+              v-model="aiModel"
+              type="text"
+              :placeholder="aiModelPlaceholder"
+              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
+            />
+          </div>
+
+          <!-- Base URL (nur für Ollama oder Custom) -->
+          <div v-if="aiProvider === 'ollama'">
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.aiBaseUrl') }}</label>
+            <input
+              v-model="aiBaseUrl"
+              type="url"
+              :placeholder="t('settings.aiBaseUrlPlaceholder')"
+              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
+            />
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('settings.aiBaseUrlHint') }}</p>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex flex-wrap gap-2 pt-2">
+            <button
+              @click="saveAiSettings"
+              :disabled="!aiProvider || (aiProvider !== 'ollama' && !aiApiKey)"
+              class="bg-primary-600 hover:bg-primary-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed px-4 py-2 rounded-xl font-medium text-white disabled:text-gray-500 text-sm transition"
+            >
+              {{ t('common.save') }}
+            </button>
+            <button
+              v-if="aiProvider"
+              @click="testAiConnection"
+              :disabled="aiTesting || !aiProvider || (aiProvider !== 'ollama' && !aiApiKey)"
+              class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 disabled:opacity-50 px-4 py-2 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition"
+            >
+              {{ aiTesting ? t('settings.aiTesting') : t('settings.aiTest') }}
+            </button>
+            <button
+              v-if="settingsStore.settings.aiProvider"
+              @click="removeAiConfig"
+              class="hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl font-medium text-red-500 hover:text-red-700 text-sm transition"
+            >
+              {{ t('settings.aiRemove') }}
+            </button>
+          </div>
+
+          <!-- Test-Ergebnis -->
+          <div v-if="aiTestResult" :class="[
+            'p-3 rounded-xl text-sm border',
+            aiTestResult.success
+              ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-400'
+              : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400'
+          ]">
+            {{ aiTestResult.success
+              ? t('settings.aiTestSuccess', { message: aiTestResult.message, duration: aiTestResult.duration })
+              : t('settings.aiTestFailed', { message: aiTestResult.message }) }}
+          </div>
+        </div>
+      </div>
+
       <!-- Import/Export Einstellungen -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
         <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.importExport') }}</h2>
@@ -182,6 +295,28 @@ const newApiKey = ref("");
 const telegramLinked = ref(false);
 const saved = ref(false);
 
+// AI-Einstellungen
+const aiProvider = ref("");
+const aiApiKey = ref("");
+const aiModel = ref("");
+const aiBaseUrl = ref("");
+const aiTesting = ref(false);
+const aiTestResult = ref<{ success: boolean; message: string; duration: number } | null>(null);
+
+const defaultModels: Record<string, string> = {
+  openai: "gpt-4o-mini",
+  anthropic: "claude-sonnet-4-20250514",
+  groq: "llama-3.3-70b-versatile",
+  mistral: "mistral-small-latest",
+  ollama: "llama3.2",
+  kimi: "kimi-k2-turbo-preview",
+};
+
+const aiModelPlaceholder = computed(() => {
+  if (!aiProvider.value) return t("settings.aiModelPlaceholder");
+  return defaultModels[aiProvider.value] || t("settings.aiModelPlaceholder");
+});
+
 const themes = computed(() => [
   { value: "light", label: t('settings.themeLight'), icon: "☀️" },
   { value: "dark", label: t('settings.themeDark'), icon: "🌙" },
@@ -191,6 +326,11 @@ const themes = computed(() => [
 onMounted(async () => {
   await settingsStore.fetchSettings();
   language.value = settingsStore.settings?.language || "de";
+  // AI-Einstellungen laden
+  aiProvider.value = settingsStore.settings?.aiProvider || "";
+  aiApiKey.value = ""; // Nie den maskierten Key vorausfüllen
+  aiModel.value = settingsStore.settings?.aiModel || "";
+  aiBaseUrl.value = settingsStore.settings?.aiBaseUrl || "";
   await loadApiKeys();
 });
 
@@ -294,5 +434,73 @@ async function importSettings(e: Event) {
 
 function formatDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString("de-DE");
+}
+
+// ── AI-Einstellungen ──
+
+function onAiProviderChange() {
+  aiModel.value = "";
+  aiApiKey.value = "";
+  aiBaseUrl.value = "";
+  aiTestResult.value = null;
+}
+
+async function saveAiSettings() {
+  try {
+    const data: Record<string, any> = {
+      aiProvider: aiProvider.value || null,
+      aiModel: aiModel.value || null,
+      aiBaseUrl: aiBaseUrl.value || null,
+    };
+    // API-Key nur senden wenn er geändert wurde (nicht der maskierte Wert)
+    if (aiApiKey.value && !aiApiKey.value.startsWith("****")) {
+      data.aiApiKey = aiApiKey.value;
+    }
+    await settingsStore.updateSettings(data);
+    showSaved();
+  } catch {
+    toast.error(t("common.saveError"));
+  }
+}
+
+async function removeAiConfig() {
+  try {
+    await settingsStore.updateSettings({
+      aiProvider: null,
+      aiApiKey: null,
+      aiModel: null,
+      aiBaseUrl: null,
+    });
+    aiProvider.value = "";
+    aiApiKey.value = "";
+    aiModel.value = "";
+    aiBaseUrl.value = "";
+    aiTestResult.value = null;
+    showSaved();
+  } catch {
+    toast.error(t("common.saveError"));
+  }
+}
+
+async function testAiConnection() {
+  // Erst speichern, dann testen
+  await saveAiSettings();
+  aiTesting.value = true;
+  aiTestResult.value = null;
+  try {
+    const res = await fetch("/api/settings/ai/test", {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.ok) {
+      aiTestResult.value = await res.json();
+    } else {
+      aiTestResult.value = { success: false, message: "Server error", duration: 0 };
+    }
+  } catch {
+    aiTestResult.value = { success: false, message: "Network error", duration: 0 };
+  } finally {
+    aiTesting.value = false;
+  }
 }
 </script>

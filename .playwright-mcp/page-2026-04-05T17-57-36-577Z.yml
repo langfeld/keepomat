@@ -1,0 +1,99 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Keepomat
+    - navigation [ref=e10]:
+      - link "Dashboard" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - text: Dashboard
+      - link "Lesezeichen" [ref=e14] [cursor=pointer]:
+        - /url: /bookmarks
+        - img [ref=e15]
+        - text: Lesezeichen
+      - link "Suche" [ref=e17] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e18]
+        - text: Suche
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Ordner
+          - button "Neuer Ordner" [ref=e23]:
+            - img [ref=e24]
+        - paragraph [ref=e26]: Keine Ordner
+    - generic [ref=e27]:
+      - link "Einstellungen" [active] [ref=e28] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e29]
+        - text: Einstellungen
+      - link "Admin" [ref=e32] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e33]
+        - text: Admin
+      - generic [ref=e35]:
+        - generic [ref=e36]: M
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Marco
+          - paragraph [ref=e39]: mhx030@gmail.com
+        - button "Abmelden" [ref=e40]:
+          - img [ref=e41]
+  - generic [ref=e43]:
+    - banner [ref=e44]:
+      - generic [ref=e46]:
+        - img [ref=e47]
+        - searchbox "Suche..." [ref=e49]
+        - generic [ref=e50]: /
+      - generic [ref=e51]:
+        - 'button "Design: System" [ref=e53]':
+          - img [ref=e54]
+        - button "Lesezeichen" [ref=e56]:
+          - img [ref=e57]
+          - generic [ref=e59]: Lesezeichen
+    - main [ref=e60]:
+      - generic [ref=e119]:
+        - heading "Einstellungen" [level=1] [ref=e120]
+        - generic [ref=e121]:
+          - generic [ref=e122]:
+            - heading "Allgemein" [level=2] [ref=e123]
+            - generic [ref=e124]:
+              - generic [ref=e125]:
+                - generic [ref=e126]: Design
+                - generic [ref=e127]:
+                  - button "☀️ Hell" [ref=e128]:
+                    - generic [ref=e129]: ☀️
+                    - text: Hell
+                  - button "🌙 Dunkel" [ref=e130]:
+                    - generic [ref=e131]: 🌙
+                    - text: Dunkel
+                  - button "💻 System" [ref=e132]:
+                    - generic [ref=e133]: 💻
+                    - text: System
+              - generic [ref=e134]:
+                - generic [ref=e135]: Sprache
+                - combobox [ref=e136]:
+                  - option "Deutsch" [selected]
+                  - option "English"
+              - generic [ref=e137]:
+                - generic [ref=e138]: Ordner-Zuweisung
+                - generic [ref=e139]:
+                  - button "Einzelner Ordner" [ref=e140]
+                  - button "Mehrere Ordner" [ref=e141]
+                - paragraph [ref=e142]: Jedes Lesezeichen gehört zu genau einem Ordner.
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - heading "API-Schlüssel" [level=2] [ref=e145]
+              - button "Neuer Schlüssel" [ref=e146]
+            - paragraph [ref=e147]: Keine API-Schlüssel vorhanden.
+          - generic [ref=e148]:
+            - heading "Telegram-Verknüpfung" [level=2] [ref=e149]
+            - paragraph [ref=e150]: Verknüpfe deinen Telegram-Account, um Links direkt per Chat zu speichern.
+            - paragraph [ref=e151]:
+              - text: Schreibe
+              - code [ref=e152]: /start
+              - text: an den Keepomat-Bot in Telegram.
+          - generic [ref=e153]:
+            - heading "Einstellungen Import/Export" [level=2] [ref=e154]
+            - generic [ref=e155]:
+              - button "Exportieren" [ref=e156]
+              - generic [ref=e157] [cursor=pointer]: Importieren

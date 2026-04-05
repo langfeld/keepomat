@@ -15,6 +15,13 @@
       "when": 1775413679956,
       "tag": "0001_grey_synch",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1775427543297,
+      "tag": "0002_bizarre_odin",
+      "breakpoints": true
     }
   ]
 }

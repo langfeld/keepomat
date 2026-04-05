@@ -9,6 +9,10 @@ export const useSettingsStore = defineStore("settings", () => {
     folderMode: "single",
     language: "de",
     defaultFolderId: null,
+    aiProvider: null,
+    aiApiKey: null,
+    aiModel: null,
+    aiBaseUrl: null,
   });
   const loading = ref(false);
 

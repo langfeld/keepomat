@@ -43,4 +43,4 @@ data/
 .github/instructions/*
 
 # Playwright test artifacts
-.playwright-mcp/*
+.playwright-mcp/*cookies.txt

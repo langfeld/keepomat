@@ -1,0 +1,93 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Keepomat
+    - navigation [ref=e10]:
+      - link "Dashboard" [active] [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - text: Dashboard
+      - link "Bookmarks" [ref=e158] [cursor=pointer]:
+        - /url: /bookmarks
+        - img [ref=e15]
+        - text: Bookmarks
+      - link "Search" [ref=e159] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e18]
+        - text: Search
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Folders
+          - button "New folder" [ref=e160]:
+            - img [ref=e24]
+        - paragraph [ref=e26]: No folders
+    - generic [ref=e27]:
+      - link "Settings" [ref=e161] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e29]
+        - text: Settings
+      - link "Admin" [ref=e32] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e33]
+        - text: Admin
+      - generic [ref=e35]:
+        - generic [ref=e36]: M
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Marco
+          - paragraph [ref=e39]: mhx030@gmail.com
+        - button "Log out" [ref=e162]:
+          - img [ref=e41]
+  - generic [ref=e43]:
+    - banner [ref=e44]:
+      - generic [ref=e46]:
+        - img [ref=e47]
+        - searchbox "Search..." [ref=e163]
+        - generic [ref=e50]: /
+      - generic [ref=e51]:
+        - 'button "Theme: System" [ref=e164]':
+          - img [ref=e54]
+        - button "Bookmark" [ref=e165]:
+          - img [ref=e57]
+          - generic [ref=e59]: Bookmark
+    - main [ref=e60]:
+      - generic [ref=e177]:
+        - heading "Dashboard" [level=1] [ref=e178]
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - img [ref=e183]
+            - paragraph [ref=e185]: "1"
+            - paragraph [ref=e186]: Bookmarks
+          - generic [ref=e187]:
+            - img [ref=e190]
+            - paragraph [ref=e192]: "0"
+            - paragraph [ref=e193]: Folders
+          - generic [ref=e194]:
+            - img [ref=e197]
+            - paragraph [ref=e199]: "0"
+            - paragraph [ref=e200]: Tags
+          - generic [ref=e201]:
+            - img [ref=e204]
+            - paragraph [ref=e206]: "1"
+            - paragraph [ref=e207]: Unread
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - heading "Recently added" [level=2] [ref=e210]
+            - link "Show all →" [ref=e211] [cursor=pointer]:
+              - /url: /bookmarks
+          - generic [ref=e213]:
+            - img [ref=e215]
+            - generic [ref=e217]:
+              - generic [ref=e218]:
+                - link "Startseite | Stiftung Warentest – Unabhängige Tests & Ratgeber" [ref=e219] [cursor=pointer]:
+                  - /url: https://test.de
+                - generic [ref=e221]: test.de
+              - generic [ref=e222]:
+                - button "Favorite" [ref=e223]:
+                  - img [ref=e224]
+                - button "Mark as unread" [ref=e226]:
+                  - img [ref=e227]
+                - button "Edit" [ref=e229]:
+                  - img [ref=e230]
+                - button "Delete" [ref=e232]:
+                  - img [ref=e233]

@@ -1,0 +1,20 @@
+- generic [ref=e4]:
+  - generic [ref=e5]:
+    - img [ref=e7]
+    - heading "Keepomat" [level=1] [ref=e9]
+    - paragraph [ref=e10]: Smart Bookmark Manager
+  - generic [ref=e11]:
+    - heading "Anmelden" [level=2] [ref=e12]
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]: E-Mail
+        - textbox "du@beispiel.de" [ref=e16]: mhvo30@gmail.com
+      - generic [ref=e17]:
+        - generic [ref=e18]: Passwort
+        - textbox "••••••••" [ref=e19]: test1234
+      - generic [ref=e24]: Invalid email or password
+      - button "Anmelden" [ref=e20]
+    - paragraph [ref=e22]:
+      - text: Noch kein Konto?
+      - link "Registrieren" [ref=e23] [cursor=pointer]:
+        - /url: /register

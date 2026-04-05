@@ -128,6 +128,11 @@ export const userSettings = sqliteTable("user_settings", {
   folderMode: text("folder_mode", { enum: ["single", "multi"] }).default("single").notNull(),
   language: text("language").default("en").notNull(),
   defaultFolderId: integer("default_folder_id").references(() => folders.id, { onDelete: "set null" }),
+  // User-eigene AI-Konfiguration (überschreibt System-AI wenn gesetzt)
+  aiProvider: text("ai_provider"),
+  aiApiKey: text("ai_api_key"),
+  aiModel: text("ai_model"),
+  aiBaseUrl: text("ai_base_url"),
 });
 
 // ── API Keys (für Extension + Bot) ──

@@ -4,7 +4,7 @@ import * as schema from "../../db/schema";
 import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { createBookmarkSchema, updateBookmarkSchema } from "../../shared/validators";
 import { fetchMetadata } from "../services/metadata";
-import { analyzeBookmark, isAiConfigured } from "../services/ai";
+import { analyzeBookmark, isAiConfigured, getEffectiveAiConfig, isAiConfiguredForUser } from "../services/ai";
 import { captureScreenshot, getScreenshotPath } from "../services/screenshot";
 import { existsSync } from "fs";
 
@@ -289,7 +289,7 @@ bookmarkRoutes.post("/", async (c) => {
   }
 
   // AI-Analyse (async, nicht blockierend)
-  if (!data.skipAi && isAiConfigured()) {
+  if (!data.skipAi && isAiConfiguredForUser(user.id)) {
     analyzeAndUpdateBookmark(bookmark.id, user.id, data.url, bookmark.title, bookmark.description);
   }
 
@@ -449,7 +449,7 @@ async function analyzeAndUpdateBookmark(
       .get();
     const language = settings?.language || "de";
 
-    const suggestion = await analyzeBookmark(url, title, description, existingTags, existingFolders, language);
+    const suggestion = await analyzeBookmark(url, title, description, existingTags, existingFolders, language, getEffectiveAiConfig(userId));
 
     if (!suggestion) return;
 

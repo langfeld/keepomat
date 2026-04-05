@@ -3,8 +3,16 @@ import { db } from "../../db";
 import * as schema from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { updateSettingsSchema } from "../../shared/validators";
+import { getUserAiConfig, testAiConnection, getDefaultModelForProvider, type AiConfig } from "../services/ai";
 
 export const settingsRoutes = new Hono();
+
+// API-Key maskieren (nur letzte 4 Zeichen zeigen)
+function maskApiKey(key: string | null): string | null {
+  if (!key) return null;
+  if (key.length <= 4) return "****";
+  return "****" + key.slice(-4);
+}
 
 // Einstellungen abrufen
 settingsRoutes.get("/", async (c) => {
@@ -25,7 +33,11 @@ settingsRoutes.get("/", async (c) => {
       .get();
   }
 
-  return c.json(settings);
+  // API-Key maskiert zurückgeben
+  return c.json({
+    ...settings,
+    aiApiKey: maskApiKey(settings.aiApiKey),
+  });
 });
 
 // Einstellungen aktualisieren
@@ -44,6 +56,11 @@ settingsRoutes.patch("/", async (c) => {
   if (data.folderMode !== undefined) updateData.folderMode = data.folderMode;
   if (data.language !== undefined) updateData.language = data.language;
   if (data.defaultFolderId !== undefined) updateData.defaultFolderId = data.defaultFolderId;
+  // AI-Einstellungen
+  if (data.aiProvider !== undefined) updateData.aiProvider = data.aiProvider;
+  if (data.aiApiKey !== undefined) updateData.aiApiKey = data.aiApiKey;
+  if (data.aiModel !== undefined) updateData.aiModel = data.aiModel;
+  if (data.aiBaseUrl !== undefined) updateData.aiBaseUrl = data.aiBaseUrl;
 
   // Upsert
   const existing = db
@@ -68,7 +85,23 @@ settingsRoutes.patch("/", async (c) => {
       .get();
   }
 
-  return c.json(settings);
+  return c.json({
+    ...settings,
+    aiApiKey: maskApiKey(settings.aiApiKey),
+  });
+});
+
+// User-AI-Verbindung testen
+settingsRoutes.post("/ai/test", async (c) => {
+  const user = c.get("user" as never) as any;
+
+  const userConfig = getUserAiConfig(user.id);
+  if (!userConfig) {
+    return c.json({ success: false, message: "Keine eigene AI-Konfiguration vorhanden", duration: 0 });
+  }
+
+  const result = await testAiConnection(userConfig);
+  return c.json(result);
 });
 
 // Einstellungen als JSON exportieren

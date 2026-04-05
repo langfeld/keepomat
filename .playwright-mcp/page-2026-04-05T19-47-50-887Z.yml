@@ -1,0 +1,81 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Keepomat
+    - navigation [ref=e10]:
+      - link "Dashboard" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - text: Dashboard
+      - link "Lesezeichen" [ref=e14] [cursor=pointer]:
+        - /url: /bookmarks
+        - img [ref=e15]
+        - text: Lesezeichen
+      - link "Suche" [ref=e17] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e18]
+        - text: Suche
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Ordner
+          - button "Neuer Ordner" [ref=e23]:
+            - img [ref=e24]
+        - paragraph [ref=e26]: Keine Ordner
+    - generic [ref=e27]:
+      - link "Einstellungen" [ref=e28] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e29]
+        - text: Einstellungen
+      - link "Admin" [ref=e32] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e33]
+        - text: Admin
+      - generic [ref=e35]:
+        - generic [ref=e36]: M
+        - generic [ref=e37]:
+          - paragraph [ref=e38]: Marco
+          - paragraph [ref=e39]: mhx030@gmail.com
+        - button "Abmelden" [ref=e40]:
+          - img [ref=e41]
+  - generic [ref=e43]:
+    - banner [ref=e44]:
+      - generic [ref=e46]:
+        - img [ref=e47]
+        - searchbox "Suche..." [ref=e49]
+        - generic [ref=e50]: /
+      - generic [ref=e51]:
+        - 'button "Design: System" [ref=e53]':
+          - img [ref=e54]
+        - button "Lesezeichen" [ref=e56]:
+          - img [ref=e57]
+          - generic [ref=e59]: Lesezeichen
+    - main [ref=e60]:
+      - generic [ref=e61]:
+        - heading "Dashboard" [level=1] [ref=e62]
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - img [ref=e67]
+            - paragraph [ref=e69]: "0"
+            - paragraph [ref=e70]: Lesezeichen
+          - generic [ref=e71]:
+            - img [ref=e74]
+            - paragraph [ref=e76]: "0"
+            - paragraph [ref=e77]: Ordner
+          - generic [ref=e78]:
+            - img [ref=e81]
+            - paragraph [ref=e83]: "0"
+            - paragraph [ref=e84]: Tags
+          - generic [ref=e85]:
+            - img [ref=e88]
+            - paragraph [ref=e90]: "0"
+            - paragraph [ref=e91]: Ungelesen
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - heading "Zuletzt hinzugefügt" [level=2] [ref=e94]
+            - link "Alle anzeigen →" [ref=e95] [cursor=pointer]:
+              - /url: /bookmarks
+          - generic [ref=e96]:
+            - img [ref=e97]
+            - paragraph [ref=e99]: Noch keine Lesezeichen vorhanden
+            - paragraph [ref=e100]: Füge dein erstes Lesezeichen hinzu!

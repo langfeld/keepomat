@@ -1,0 +1,42 @@
+[      60ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775
+[    7282ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775
+[  116203ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  116205ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  116206ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[  116207ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  116207ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[  116214ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775419880988:50:4)
+[  116214ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775419880988:50:4
+[  116209ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  116223ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775419880988:50:4)
+[  116238ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  116240ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/bookmarks?limit=20&offset=0:0
+[  116241ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/tags:0
+[  116265ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775419881005:50:4)
+[  116242ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/folders/tree:0
+[  116242ms] [WARNING] [Vue warn]: Unhandled error during execution of mounted hook 
+  at <AppLayout onVnodeUnmounted=fn<onVnodeUnmounted> ref=Ref< Proxy(Object) > > 
+  at <RouterView> 
+  at <App> @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue.runtime.esm-bundler-DaROHT9e.js?v=265f7e00:1735
+[  116242ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:5173/api/settings:0
+[  116270ms] Error: Fehler beim Laden
+    at Proxy.fetchBookmarks (http://localhost:5173/stores/bookmarks.ts:18:23)
+    at async loadBookmarks (http://localhost:5173/views/BookmarksView.vue?t=1775419881005:50:4)
+[  116271ms] Error: Fehler beim Laden
+    at Proxy.fetchTree (http://localhost:5173/stores/folders.ts:12:23)
+    at async Promise.all (index 0)
+    at async http://localhost:5173/views/AppLayout.vue?t=1775419881005:50:4
+[  331280ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:968
+[  337626ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=265f7e00:3775

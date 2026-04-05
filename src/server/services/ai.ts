@@ -4,6 +4,15 @@ import * as schema from "../../db/schema";
 import { eq } from "drizzle-orm";
 import type { AiSuggestion, Folder, Tag } from "../../shared/types";
 
+// AI-Konfiguration (provider, model, apiKey, baseURL)
+export interface AiConfig {
+  provider: string;
+  model: string;
+  apiKey: string | undefined;
+  baseURL: string;
+  thinkingEnabled: boolean;
+}
+
 // System-Setting lesen (aus DB oder env)
 function getSystemSetting(key: string): string | undefined {
   try {
@@ -18,40 +27,95 @@ function getSystemSetting(key: string): string | undefined {
   }
 }
 
-function getAiConfig() {
+// BaseURL für Provider bestimmen
+function getBaseURLForProvider(provider: string, customBaseUrl?: string | null): string {
+  if (customBaseUrl) return customBaseUrl;
+  switch (provider) {
+    case "openai":
+      return "https://api.openai.com/v1";
+    case "anthropic":
+      return "https://api.anthropic.com/v1";
+    case "groq":
+      return "https://api.groq.com/openai/v1";
+    case "mistral":
+      return "https://api.mistral.ai/v1";
+    case "ollama":
+      return getSystemSetting("ollama_url") || process.env.OLLAMA_URL || "http://localhost:11434/v1";
+    case "kimi":
+    default:
+      return "https://api.moonshot.ai/v1";
+  }
+}
+
+// System-weite AI-Konfiguration (Admin-Settings)
+function getSystemAiConfig(): AiConfig {
   const provider = getSystemSetting("ai_provider") || process.env.AI_PROVIDER || "kimi";
   const model = getSystemSetting("ai_model") || process.env.AI_MODEL || "kimi-k2-turbo-preview";
   const apiKey = getSystemSetting("moonshot_api_key") || process.env.MOONSHOT_API_KEY;
   const thinkingEnabled = (getSystemSetting("ai_thinking_enabled") || process.env.AI_THINKING_ENABLED || "false") === "true";
-
-  let baseURL: string;
-  switch (provider) {
-    case "openai":
-      baseURL = "https://api.openai.com/v1";
-      break;
-    case "anthropic":
-      baseURL = "https://api.anthropic.com/v1";
-      break;
-    case "ollama":
-      baseURL = getSystemSetting("ollama_url") || process.env.OLLAMA_URL || "http://localhost:11434/v1";
-      break;
-    case "kimi":
-    default:
-      baseURL = "https://api.moonshot.ai/v1";
-      break;
-  }
+  const baseURL = getBaseURLForProvider(provider);
 
   return { provider, model, apiKey, baseURL, thinkingEnabled };
 }
 
-function getClient(): OpenAI | null {
-  const config = getAiConfig();
-  if (!config.apiKey && config.provider !== "ollama") {
+// User-spezifische AI-Konfiguration lesen (falls vorhanden)
+export function getUserAiConfig(userId: string): AiConfig | null {
+  try {
+    const settings = db
+      .select()
+      .from(schema.userSettings)
+      .where(eq(schema.userSettings.userId, userId))
+      .get();
+
+    if (!settings?.aiProvider || !settings?.aiApiKey) return null;
+
+    return {
+      provider: settings.aiProvider,
+      model: settings.aiModel || getDefaultModelForProvider(settings.aiProvider),
+      apiKey: settings.aiApiKey,
+      baseURL: getBaseURLForProvider(settings.aiProvider, settings.aiBaseUrl),
+      thinkingEnabled: false, // User-KI: kein Thinking-Modus
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Standard-Modell je nach Provider
+export function getDefaultModelForProvider(provider: string): string {
+  switch (provider) {
+    case "openai": return "gpt-4o-mini";
+    case "anthropic": return "claude-sonnet-4-20250514";
+    case "groq": return "llama-3.3-70b-versatile";
+    case "mistral": return "mistral-small-latest";
+    case "ollama": return "llama3.2";
+    case "kimi": return "kimi-k2-turbo-preview";
+    default: return "gpt-4o-mini";
+  }
+}
+
+// Effektive AI-Config: User-Einstellung → System-Fallback
+export function getEffectiveAiConfig(userId?: string): AiConfig {
+  if (userId) {
+    const userConfig = getUserAiConfig(userId);
+    if (userConfig) return userConfig;
+  }
+  return getSystemAiConfig();
+}
+
+// Compat-Wrapper für bestehenden Code
+function getAiConfig() {
+  return getSystemAiConfig();
+}
+
+function getClient(config?: AiConfig): OpenAI | null {
+  const cfg = config || getAiConfig();
+  if (!cfg.apiKey && cfg.provider !== "ollama") {
     return null;
   }
   return new OpenAI({
-    apiKey: config.apiKey || "ollama",
-    baseURL: config.baseURL,
+    apiKey: cfg.apiKey || "ollama",
+    baseURL: cfg.baseURL,
   });
 }
 
@@ -61,12 +125,12 @@ export async function analyzeBookmark(
   description: string | null,
   existingTags: Tag[],
   existingFolders: Folder[],
-  language: string = "de"
+  language: string = "de",
+  overrideConfig?: AiConfig
 ): Promise<AiSuggestion | null> {
-  const client = getClient();
+  const config = overrideConfig || getAiConfig();
+  const client = getClient(config);
   if (!client) return null;
-
-  const config = getAiConfig();
   const tagNames = existingTags.map((t) => t.name);
   const folderTree = buildFolderContext(existingFolders);
 
@@ -241,9 +305,16 @@ export function isAiConfigured(): boolean {
   return !!(config.apiKey || config.provider === "ollama");
 }
 
-export async function testAiConnection(): Promise<{ success: boolean; message: string; duration: number }> {
-  const config = getAiConfig();
-  const client = getClient();
+// Prüft ob für einen User AI verfügbar ist (eigene Config oder System-Config)
+export function isAiConfiguredForUser(userId: string): boolean {
+  const userConfig = getUserAiConfig(userId);
+  if (userConfig) return true;
+  return isAiConfigured();
+}
+
+export async function testAiConnection(overrideConfig?: AiConfig): Promise<{ success: boolean; message: string; duration: number }> {
+  const config = overrideConfig || getAiConfig();
+  const client = getClient(config);
 
   if (!client) {
     return { success: false, message: "No API key configured", duration: 0 };

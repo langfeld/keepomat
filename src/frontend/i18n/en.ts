@@ -80,6 +80,27 @@ export default {
   "settings.import": "Import",
   "settings.saved": "Settings saved ✓",
 
+  // AI Settings
+  "settings.ai": "Custom AI Provider",
+  "settings.aiDescription": "Use your own API key for AI analysis. Without a custom key, the system AI provider is used (if configured).",
+  "settings.aiProvider": "Provider",
+  "settings.aiProviderNone": "None (system default)",
+  "settings.aiApiKey": "API Key",
+  "settings.aiApiKeyPlaceholder": "sk-... or gsk_...",
+  "settings.aiApiKeyHint": "The key is stored securely on the server and used for your bookmark analysis.",
+  "settings.aiModel": "Model",
+  "settings.aiModelPlaceholder": "Provider default model",
+  "settings.aiBaseUrl": "Custom Base URL (optional)",
+  "settings.aiBaseUrlPlaceholder": "https://...",
+  "settings.aiBaseUrlHint": "Only needed for custom endpoints or local Ollama instances.",
+  "settings.aiTest": "Test connection",
+  "settings.aiTesting": "Testing...",
+  "settings.aiTestSuccess": "Connection successful: {message} ({duration}ms)",
+  "settings.aiTestFailed": "Connection failed: {message}",
+  "settings.aiRemove": "Remove AI configuration",
+  "settings.aiActive": "Custom AI provider active",
+  "settings.aiUsingSystem": "Using system AI",
+
   // Dashboard
   "dashboard.title": "Dashboard",
   "dashboard.statBookmarks": "Bookmarks",

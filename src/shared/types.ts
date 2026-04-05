@@ -58,6 +58,11 @@ export interface UserSettings {
   folderMode: "single" | "multi";
   language: string;
   defaultFolderId: number | null;
+  // User-eigene AI-Konfiguration
+  aiProvider: string | null;
+  aiApiKey: string | null;
+  aiModel: string | null;
+  aiBaseUrl: string | null;
 }
 
 export interface ApiKey {

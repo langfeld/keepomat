@@ -1,0 +1,127 @@
+- generic [ref=e3]:
+  - complementary [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - generic [ref=e9]: Keepomat
+    - navigation [ref=e10]:
+      - link "Dashboard" [ref=e11] [cursor=pointer]:
+        - /url: /
+        - img [ref=e12]
+        - text: Dashboard
+      - link "Lesezeichen" [ref=e14] [cursor=pointer]:
+        - /url: /bookmarks
+        - img [ref=e15]
+        - text: Lesezeichen
+      - link "Suche" [ref=e17] [cursor=pointer]:
+        - /url: /search
+        - img [ref=e18]
+        - text: Suche
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e22]: Ordner
+          - button "Neuer Ordner" [ref=e23]:
+            - img [ref=e24]
+        - generic [ref=e26]:
+          - button "Testberichte" [ref=e28]:
+            - img [ref=e29]
+            - generic [ref=e31]: Testberichte
+          - button "IT-News" [ref=e33]:
+            - img [ref=e34]
+            - generic [ref=e36]: IT-News
+    - generic [ref=e37]:
+      - link "Einstellungen" [ref=e38] [cursor=pointer]:
+        - /url: /settings
+        - img [ref=e39]
+        - text: Einstellungen
+      - link "Admin" [ref=e42] [cursor=pointer]:
+        - /url: /admin
+        - img [ref=e43]
+        - text: Admin
+      - generic [ref=e45]:
+        - generic [ref=e46]: M
+        - generic [ref=e47]:
+          - paragraph [ref=e48]: Marco
+          - paragraph [ref=e49]: mhx030@gmail.com
+        - button "Abmelden" [ref=e50]:
+          - img [ref=e51]
+  - generic [ref=e53]:
+    - banner [ref=e54]:
+      - generic [ref=e56]:
+        - img [ref=e57]
+        - searchbox "Suche..." [ref=e59]
+        - generic [ref=e60]: /
+      - generic [ref=e61]:
+        - 'button "Design: System" [ref=e63]':
+          - img [ref=e64]
+        - button "Lesezeichen" [ref=e66]:
+          - img [ref=e67]
+          - generic [ref=e69]: Lesezeichen
+    - main [ref=e70]:
+      - generic [ref=e71]:
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - heading "Alle Lesezeichen" [level=1] [ref=e74]
+            - paragraph [ref=e75]: 2 Lesezeichen
+          - generic [ref=e76]:
+            - combobox [ref=e77]:
+              - option "Alle" [selected]
+              - option "Ungelesen"
+              - option "Favoriten"
+              - option "Tote Links"
+            - combobox [ref=e78]:
+              - option "Alle Tags" [selected]
+            - generic [ref=e79]:
+              - button "Listenansicht" [ref=e80]:
+                - img [ref=e81]
+              - button "Rasteransicht" [ref=e83]:
+                - img [ref=e84]
+            - button "Vorschaubilder anzeigen" [ref=e86]:
+              - img [ref=e87]
+            - button [ref=e91]:
+              - img [ref=e92]
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - generic [ref=e96]:
+              - img "Startseite | Stiftung Warentest – Unabhängige Tests & Ratgeber" [ref=e97]
+              - generic [ref=e98]:
+                - img [ref=e99]
+                - text: Screenshot
+            - generic [ref=e102]:
+              - generic [ref=e103]:
+                - link "Startseite | Stiftung Warentest – Unabhängige Tests & Ratgeber" [ref=e104] [cursor=pointer]:
+                  - /url: http://test.de
+                - paragraph [ref=e105]: "Stiftung Warentest: Testberichte zu Elektronik, Haushalt und Gesundheit sowie Finanzen, Versicherung und Steuern"
+                - generic [ref=e107]: test.de
+              - generic [ref=e108]:
+                - button "Favorit" [ref=e109]:
+                  - img [ref=e110]
+                - button "Als gelesen markieren" [ref=e112]:
+                  - img [ref=e113]
+                - button "Screenshot neu erstellen" [ref=e115]:
+                  - img [ref=e116]
+                - button "Bearbeiten" [ref=e119]:
+                  - img [ref=e120]
+                - button "Löschen" [ref=e122]:
+                  - img [ref=e123]
+          - generic [ref=e125]:
+            - generic [ref=e126]:
+              - img "Example Domain" [ref=e127]
+              - generic [ref=e128]:
+                - img [ref=e129]
+                - text: Screenshot
+            - generic [ref=e132]:
+              - generic [ref=e133]:
+                - link "Example Domain" [ref=e134] [cursor=pointer]:
+                  - /url: https://example.com
+                - generic [ref=e136]: example.com
+              - generic [ref=e137]:
+                - button "Favorit" [ref=e138]:
+                  - img [ref=e139]
+                - button "Als ungelesen markieren" [ref=e141]:
+                  - img [ref=e142]
+                - button "Screenshot neu erstellen" [ref=e144]:
+                  - img [ref=e145]
+                - button "Bearbeiten" [ref=e148]:
+                  - img [ref=e149]
+                - button "Löschen" [ref=e151]:
+                  - img [ref=e152]

@@ -1,0 +1,9 @@
+[      55ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=52eace96:3775
+[ 1518245ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ http://localhost:5173/i18n/de.ts:0
+[ 1518246ms] [ERROR] [vite] Failed to reload /views/AppLayout.vue. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:904
+[ 1576997ms] [ERROR] [vite] Failed to reload /views/SettingsView.vue. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:904
+[ 1592190ms] [ERROR] [vite] Failed to reload /views/SettingsView.vue. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:904
+[ 1602608ms] [ERROR] [vite] Failed to reload /views/SettingsView.vue. This could be due to syntax errors or importing non-existent modules. (see errors above) @ http://localhost:5173/@vite/client:904
+[ 2175931ms] [ERROR] WebSocket connection to 'ws://localhost:5173/?token=R0M2hGqAzZ0G' failed:  @ http://localhost:5173/@vite/client:840
+[ 2175931ms] [LOG] [vite] server connection lost. Polling for restart... @ http://localhost:5173/@vite/client:968
+[ 2271628ms] [WARNING] [Vue Router warn]: The `next()` callback in navigation guards is deprecated. Return the value instead of calling `next(value)`. @ http://localhost:5173/@fs/home/marco/Webentwicklung/keepomat/node_modules/.vite/deps/vue-router.js?v=52eace96:3775
