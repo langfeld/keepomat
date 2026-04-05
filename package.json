@@ -1,0 +1,49 @@
+{
+  "name": "keepomat",
+  "version": "0.1.0",
+  "description": "Smart Bookmark Manager with AI-powered tagging and organization",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "bun run --watch src/server/index.ts & bunx --bun vite --config vite.config.ts",
+    "dev:server": "bun run --watch src/server/index.ts",
+    "dev:frontend": "bunx --bun vite --config vite.config.ts",
+    "build": "bunx --bun vite build --config vite.config.ts",
+    "start": "NODE_ENV=production bun run src/server/index.ts",
+    "db:generate": "bunx drizzle-kit generate",
+    "db:migrate": "bunx drizzle-kit migrate",
+    "db:studio": "bunx drizzle-kit studio",
+    "test": "bun test",
+    "typecheck": "bunx vue-tsc --noEmit"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/bun": "latest",
+    "@types/pdfkit": "^0.17.5",
+    "@types/uuid": "^11.0.0",
+    "@vitejs/plugin-vue": "^6.0.5",
+    "drizzle-kit": "^0.31.10",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.3",
+    "vue-tsc": "^3.2.6"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "better-auth": "^1.5.6",
+    "drizzle-orm": "^0.45.2",
+    "grammy": "^1.42.0",
+    "hono": "^4.12.10",
+    "open-graph-scraper": "^6.11.0",
+    "openai": "^6.33.0",
+    "pdfkit": "^0.18.0",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "uuid": "^13.0.0",
+    "vue": "^3.5.32",
+    "vue-router": "^5.0.4",
+    "zod": "^4.3.6"
+  }
+}

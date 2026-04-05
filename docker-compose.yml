@@ -1,0 +1,16 @@
+services:
+  keepomat:
+    image: ghcr.io/DEIN_GITHUB_USER/keepomat:latest
+    container_name: keepomat
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - BETTER_AUTH_SECRET=dein-geheimes-secret-hier-aendern
+      - MOONSHOT_API_KEY=
+      - AI_MODEL=kimi-k2-turbo-preview
+      - TELEGRAM_BOT_TOKEN=
+      - PUID=1000
+      - PGID=1000
