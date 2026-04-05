@@ -38,3 +38,9 @@ data/
 
 # Finder (MacOS) folder config
 .DS_Store
+
+# Instructions
+.github/instructions/*
+
+# Playwright test artifacts
+.playwright-mcp/*

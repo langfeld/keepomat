@@ -111,6 +111,7 @@ export interface SystemSettings {
   moonshot_api_key?: string;
   ai_model?: string;
   ai_provider?: "kimi" | "openai" | "anthropic" | "ollama";
+  ai_thinking_enabled?: string;
   ollama_url?: string;
   registration_enabled?: string;
   telegram_bot_token?: string;

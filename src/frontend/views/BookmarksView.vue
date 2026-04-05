@@ -4,10 +4,10 @@
     <div class="flex sm:flex-row flex-col sm:justify-between sm:items-center gap-4 mb-6">
       <div>
         <h1 class="font-bold text-gray-900 dark:text-white text-2xl">
-          {{ currentFolder ? currentFolder.name : 'Alle Lesezeichen' }}
+          {{ currentFolder ? currentFolder.name : t('bookmarks.all') }}
         </h1>
         <p class="mt-1 text-gray-500 dark:text-gray-400 text-sm">
-          {{ bookmarksStore.total }} Lesezeichen
+          {{ bookmarksStore.total }} {{ t('nav.bookmarks') }}
         </p>
       </div>
 
@@ -17,10 +17,10 @@
           v-model="filter"
           class="bg-white dark:bg-gray-800 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white text-sm"
         >
-          <option value="">Alle</option>
-          <option value="unread">Ungelesen</option>
-          <option value="favorites">Favoriten</option>
-          <option value="dead">Tote Links</option>
+          <option value="">{{ t('bookmarks.filterAll') }}</option>
+          <option value="unread">{{ t('bookmarks.filterUnread') }}</option>
+          <option value="favorites">{{ t('bookmarks.filterFavorites') }}</option>
+          <option value="dead">{{ t('bookmarks.filterDead') }}</option>
         </select>
 
         <!-- Tag-Filter -->
@@ -28,7 +28,7 @@
           v-model="selectedTag"
           class="bg-white dark:bg-gray-800 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white text-sm"
         >
-          <option value="">Alle Tags</option>
+          <option value="">{{ t('bookmarks.filterAllTags') }}</option>
           <option v-for="tag in tags" :key="tag.id" :value="tag.id">{{ tag.name }}</option>
         </select>
 
@@ -69,16 +69,16 @@
             class="right-0 z-10 absolute bg-white dark:bg-gray-800 shadow-lg mt-2 py-1 border border-gray-200 dark:border-gray-700 rounded-xl w-48"
           >
             <button @click="importBookmarks" class="hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 w-full text-gray-700 dark:text-gray-300 text-sm text-left">
-              HTML importieren
+              {{ t('bookmarks.importHtml') }}
             </button>
             <a href="/api/export/html" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
-              HTML exportieren
+              {{ t('bookmarks.exportHtml') }}
             </a>
             <a href="/api/export/json" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
-              JSON exportieren
+              {{ t('bookmarks.exportJson') }}
             </a>
             <a href="/api/export/pdf" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
-              PDF exportieren
+              {{ t('bookmarks.exportPdf') }}
             </a>
           </div>
         </div>
@@ -108,8 +108,8 @@
       <svg class="mx-auto mb-4 w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
       </svg>
-      <p class="text-gray-500 dark:text-gray-400 text-lg">Keine Lesezeichen gefunden</p>
-      <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">Passe die Filter an oder füge neue Lesezeichen hinzu.</p>
+      <p class="text-gray-500 dark:text-gray-400 text-lg">{{ t('bookmarks.empty') }}</p>
+      <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ t('bookmarks.emptyHint') }}</p>
     </div>
 
     <!-- Mehr laden -->
@@ -119,7 +119,7 @@
         :disabled="bookmarksStore.loading"
         class="bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 px-6 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition"
       >
-        {{ bookmarksStore.loading ? 'Laden...' : 'Mehr laden' }}
+        {{ bookmarksStore.loading ? t('common.loading') : t('common.loadMore') }}
       </button>
     </div>
 
@@ -140,11 +140,13 @@
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useBookmarksStore } from "../stores/bookmarks";
+import { useI18n } from "../composables/useI18n";
 import BookmarkCard from "../components/BookmarkCard.vue";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
 
 const route = useRoute();
 const bookmarksStore = useBookmarksStore();
+const { t } = useI18n();
 
 const filter = ref("");
 const selectedTag = ref("");
@@ -198,7 +200,7 @@ function editBookmark(bookmark: any) {
 }
 
 async function deleteBookmark(id: number) {
-  if (!confirm("Lesezeichen wirklich löschen?")) return;
+  if (!confirm(t('bookmarks.deleteConfirm'))) return;
   await bookmarksStore.deleteBookmark(id);
 }
 
@@ -226,13 +228,13 @@ async function handleImport(e: Event) {
     });
     if (res.ok) {
       const result = await res.json();
-      alert(`${result.imported} Lesezeichen importiert, ${result.skipped} übersprungen`);
+      alert(t('bookmarks.importResult', { imported: String(result.imported), skipped: String(result.skipped) }));
       loadBookmarks();
     } else {
-      alert("Import fehlgeschlagen");
+      alert(t('common.importFailed'));
     }
   } catch {
-    alert("Import fehlgeschlagen");
+    alert(t('common.importFailed'));
   }
 }
 

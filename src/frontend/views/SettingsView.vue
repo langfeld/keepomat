@@ -1,37 +1,37 @@
 <template>
   <div class="p-6 lg:p-8 animate-fade-in">
-    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">Einstellungen</h1>
+    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">{{ t('settings.title') }}</h1>
 
-    <div class="space-y-6 max-w-2xl">
+    <div class="space-y-6">
       <!-- Allgemein -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">Allgemein</h2>
+        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.general') }}</h2>
 
         <div class="space-y-4">
           <!-- Theme -->
           <div>
-            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">Design</label>
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.theme') }}</label>
             <div class="flex gap-2">
               <button
-                v-for="t in themes"
-                :key="t.value"
-                @click="updateTheme(t.value)"
+                v-for="theme in themes"
+                :key="theme.value"
+                @click="updateTheme(theme.value)"
                 :class="[
                   'flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-medium transition',
-                  settingsStore.settings?.theme === t.value
+                  settingsStore.settings?.theme === theme.value
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400'
                     : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                 ]"
               >
-                <span v-html="t.icon" />
-                {{ t.label }}
+                <span v-html="theme.icon" />
+                {{ theme.label }}
               </button>
             </div>
           </div>
 
           <!-- Sprache -->
           <div>
-            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">Sprache</label>
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.language') }}</label>
             <select
               v-model="language"
               @change="saveSetting('language', language)"
@@ -44,7 +44,7 @@
 
           <!-- Ordnermodus -->
           <div>
-            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">Ordner-Zuweisung</label>
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.folderMode') }}</label>
             <div class="flex gap-2">
               <button
                 @click="saveSetting('folderMode', 'single')"
@@ -55,7 +55,7 @@
                     : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                 ]"
               >
-                Einzelner Ordner
+                {{ t('settings.folderModeSingle') }}
               </button>
               <button
                 @click="saveSetting('folderMode', 'multi')"
@@ -66,11 +66,11 @@
                     : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                 ]"
               >
-                Mehrere Ordner
+                {{ t('settings.folderModeMulti') }}
               </button>
             </div>
             <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">
-              {{ settingsStore.settings?.folderMode === 'multi' ? 'Ein Lesezeichen kann in mehreren Ordnern sein.' : 'Jedes Lesezeichen gehört zu genau einem Ordner.' }}
+              {{ settingsStore.settings?.folderMode === 'multi' ? t('settings.folderModeMultiHint') : t('settings.folderModeSingleHint') }}
             </p>
           </div>
         </div>
@@ -79,22 +79,22 @@
       <!-- API-Schlüssel -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="font-semibold text-gray-900 dark:text-white text-lg">API-Schlüssel</h2>
+          <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.apiKeys') }}</h2>
           <button
             @click="createApiKey"
             class="bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg font-medium text-white text-sm transition"
           >
-            Neuer Schlüssel
+            {{ t('settings.apiKeyNew') }}
           </button>
         </div>
 
         <!-- Neuer Schlüssel anzeigen -->
         <div v-if="newApiKey" class="bg-green-50 dark:bg-green-900/20 mb-4 p-4 border border-green-200 dark:border-green-800 rounded-xl">
-          <p class="mb-2 font-medium text-green-700 dark:text-green-400 text-sm">Neuer API-Schlüssel erstellt! Diesen jetzt kopieren – er wird nicht erneut angezeigt.</p>
+          <p class="mb-2 font-medium text-green-700 dark:text-green-400 text-sm">{{ t('settings.apiKeyCreatedMsg') }}</p>
           <div class="flex items-center gap-2">
             <code class="flex-1 bg-green-100 dark:bg-green-900/40 px-3 py-2 rounded-lg font-mono text-green-800 dark:text-green-300 text-sm break-all">{{ newApiKey }}</code>
             <button @click="copyKey" class="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg text-white text-sm transition">
-              Kopieren
+              {{ t('common.copy') }}
             </button>
           </div>
         </div>
@@ -107,7 +107,7 @@
           >
             <div>
               <p class="font-medium text-gray-900 dark:text-white text-sm">{{ key.name }}</p>
-              <p class="text-gray-400 text-xs">Erstellt: {{ formatDate(key.createdAt) }}</p>
+              <p class="text-gray-400 text-xs">{{ t('settings.apiKeyCreatedAt') }} {{ formatDate(key.createdAt) }}</p>
             </div>
             <button
               @click="deleteApiKey(key.id)"
@@ -119,38 +119,38 @@
             </button>
           </div>
         </div>
-        <p v-else class="text-gray-400 dark:text-gray-500 text-sm">Keine API-Schlüssel vorhanden.</p>
+        <p v-else class="text-gray-400 dark:text-gray-500 text-sm">{{ t('settings.apiKeysEmpty') }}</p>
       </div>
 
       <!-- Telegram -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">Telegram-Verknüpfung</h2>
+        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.telegram') }}</h2>
         <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">
-          Verknüpfe deinen Telegram-Account, um Links direkt per Chat zu speichern.
+          {{ t('settings.telegramDescription') }}
         </p>
         <div v-if="telegramLinked" class="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 p-3 border border-green-200 dark:border-green-800 rounded-xl">
           <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
-          <span class="text-green-700 dark:text-green-400 text-sm">Telegram verknüpft</span>
+          <span class="text-green-700 dark:text-green-400 text-sm">{{ t('settings.telegramLinked') }}</span>
         </div>
         <p v-else class="text-gray-400 text-sm">
-          Schreibe <code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">/start</code> an den Keepomat-Bot in Telegram.
+          {{ t('settings.telegramInstruction', { command: '/start' }).split('/start')[0] }}<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">/start</code>{{ t('settings.telegramInstruction', { command: '/start' }).split('/start')[1] }}
         </p>
       </div>
 
       <!-- Import/Export Einstellungen -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">Einstellungen Import/Export</h2>
+        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.importExport') }}</h2>
         <div class="flex gap-3">
           <button
             @click="exportSettings"
             class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-4 py-2 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition"
           >
-            Exportieren
+            {{ t('settings.export') }}
           </button>
           <label class="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 px-4 py-2 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition cursor-pointer">
-            Importieren
+            {{ t('settings.import') }}
             <input type="file" accept=".json" class="hidden" @change="importSettings" />
           </label>
         </div>
@@ -158,17 +158,19 @@
 
       <!-- Gespeichert-Meldung -->
       <div v-if="saved" class="right-6 bottom-6 z-50 fixed bg-green-600 shadow-lg px-4 py-2.5 rounded-xl font-medium text-white text-sm animate-slide-up">
-        Einstellungen gespeichert ✓
+        {{ t('settings.saved') }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useSettingsStore } from "../stores/settings";
+import { useI18n } from "../composables/useI18n";
 
 const settingsStore = useSettingsStore();
+const { t } = useI18n();
 
 const language = ref("de");
 const apiKeys = ref<any[]>([]);
@@ -176,11 +178,11 @@ const newApiKey = ref("");
 const telegramLinked = ref(false);
 const saved = ref(false);
 
-const themes = [
-  { value: "light", label: "Hell", icon: "☀️" },
-  { value: "dark", label: "Dunkel", icon: "🌙" },
-  { value: "system", label: "System", icon: "💻" },
-];
+const themes = computed(() => [
+  { value: "light", label: t('settings.themeLight'), icon: "☀️" },
+  { value: "dark", label: t('settings.themeDark'), icon: "🌙" },
+  { value: "system", label: t('settings.themeSystem'), icon: "💻" },
+]);
 
 onMounted(async () => {
   await settingsStore.fetchSettings();
@@ -190,7 +192,6 @@ onMounted(async () => {
 
 function updateTheme(theme: string) {
   saveSetting("theme", theme);
-  settingsStore.applyTheme();
 }
 
 async function saveSetting(key: string, value: string) {
@@ -211,7 +212,7 @@ async function loadApiKeys() {
 }
 
 async function createApiKey() {
-  const name = prompt("Name für den API-Schlüssel:");
+  const name = prompt(t('settings.apiKeyNamePrompt'));
   if (!name) return;
 
   try {
@@ -229,7 +230,7 @@ async function createApiKey() {
 }
 
 async function deleteApiKey(id: string) {
-  if (!confirm("API-Schlüssel wirklich löschen?")) return;
+  if (!confirm(t('settings.apiKeyDeleteConfirm'))) return;
   try {
     await fetch(`/api/keys/${id}`, { method: "DELETE" });
     await loadApiKeys();
@@ -274,7 +275,7 @@ async function importSettings(e: Event) {
       showSaved();
     }
   } catch {
-    alert("Import fehlgeschlagen");
+    alert(t('common.importFailed'));
   }
 }
 

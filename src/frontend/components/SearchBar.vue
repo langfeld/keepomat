@@ -6,7 +6,7 @@
     <input
       v-model="query"
       type="search"
-      placeholder="Suche..."
+      :placeholder="t('searchBar.placeholder')"
       class="bg-gray-50 dark:bg-gray-800 py-2 pr-4 pl-10 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white text-sm transition placeholder-gray-400"
       @keydown.enter="search"
       @input="debouncedSearch"
@@ -22,6 +22,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from "vue";
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
 
 const emit = defineEmits(["search"]);
 const query = ref("");

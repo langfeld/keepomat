@@ -3,7 +3,7 @@
     <button
       @click="cycle"
       class="hover:bg-gray-100 dark:hover:bg-gray-800 p-2 rounded-xl text-gray-500 dark:text-gray-400 transition"
-      :title="`Design: ${currentLabel}`"
+      :title="t('themeToggle.title', { mode: currentLabel })"
     >
       <!-- Sonne -->
       <svg v-if="current === 'light'" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -24,16 +24,18 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { useSettingsStore } from "../stores/settings";
+import { useI18n } from "../composables/useI18n";
 
 const settingsStore = useSettingsStore();
+const { t } = useI18n();
 
 const current = computed(() => settingsStore.settings?.theme || "system");
 
 const currentLabel = computed(() => {
   switch (current.value) {
-    case "light": return "Hell";
-    case "dark": return "Dunkel";
-    default: return "System";
+    case "light": return t('settings.themeLight');
+    case "dark": return t('settings.themeDark');
+    default: return t('settings.themeSystem');
   }
 });
 

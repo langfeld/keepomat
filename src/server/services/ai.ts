@@ -22,6 +22,7 @@ function getAiConfig() {
   const provider = getSystemSetting("ai_provider") || process.env.AI_PROVIDER || "kimi";
   const model = getSystemSetting("ai_model") || process.env.AI_MODEL || "kimi-k2-turbo-preview";
   const apiKey = getSystemSetting("moonshot_api_key") || process.env.MOONSHOT_API_KEY;
+  const thinkingEnabled = (getSystemSetting("ai_thinking_enabled") || process.env.AI_THINKING_ENABLED || "false") === "true";
 
   let baseURL: string;
   switch (provider) {
@@ -40,7 +41,7 @@ function getAiConfig() {
       break;
   }
 
-  return { provider, model, apiKey, baseURL };
+  return { provider, model, apiKey, baseURL, thinkingEnabled };
 }
 
 function getClient(): OpenAI | null {
@@ -162,7 +163,7 @@ Antworte mit einem JSON-Array, ein Objekt pro Bookmark in der gleichen Reihenfol
 ]`;
 
   try {
-    const completion = await client.chat.completions.create({
+    const params: Record<string, any> = {
       model: config.model,
       messages: [
         {
@@ -171,9 +172,16 @@ Antworte mit einem JSON-Array, ein Objekt pro Bookmark in der gleichen Reihenfol
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.3,
       response_format: { type: "json_object" },
-    });
+    };
+
+    if (config.provider === "kimi") {
+      params.thinking = { type: config.thinkingEnabled ? "enabled" : "disabled" };
+    } else {
+      params.temperature = 0.3;
+    }
+
+    const completion = await client.chat.completions.create(params as any);
 
     const content = completion.choices[0]?.message?.content;
     if (!content) return new Map();

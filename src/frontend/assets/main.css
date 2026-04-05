@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Dark Mode: Klassenbasiert statt prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ── Keepomat Theme (Tailwind v4 CSS-first Konfiguration) ── */
 @theme {
   /* Primärfarben: Blau */

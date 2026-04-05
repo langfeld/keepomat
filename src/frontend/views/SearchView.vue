@@ -1,17 +1,17 @@
 <template>
   <div class="p-6 lg:p-8 animate-fade-in">
-    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">Suche</h1>
+    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">{{ t('search.title') }}</h1>
 
     <!-- Suchfeld -->
     <div class="mb-6">
-      <div class="relative max-w-2xl">
+      <div class="relative">
         <svg class="top-1/2 left-4 absolute w-5 h-5 text-gray-400 -translate-y-1/2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
           v-model="query"
           type="search"
-          placeholder="Lesezeichen durchsuchen..."
+          :placeholder="t('search.placeholder')"
           class="bg-white dark:bg-gray-900 py-3 pr-4 pl-12 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-2xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white text-lg transition placeholder-gray-400"
           @input="debouncedSearch"
           autofocus
@@ -28,7 +28,7 @@
     <!-- Ergebnisse -->
     <div v-if="results.length" class="space-y-3">
       <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">
-        {{ total }} Ergebnisse für „{{ lastQuery }}"
+        {{ total }} {{ t('search.resultsFor', { query: lastQuery }) }}
       </p>
       <BookmarkCard
         v-for="bookmark in results"
@@ -44,7 +44,7 @@
           :disabled="loading"
           class="bg-white hover:bg-gray-50 dark:bg-gray-900 dark:hover:bg-gray-800 px-6 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-gray-300 text-sm transition"
         >
-          Mehr laden
+          {{ t('common.loadMore') }}
         </button>
       </div>
     </div>
@@ -53,16 +53,16 @@
       <svg class="mx-auto mb-4 w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
-      <p class="text-gray-500 dark:text-gray-400 text-lg">Keine Ergebnisse gefunden</p>
-      <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">Versuche andere Suchbegriffe.</p>
+      <p class="text-gray-500 dark:text-gray-400 text-lg">{{ t('search.noResults') }}</p>
+      <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ t('search.noResultsHint') }}</p>
     </div>
 
     <div v-else-if="!searched" class="bg-white dark:bg-gray-900 p-12 border border-gray-200 dark:border-gray-800 rounded-2xl text-center">
       <svg class="mx-auto mb-4 w-16 h-16 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
       </svg>
-      <p class="text-gray-500 dark:text-gray-400 text-lg">Volltextsuche</p>
-      <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">Durchsuche Titel, Beschreibungen und Zusammenfassungen.</p>
+      <p class="text-gray-500 dark:text-gray-400 text-lg">{{ t('search.fulltext') }}</p>
+      <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ t('search.fulltextHint') }}</p>
     </div>
   </div>
 </template>
@@ -71,8 +71,10 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import BookmarkCard from "../components/BookmarkCard.vue";
+import { useI18n } from "../composables/useI18n";
 
 const route = useRoute();
+const { t } = useI18n();
 
 const query = ref("");
 const lastQuery = ref("");

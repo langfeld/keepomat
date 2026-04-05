@@ -1,8 +1,11 @@
 {
   "servers": {
     "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest", "--headless"]
+      "command": "/home/marco/.nvm/versions/node/v22.22.1/bin/npx",
+      "args": ["@playwright/mcp@latest", "--headless"],
+      "env": {
+        "PATH": "/home/marco/.nvm/versions/node/v22.22.1/bin:${env:PATH}"
+      }
     }
   }
 }

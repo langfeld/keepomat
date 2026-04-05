@@ -1,42 +1,42 @@
 <template>
   <div class="p-6 lg:p-8 animate-fade-in">
-    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">Administration</h1>
+    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">{{ t('admin.title') }}</h1>
 
     <div class="space-y-6">
       <!-- Statistiken -->
       <div class="gap-4 grid grid-cols-2 lg:grid-cols-4">
         <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
           <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.users }}</p>
-          <p class="text-gray-500 dark:text-gray-400 text-sm">Benutzer</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('admin.users') }}</p>
         </div>
         <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
           <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.bookmarks }}</p>
-          <p class="text-gray-500 dark:text-gray-400 text-sm">Lesezeichen</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('admin.bookmarks') }}</p>
         </div>
         <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
           <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.folders }}</p>
-          <p class="text-gray-500 dark:text-gray-400 text-sm">Ordner</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('admin.folders') }}</p>
         </div>
         <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
           <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.tags }}</p>
-          <p class="text-gray-500 dark:text-gray-400 text-sm">Tags</p>
+          <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('admin.tags') }}</p>
         </div>
       </div>
 
       <!-- Benutzer-Verwaltung -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">Benutzer</h2>
+        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('admin.users') }}</h2>
 
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
               <tr class="border-gray-200 dark:border-gray-700 border-b">
-                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">Name</th>
-                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">E-Mail</th>
-                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">Lesezeichen</th>
-                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">Rolle</th>
-                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">Status</th>
-                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-right">Aktionen</th>
+                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">{{ t('admin.colName') }}</th>
+                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">{{ t('admin.colEmail') }}</th>
+                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">{{ t('admin.colBookmarks') }}</th>
+                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">{{ t('admin.colRole') }}</th>
+                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-left">{{ t('admin.colStatus') }}</th>
+                <th class="px-4 py-3 font-medium text-gray-500 dark:text-gray-400 text-sm text-right">{{ t('admin.colActions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -62,7 +62,7 @@
                       user.role === 'admin' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                     ]"
                   >
-                    {{ user.role === 'admin' ? 'Admin' : 'Benutzer' }}
+                    {{ user.role === 'admin' ? t('admin.roleAdmin') : t('admin.roleUser') }}
                   </span>
                 </td>
                 <td class="px-4 py-3">
@@ -72,7 +72,7 @@
                       user.banned ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                     ]"
                   >
-                    {{ user.banned ? 'Gesperrt' : 'Aktiv' }}
+                    {{ user.banned ? t('admin.statusBanned') : t('admin.statusActive') }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right">
@@ -80,7 +80,7 @@
                     <button
                       @click="toggleAdmin(user)"
                       :disabled="user.isSelf"
-                      :title="user.role === 'admin' ? 'Admin entziehen' : 'Zum Admin machen'"
+                      :title="user.role === 'admin' ? t('admin.revokeAdmin') : t('admin.makeAdmin')"
                       class="hover:bg-primary-50 dark:hover:bg-primary-900/20 disabled:opacity-30 p-1.5 rounded-lg text-gray-400 hover:text-primary-500 transition"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +90,7 @@
                     <button
                       @click="toggleDisable(user)"
                       :disabled="user.isSelf"
-                      :title="user.banned ? 'Entsperren' : 'Sperren'"
+                      :title="user.banned ? t('admin.unban') : t('admin.ban')"
                       class="hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-30 p-1.5 rounded-lg text-gray-400 hover:text-amber-500 transition"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -100,7 +100,7 @@
                     <button
                       @click="deleteUser(user)"
                       :disabled="user.isSelf"
-                      title="Löschen"
+                      :title="t('admin.delete')"
                       class="hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-30 p-1.5 rounded-lg text-gray-400 hover:text-red-500 transition"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -117,14 +117,14 @@
 
       <!-- System-Einstellungen -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">System-Einstellungen</h2>
+        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('admin.systemSettings') }}</h2>
 
         <div class="space-y-4">
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">Registrierung</label>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.registration') }}</label>
             <div class="flex items-center gap-3">
               <button
-                @click="updateSystemSetting('registrationEnabled', registrationEnabled ? 'false' : 'true')"
+                @click="updateSystemSetting('registration_enabled', registrationEnabled ? 'false' : 'true')"
                 :class="[
                   'relative inline-flex h-6 w-11 items-center rounded-full transition',
                   registrationEnabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'
@@ -138,19 +138,19 @@
                 />
               </button>
               <span class="text-gray-600 dark:text-gray-400 text-sm">
-                {{ registrationEnabled ? 'Aktiviert' : 'Deaktiviert' }}
+                {{ registrationEnabled ? t('admin.enabled') : t('admin.disabled') }}
               </span>
             </div>
           </div>
 
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">AI-Provider</label>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiProvider') }}</label>
             <select
               v-model="aiProvider"
-              @change="updateSystemSetting('aiProvider', aiProvider)"
+              @change="updateSystemSetting('ai_provider', aiProvider)"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white"
             >
-              <option value="moonshot">Moonshot (Kimi)</option>
+              <option value="kimi">Moonshot (Kimi)</option>
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
               <option value="ollama">Ollama (lokal)</option>
@@ -158,32 +158,57 @@
           </div>
 
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">AI API-Schlüssel</label>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiApiKey') }}</label>
             <input
               v-model="aiApiKey"
               type="password"
               placeholder="sk-..."
-              @blur="updateSystemSetting('aiApiKey', aiApiKey)"
+              @blur="updateSystemSetting('moonshot_api_key', aiApiKey)"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white"
             />
           </div>
 
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">AI Modell</label>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiModel') }}</label>
             <input
               v-model="aiModel"
               type="text"
               placeholder="kimi-k2-turbo-preview"
-              @blur="updateSystemSetting('aiModel', aiModel)"
+              @blur="updateSystemSetting('ai_model', aiModel)"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white"
             />
+          </div>
+
+          <!-- AI Thinking Toggle (nur bei Kimi) -->
+          <div v-if="aiProvider === 'kimi'">
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiThinking') }}</label>
+            <div class="flex items-center gap-3">
+              <button
+                @click="aiThinkingEnabled = !aiThinkingEnabled; updateSystemSetting('ai_thinking_enabled', aiThinkingEnabled ? 'true' : 'false')"
+                :class="[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition',
+                  aiThinkingEnabled ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'
+                ]"
+              >
+                <span
+                  :class="[
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                    aiThinkingEnabled ? 'translate-x-6' : 'translate-x-1'
+                  ]"
+                />
+              </button>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">
+                {{ aiThinkingEnabled ? t('admin.aiThinkingEnabled') : t('admin.aiThinkingDisabled') }}
+              </span>
+            </div>
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('admin.aiThinkingHint') }}</p>
           </div>
         </div>
       </div>
 
       <!-- Gespeichert-Meldung -->
       <div v-if="saved" class="right-6 bottom-6 z-50 fixed bg-green-600 shadow-lg px-4 py-2.5 rounded-xl font-medium text-white text-sm animate-slide-up">
-        Gespeichert ✓
+        {{ t('admin.saved') }}
       </div>
     </div>
   </div>
@@ -192,16 +217,19 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "../stores/auth";
+import { useI18n } from "../composables/useI18n";
 
 const authStore = useAuthStore();
+const { t } = useI18n();
 
 const stats = ref({ users: 0, bookmarks: 0, folders: 0, tags: 0 });
 const users = ref<any[]>([]);
 const saved = ref(false);
 const registrationEnabled = ref(true);
-const aiProvider = ref("moonshot");
+const aiProvider = ref("kimi");
 const aiApiKey = ref("");
 const aiModel = ref("");
+const aiThinkingEnabled = ref(false);
 
 function getInitials(name: string) {
   return name
@@ -230,10 +258,11 @@ async function loadData() {
     }
     if (settingsRes.ok) {
       const data = await settingsRes.json();
-      registrationEnabled.value = data.registrationEnabled !== "false";
-      aiProvider.value = data.aiProvider || "moonshot";
-      aiApiKey.value = data.aiApiKey || "";
-      aiModel.value = data.aiModel || "";
+      registrationEnabled.value = data.registration_enabled !== "false";
+      aiProvider.value = data.ai_provider || "kimi";
+      aiApiKey.value = data.moonshot_api_key || "";
+      aiModel.value = data.ai_model || "";
+      aiThinkingEnabled.value = data.ai_thinking_enabled === "true";
     }
   } catch (e) {
     console.error("Admin-Daten laden fehlgeschlagen:", e);
@@ -255,7 +284,7 @@ async function toggleDisable(user: any) {
 }
 
 async function deleteUser(user: any) {
-  if (!confirm(`Benutzer "${user.name}" wirklich löschen? Alle Daten werden entfernt.`)) return;
+  if (!confirm(t('admin.deleteUserConfirm', { name: user.name }))) return;
   try {
     await fetch(`/api/admin/users/${user.id}`, { method: "DELETE" });
     await loadData();
@@ -269,7 +298,7 @@ async function updateSystemSetting(key: string, value: string) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ [key]: value }),
     });
-    if (key === "registrationEnabled") registrationEnabled.value = value !== "false";
+    if (key === 'registration_enabled') registrationEnabled.value = value !== "false";
     showSaved();
   } catch {}
 }

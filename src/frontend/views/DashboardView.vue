@@ -1,6 +1,6 @@
 <template>
   <div class="p-6 lg:p-8 animate-fade-in">
-    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">Dashboard</h1>
+    <h1 class="mb-6 font-bold text-gray-900 dark:text-white text-2xl">{{ t('dashboard.title') }}</h1>
 
     <!-- Statistik-Karten -->
     <div class="gap-4 grid grid-cols-2 lg:grid-cols-4 mb-8">
@@ -13,7 +13,7 @@
           </div>
         </div>
         <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.bookmarks }}</p>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Lesezeichen</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('dashboard.statBookmarks') }}</p>
       </div>
 
       <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
@@ -25,7 +25,7 @@
           </div>
         </div>
         <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.folders }}</p>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Ordner</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('dashboard.statFolders') }}</p>
       </div>
 
       <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
@@ -37,7 +37,7 @@
           </div>
         </div>
         <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.tags }}</p>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Tags</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('dashboard.statTags') }}</p>
       </div>
 
       <div class="bg-white dark:bg-gray-900 p-5 border border-gray-200 dark:border-gray-800 rounded-2xl">
@@ -49,16 +49,16 @@
           </div>
         </div>
         <p class="font-bold text-gray-900 dark:text-white text-2xl">{{ stats.unread }}</p>
-        <p class="text-gray-500 dark:text-gray-400 text-sm">Ungelesen</p>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('dashboard.statUnread') }}</p>
       </div>
     </div>
 
     <!-- Zuletzt hinzugefügt -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="font-semibold text-gray-900 dark:text-white text-lg">Zuletzt hinzugefügt</h2>
+        <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('dashboard.recentlyAdded') }}</h2>
         <router-link to="/bookmarks" class="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 text-sm">
-          Alle anzeigen →
+          {{ t('dashboard.showAll') }}
         </router-link>
       </div>
       <div v-if="recentBookmarks.length" class="gap-3 grid">
@@ -73,17 +73,17 @@
         <svg class="mx-auto mb-3 w-12 h-12 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
         </svg>
-        <p class="text-gray-500 dark:text-gray-400">Noch keine Lesezeichen vorhanden</p>
-        <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">Füge dein erstes Lesezeichen hinzu!</p>
+        <p class="text-gray-500 dark:text-gray-400">{{ t('dashboard.emptyBookmarks') }}</p>
+        <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ t('dashboard.emptyBookmarksHint') }}</p>
       </div>
     </div>
 
     <!-- Favoriten -->
     <div v-if="favorites.length">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="font-semibold text-gray-900 dark:text-white text-lg">Favoriten</h2>
+        <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('dashboard.favorites') }}</h2>
         <router-link to="/bookmarks?filter=favorites" class="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 text-sm">
-          Alle anzeigen →
+          {{ t('dashboard.showAll') }}
         </router-link>
       </div>
       <div class="gap-3 grid">
@@ -101,6 +101,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import BookmarkCard from "../components/BookmarkCard.vue";
+import { useI18n } from "../composables/useI18n";
+
+const { t } = useI18n();
 
 const stats = ref({ bookmarks: 0, folders: 0, tags: 0, unread: 0 });
 const recentBookmarks = ref<any[]>([]);

@@ -8,33 +8,33 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
           </svg>
         </div>
-        <h1 class="font-bold text-gray-900 dark:text-white text-3xl">Keepomat</h1>
-        <p class="mt-1 text-gray-500 dark:text-gray-400">Smart Bookmark Manager</p>
+        <h1 class="font-bold text-gray-900 dark:text-white text-3xl">{{ t('app.name') }}</h1>
+        <p class="mt-1 text-gray-500 dark:text-gray-400">{{ t('app.tagline') }}</p>
       </div>
 
       <!-- Login-Formular -->
       <div class="bg-white dark:bg-gray-900 shadow-xl p-8 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-6 font-semibold text-gray-900 dark:text-white text-xl">Anmelden</h2>
+        <h2 class="mb-6 font-semibold text-gray-900 dark:text-white text-xl">{{ t('auth.loginTitle') }}</h2>
 
         <form @submit.prevent="handleLogin" class="space-y-4">
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">E-Mail</label>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('auth.email') }}</label>
             <input
               v-model="email"
               type="email"
               required
-              placeholder="du@beispiel.de"
+              :placeholder="t('auth.emailPlaceholder')"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
             />
           </div>
 
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">Passwort</label>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('auth.password') }}</label>
             <input
               v-model="password"
               type="password"
               required
-              placeholder="••••••••"
+              :placeholder="t('auth.passwordPlaceholder')"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
             />
           </div>
@@ -52,15 +52,15 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
             </svg>
-            {{ loading ? 'Anmelden...' : 'Anmelden' }}
+            {{ loading ? t('auth.loggingIn') : t('auth.login') }}
           </button>
         </form>
 
         <div class="mt-6 text-center">
           <p class="text-gray-500 dark:text-gray-400 text-sm">
-            Noch kein Konto?
+            {{ t('auth.noAccount') }}
             <router-link to="/register" class="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400">
-              Registrieren
+              {{ t('auth.register') }}
             </router-link>
           </p>
         </div>
@@ -73,10 +73,12 @@
 import { ref } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { useI18n } from "../composables/useI18n";
 
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const { t } = useI18n();
 
 const email = ref("");
 const password = ref("");
@@ -91,7 +93,7 @@ async function handleLogin() {
     const redirect = (route.query.redirect as string) || "/";
     router.push(redirect);
   } catch (e: any) {
-    error.value = e.message || "Anmeldung fehlgeschlagen";
+    error.value = e.message || t('auth.loginFailed');
   } finally {
     loading.value = false;
   }
