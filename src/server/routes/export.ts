@@ -2,6 +2,9 @@ import { Hono } from "hono";
 import { db } from "../../db";
 import * as schema from "../../db/schema";
 import { eq, and, desc, inArray } from "drizzle-orm";
+import { getScreenshotPath } from "../services/screenshot";
+import { existsSync, writeFileSync, mkdirSync } from "fs";
+import { resolve } from "path";
 import PDFDocument from "pdfkit";
 
 export const exportRoutes = new Hono();
@@ -200,6 +203,7 @@ exportRoutes.get("/pdf", async (c) => {
 // Bookmarks als JSON exportieren
 exportRoutes.get("/json", async (c) => {
   const user = c.get("user" as never) as any;
+  const includeImages = c.req.query("includeImages") === "true";
 
   const bookmarks = db
     .select()
@@ -207,8 +211,14 @@ exportRoutes.get("/json", async (c) => {
     .where(eq(schema.bookmarks.userId, user.id))
     .all();
 
-  // Tags für jeden Bookmark
-  const bookmarksWithTags = bookmarks.map((bm) => {
+  const folders = db
+    .select()
+    .from(schema.folders)
+    .where(eq(schema.folders.userId, user.id))
+    .all();
+
+  // Bookmarks mit Tags, Ordnern und optionalen Screenshots
+  const bookmarksExport = bookmarks.map((bm) => {
     const tagRows = db
       .select({ tagId: schema.bookmarkTags.tagId })
       .from(schema.bookmarkTags)
@@ -218,46 +228,248 @@ exportRoutes.get("/json", async (c) => {
       ? db.select().from(schema.tags).where(inArray(schema.tags.id, tagRows.map(r => r.tagId))).all()
       : [];
 
-    return { ...bm, tags: tags.map(t => t.name) };
+    const folderRows = db
+      .select({ folderId: schema.bookmarkFolders.folderId })
+      .from(schema.bookmarkFolders)
+      .where(eq(schema.bookmarkFolders.bookmarkId, bm.id))
+      .all();
+    const bmFolders = folderRows.length > 0
+      ? db.select().from(schema.folders).where(inArray(schema.folders.id, folderRows.map(r => r.folderId))).all()
+      : [];
+
+    const entry: Record<string, any> = {
+      url: bm.url,
+      title: bm.title,
+      description: bm.description,
+      ogImage: bm.ogImage,
+      favicon: bm.favicon,
+      aiSummary: bm.aiSummary,
+      isRead: bm.isRead,
+      isFavorite: bm.isFavorite,
+      createdAt: bm.createdAt.toISOString(),
+      tags: tags.map(t => t.name),
+      folders: bmFolders.map(f => f.name),
+    };
+
+    if (includeImages && bm.screenshot) {
+      const filepath = getScreenshotPath(bm.screenshot);
+      if (existsSync(filepath)) {
+        const fileData = Bun.file(filepath);
+        const buffer = new Uint8Array(fileData.size);
+        const reader = fileData.stream().getReader();
+        // Synchron einlesen via Bun.file
+        try {
+          const bytes = require("fs").readFileSync(filepath);
+          entry.screenshotBase64 = Buffer.from(bytes).toString("base64");
+        } catch {}
+      }
+    }
+
+    return entry;
   });
 
+  // Ordner-Struktur exportieren
+  const foldersExport = folders.map(f => ({
+    name: f.name,
+    icon: f.icon,
+    color: f.color,
+    parentName: f.parentId ? folders.find(p => p.id === f.parentId)?.name || null : null,
+  }));
+
   const exportData = {
-    version: "1.0",
+    version: "2.0",
     exportedAt: new Date().toISOString(),
     count: bookmarks.length,
-    bookmarks: bookmarksWithTags,
+    includesImages: includeImages,
+    folders: foldersExport,
+    bookmarks: bookmarksExport,
   };
 
   c.header("Content-Type", "application/json");
-  c.header("Content-Disposition", 'attachment; filename="keepomat-bookmarks.json"');
+  c.header("Content-Disposition", `attachment; filename="keepomat-bookmarks${includeImages ? '-mit-bilder' : ''}.json"`);
   return c.json(exportData);
 });
 
 // HTML-Import (Netscape Bookmark Format)
 exportRoutes.post("/import", async (c) => {
   const user = c.get("user" as never) as any;
-  const body = await c.req.json();
 
-  if (!body.html) {
+  let html = "";
+  const contentType = c.req.header("content-type") || "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await c.req.formData();
+    const file = formData.get("file") as File | null;
+    if (!file) return c.json({ error: "Datei erforderlich" }, 400);
+    html = await file.text();
+  } else {
+    const body = await c.req.json();
+    html = body.html || "";
+  }
+
+  if (!html) {
     return c.json({ error: "HTML-Inhalt erforderlich" }, 400);
   }
 
-  // Einfacher Parser für Netscape Bookmark Format
-  const imported = parseNetscapeBookmarks(body.html, user.id);
+  const result = parseNetscapeBookmarks(html, user.id);
 
   return c.json({
-    success: true,
-    imported: {
-      bookmarks: imported.bookmarks,
-      folders: imported.folders,
-    },
+    imported: result.bookmarks,
+    skipped: result.skipped,
+    folders: result.folders,
   });
+});
+
+// JSON-Import (Keepomat-Format)
+exportRoutes.post("/import-json", async (c) => {
+  const user = c.get("user" as never) as any;
+
+  let data: any;
+  const contentType = c.req.header("content-type") || "";
+
+  if (contentType.includes("multipart/form-data")) {
+    const formData = await c.req.formData();
+    const file = formData.get("file") as File | null;
+    if (!file) return c.json({ error: "Datei erforderlich" }, 400);
+    const text = await file.text();
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return c.json({ error: "Ungültige JSON-Datei" }, 400);
+    }
+  } else {
+    data = await c.req.json();
+  }
+
+  if (!data?.bookmarks || !Array.isArray(data.bookmarks)) {
+    return c.json({ error: "Ungültiges Keepomat-Exportformat" }, 400);
+  }
+
+  let imported = 0;
+  let skipped = 0;
+
+  // Ordner erstellen (wenn vorhanden)
+  const folderNameToId = new Map<string, number>();
+  if (data.folders && Array.isArray(data.folders)) {
+    // Erst Ordner ohne Parent, dann mit Parent
+    const rootFolders = data.folders.filter((f: any) => !f.parentName);
+    const childFolders = data.folders.filter((f: any) => f.parentName);
+
+    for (const f of rootFolders) {
+      const existing = db.select().from(schema.folders)
+        .where(and(eq(schema.folders.name, f.name), eq(schema.folders.userId, user.id)))
+        .get();
+      if (existing) {
+        folderNameToId.set(f.name, existing.id);
+      } else {
+        const created = db.insert(schema.folders).values({
+          name: f.name, icon: f.icon || null, color: f.color || null,
+          parentId: null, userId: user.id, position: 0,
+        }).returning().get();
+        folderNameToId.set(f.name, created.id);
+      }
+    }
+
+    for (const f of childFolders) {
+      const parentId = folderNameToId.get(f.parentName) || null;
+      const existing = db.select().from(schema.folders)
+        .where(and(eq(schema.folders.name, f.name), eq(schema.folders.userId, user.id)))
+        .get();
+      if (existing) {
+        folderNameToId.set(f.name, existing.id);
+      } else {
+        const created = db.insert(schema.folders).values({
+          name: f.name, icon: f.icon || null, color: f.color || null,
+          parentId, userId: user.id, position: 0,
+        }).returning().get();
+        folderNameToId.set(f.name, created.id);
+      }
+    }
+  }
+
+  // Screenshots-Verzeichnis
+  const screenshotsDir = resolve(process.cwd(), "data/screenshots");
+  if (!existsSync(screenshotsDir)) mkdirSync(screenshotsDir, { recursive: true });
+
+  for (const bm of data.bookmarks) {
+    if (!bm.url) continue;
+
+    // Duplikat-Check
+    const existing = db.select().from(schema.bookmarks)
+      .where(and(eq(schema.bookmarks.url, bm.url), eq(schema.bookmarks.userId, user.id)))
+      .get();
+
+    if (existing) {
+      skipped++;
+      continue;
+    }
+
+    // Screenshot aus Base64 speichern
+    let screenshotFilename: string | null = null;
+    const bookmark = db.insert(schema.bookmarks).values({
+      userId: user.id,
+      url: bm.url,
+      title: bm.title || null,
+      description: bm.description || null,
+      ogImage: bm.ogImage || null,
+      favicon: bm.favicon || null,
+      aiSummary: bm.aiSummary || null,
+      isRead: bm.isRead || false,
+      isFavorite: bm.isFavorite || false,
+    }).returning().get();
+
+    if (bm.screenshotBase64) {
+      try {
+        screenshotFilename = `${bookmark.id}.webp`;
+        const buffer = Buffer.from(bm.screenshotBase64, "base64");
+        writeFileSync(resolve(screenshotsDir, screenshotFilename), buffer);
+        db.update(schema.bookmarks)
+          .set({ screenshot: screenshotFilename })
+          .where(eq(schema.bookmarks.id, bookmark.id))
+          .run();
+      } catch {
+        screenshotFilename = null;
+      }
+    }
+
+    // Tags zuweisen
+    if (bm.tags && Array.isArray(bm.tags)) {
+      for (const tagName of bm.tags) {
+        let tag = db.select().from(schema.tags)
+          .where(and(eq(schema.tags.name, tagName), eq(schema.tags.userId, user.id)))
+          .get();
+        if (!tag) {
+          tag = db.insert(schema.tags).values({ name: tagName, userId: user.id }).returning().get();
+        }
+        try {
+          db.insert(schema.bookmarkTags).values({ bookmarkId: bookmark.id, tagId: tag.id }).run();
+        } catch {} // Duplikat ignorieren
+      }
+    }
+
+    // Ordner zuweisen
+    if (bm.folders && Array.isArray(bm.folders)) {
+      for (const folderName of bm.folders) {
+        const folderId = folderNameToId.get(folderName);
+        if (folderId) {
+          try {
+            db.insert(schema.bookmarkFolders).values({ bookmarkId: bookmark.id, folderId }).run();
+          } catch {} // Duplikat ignorieren
+        }
+      }
+    }
+
+    imported++;
+  }
+
+  return c.json({ imported, skipped });
 });
 
 // Einfacher Netscape Bookmark Parser
 function parseNetscapeBookmarks(html: string, userId: string) {
   let bookmarksCreated = 0;
   let foldersCreated = 0;
+  let skipped = 0;
 
   const folderStack: number[] = [];
   const lines = html.split("\n");
@@ -322,11 +534,13 @@ function parseNetscapeBookmarks(html: string, userId: string) {
         }
 
         bookmarksCreated++;
+      } else {
+        skipped++;
       }
     }
   }
 
-  return { bookmarks: bookmarksCreated, folders: foldersCreated };
+  return { bookmarks: bookmarksCreated, folders: foldersCreated, skipped };
 }
 
 function escapeHtml(str: string): string {

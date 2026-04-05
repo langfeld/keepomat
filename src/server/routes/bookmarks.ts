@@ -5,6 +5,8 @@ import { eq, and, desc, sql, inArray } from "drizzle-orm";
 import { createBookmarkSchema, updateBookmarkSchema } from "../../shared/validators";
 import { fetchMetadata } from "../services/metadata";
 import { analyzeBookmark, isAiConfigured } from "../services/ai";
+import { captureScreenshot, getScreenshotPath } from "../services/screenshot";
+import { existsSync } from "fs";
 
 export const bookmarkRoutes = new Hono();
 
@@ -118,6 +120,54 @@ bookmarkRoutes.get("/", async (c) => {
     offset,
     hasMore: offset + limit < (total?.count || 0),
   });
+});
+
+// Screenshot eines Bookmarks servieren
+bookmarkRoutes.get("/:id/screenshot", async (c) => {
+  const user = c.get("user" as never) as any;
+  const id = parseInt(c.req.param("id"));
+
+  const bookmark = db
+    .select({ screenshot: schema.bookmarks.screenshot, userId: schema.bookmarks.userId })
+    .from(schema.bookmarks)
+    .where(and(eq(schema.bookmarks.id, id), eq(schema.bookmarks.userId, user.id)))
+    .get();
+
+  if (!bookmark?.screenshot) {
+    return c.json({ error: "Kein Screenshot vorhanden" }, 404);
+  }
+
+  const filepath = getScreenshotPath(bookmark.screenshot);
+  if (!existsSync(filepath)) {
+    return c.json({ error: "Screenshot-Datei nicht gefunden" }, 404);
+  }
+
+  const file = Bun.file(filepath);
+  return new Response(file, {
+    headers: {
+      "Content-Type": "image/webp",
+      "Cache-Control": "public, max-age=86400",
+    },
+  });
+});
+
+// Screenshot neu erstellen
+bookmarkRoutes.post("/:id/screenshot", async (c) => {
+  const user = c.get("user" as never) as any;
+  const id = parseInt(c.req.param("id"));
+
+  const bookmark = db
+    .select({ id: schema.bookmarks.id, url: schema.bookmarks.url, userId: schema.bookmarks.userId })
+    .from(schema.bookmarks)
+    .where(and(eq(schema.bookmarks.id, id), eq(schema.bookmarks.userId, user.id)))
+    .get();
+
+  if (!bookmark) {
+    return c.json({ error: "Bookmark nicht gefunden" }, 404);
+  }
+
+  captureAndSaveScreenshot(bookmark.id, bookmark.url);
+  return c.json({ success: true, message: "Screenshot wird erstellt" });
 });
 
 // Einzelnen Bookmark abrufen
@@ -248,6 +298,9 @@ bookmarkRoutes.post("/", async (c) => {
     analyzeAndUpdateBookmark(bookmark.id, user.id, data.url, bookmark.title, bookmark.description);
   }
 
+  // Screenshot (async, nicht blockierend)
+  captureAndSaveScreenshot(bookmark.id, data.url);
+
   return c.json(bookmark, 201);
 });
 
@@ -359,6 +412,20 @@ bookmarkRoutes.delete("/:id", async (c) => {
 });
 
 // AI-Analyse async durchführen
+async function captureAndSaveScreenshot(bookmarkId: number, url: string) {
+  try {
+    const filename = await captureScreenshot(url, bookmarkId);
+    if (filename) {
+      db.update(schema.bookmarks)
+        .set({ screenshot: filename, updatedAt: new Date() })
+        .where(eq(schema.bookmarks.id, bookmarkId))
+        .run();
+    }
+  } catch (error) {
+    console.error(`❌ Screenshot save failed for bookmark #${bookmarkId}:`, error);
+  }
+}
+
 async function analyzeAndUpdateBookmark(
   bookmarkId: number,
   userId: string,

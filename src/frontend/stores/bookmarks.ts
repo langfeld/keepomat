@@ -96,6 +96,15 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
     return updateBookmark(id, { isRead: !bookmark.isRead });
   }
 
+  async function retakeScreenshot(id: number) {
+    const res = await fetch(`/api/bookmarks/${id}/screenshot`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error("Fehler beim Erstellen des Screenshots");
+    return res.json();
+  }
+
   return {
     bookmarks,
     loading,
@@ -108,5 +117,6 @@ export const useBookmarksStore = defineStore("bookmarks", () => {
     deleteBookmark,
     toggleFavorite,
     toggleRead,
+    retakeScreenshot,
   };
 });

@@ -168,9 +168,13 @@
 import { ref, computed, onMounted } from "vue";
 import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
+import { useConfirm } from "../composables/useConfirm";
+import { useToast } from "../composables/useToast";
 
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
+const { confirm } = useConfirm();
+const toast = useToast();
 
 const language = ref("de");
 const apiKeys = ref<any[]>([]);
@@ -230,12 +234,21 @@ async function createApiKey() {
 }
 
 async function deleteApiKey(id: string) {
-  if (!confirm(t('settings.apiKeyDeleteConfirm'))) return;
+  const ok = await confirm({
+    title: t('common.delete'),
+    message: t('settings.apiKeyDeleteConfirm'),
+    confirmText: t('common.delete'),
+    variant: 'danger',
+  });
+  if (!ok) return;
   try {
     await fetch(`/api/keys/${id}`, { method: "DELETE" });
     await loadApiKeys();
     if (newApiKey.value) newApiKey.value = "";
-  } catch {}
+    toast.success(t('toast.apiKeyDeleted'));
+  } catch {
+    toast.error(t('common.saveError'));
+  }
 }
 
 function copyKey() {
@@ -275,7 +288,7 @@ async function importSettings(e: Event) {
       showSaved();
     }
   } catch {
-    alert(t('common.importFailed'));
+    toast.error(t('common.importFailed'));
   }
 }
 

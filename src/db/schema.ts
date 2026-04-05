@@ -77,6 +77,7 @@ export const bookmarks = sqliteTable("bookmarks", {
   ogImage: text("og_image"),
   favicon: text("favicon"),
   aiSummary: text("ai_summary"),
+  screenshot: text("screenshot"),
   isRead: integer("is_read", { mode: "boolean" }).default(false).notNull(),
   isFavorite: integer("is_favorite", { mode: "boolean" }).default(false).notNull(),
   isDeadLink: integer("is_dead_link", { mode: "boolean" }).default(false).notNull(),

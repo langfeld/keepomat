@@ -102,13 +102,21 @@ export default {
   "bookmarks.filterDead": "Tote Links",
   "bookmarks.filterAllTags": "Alle Tags",
   "bookmarks.importHtml": "HTML importieren",
+  "bookmarks.importJson": "JSON importieren",
+  "bookmarks.importSection": "Importieren",
+  "bookmarks.exportSection": "Exportieren",
   "bookmarks.exportHtml": "HTML exportieren",
   "bookmarks.exportJson": "JSON exportieren",
+  "bookmarks.exportJsonImages": "JSON + Bilder exportieren",
   "bookmarks.exportPdf": "PDF exportieren",
   "bookmarks.empty": "Keine Lesezeichen gefunden",
   "bookmarks.emptyHint": "Passe die Filter an oder füge neue Lesezeichen hinzu.",
   "bookmarks.deleteConfirm": "Lesezeichen wirklich löschen?",
   "bookmarks.importResult": "{imported} Lesezeichen importiert, {skipped} übersprungen",
+  "bookmarks.showScreenshots": "Screenshots anzeigen",
+  "bookmarks.showImages": "Vorschaubilder anzeigen",
+  "bookmarks.viewList": "Listenansicht",
+  "bookmarks.viewGrid": "Rasteransicht",
 
   // Bookmark Card
   "bookmark.dead": "Tot",
@@ -117,6 +125,8 @@ export default {
   "bookmark.markUnread": "Als ungelesen markieren",
   "bookmark.markRead": "Als gelesen markieren",
   "bookmark.aiSummary": "AI-Zusammenfassung",
+  "bookmark.screenshot": "Screenshot",
+  "bookmark.retakeScreenshot": "Screenshot neu erstellen",
 
   // Add Bookmark
   "addBookmark.title": "Lesezeichen hinzufügen",
@@ -209,4 +219,13 @@ export default {
   "admin.aiTesting": "Teste...",
   "admin.saved": "Gespeichert ✓",
   "admin.deleteUserConfirm": "Benutzer \"{name}\" wirklich löschen? Alle Daten werden entfernt.",
+
+  // Toasts
+  "toast.bookmarkDeleted": "Lesezeichen gelöscht",
+  "toast.importing": "Import läuft…",
+  "toast.screenshotCreating": "Screenshot wird erstellt…",
+  "toast.screenshotCreated": "Screenshot wurde erstellt",
+  "toast.screenshotFailed": "Screenshot konnte nicht erstellt werden",
+  "toast.apiKeyDeleted": "API-Schlüssel gelöscht",
+  "toast.userDeleted": "Benutzer gelöscht",
 } as const;

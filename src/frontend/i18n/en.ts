@@ -102,13 +102,21 @@ export default {
   "bookmarks.filterDead": "Dead links",
   "bookmarks.filterAllTags": "All tags",
   "bookmarks.importHtml": "Import HTML",
+  "bookmarks.importJson": "Import JSON",
+  "bookmarks.importSection": "Import",
+  "bookmarks.exportSection": "Export",
   "bookmarks.exportHtml": "Export HTML",
   "bookmarks.exportJson": "Export JSON",
+  "bookmarks.exportJsonImages": "Export JSON + Images",
   "bookmarks.exportPdf": "Export PDF",
   "bookmarks.empty": "No bookmarks found",
   "bookmarks.emptyHint": "Adjust filters or add new bookmarks.",
   "bookmarks.deleteConfirm": "Really delete this bookmark?",
   "bookmarks.importResult": "{imported} bookmarks imported, {skipped} skipped",
+  "bookmarks.showScreenshots": "Show screenshots",
+  "bookmarks.showImages": "Show preview images",
+  "bookmarks.viewList": "List view",
+  "bookmarks.viewGrid": "Grid view",
 
   // Bookmark Card
   "bookmark.dead": "Dead",
@@ -117,8 +125,8 @@ export default {
   "bookmark.markUnread": "Mark as unread",
   "bookmark.markRead": "Mark as read",
   "bookmark.aiSummary": "AI Summary",
-
-  // Add Bookmark
+  "bookmark.screenshot": "Screenshot",
+  "bookmark.retakeScreenshot": "Retake screenshot",
   "addBookmark.title": "Add bookmark",
   "addBookmark.url": "URL *",
   "addBookmark.urlPlaceholder": "https://...",
@@ -209,4 +217,13 @@ export default {
   "admin.aiTesting": "Testing...",
   "admin.saved": "Saved ✓",
   "admin.deleteUserConfirm": "Really delete user \"{name}\"? All data will be removed.",
+
+  // Toasts
+  "toast.bookmarkDeleted": "Bookmark deleted",
+  "toast.importing": "Importing…",
+  "toast.screenshotCreating": "Creating screenshot…",
+  "toast.screenshotCreated": "Screenshot created",
+  "toast.screenshotFailed": "Failed to create screenshot",
+  "toast.apiKeyDeleted": "API key deleted",
+  "toast.userDeleted": "User deleted",
 } as const;

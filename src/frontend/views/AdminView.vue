@@ -59,20 +59,20 @@
                   <span
                     :class="[
                       'inline-flex px-2 py-1 rounded-lg text-xs font-medium',
-                      user.role === 'admin' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
+                      user.isAdmin ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400'
                     ]"
                   >
-                    {{ user.role === 'admin' ? t('admin.roleAdmin') : t('admin.roleUser') }}
+                    {{ user.isAdmin ? t('admin.roleAdmin') : t('admin.roleUser') }}
                   </span>
                 </td>
                 <td class="px-4 py-3">
                   <span
                     :class="[
                       'inline-flex px-2 py-1 rounded-lg text-xs font-medium',
-                      user.banned ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      user.isDisabled ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
                     ]"
                   >
-                    {{ user.banned ? t('admin.statusBanned') : t('admin.statusActive') }}
+                    {{ user.isDisabled ? t('admin.statusBanned') : t('admin.statusActive') }}
                   </span>
                 </td>
                 <td class="px-4 py-3 text-right">
@@ -80,7 +80,7 @@
                     <button
                       @click="toggleAdmin(user)"
                       :disabled="user.isSelf"
-                      :title="user.role === 'admin' ? t('admin.revokeAdmin') : t('admin.makeAdmin')"
+                      :title="user.isAdmin ? t('admin.revokeAdmin') : t('admin.makeAdmin')"
                       class="hover:bg-primary-50 dark:hover:bg-primary-900/20 disabled:opacity-30 p-1.5 rounded-lg text-gray-400 hover:text-primary-500 transition"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +90,7 @@
                     <button
                       @click="toggleDisable(user)"
                       :disabled="user.isSelf"
-                      :title="user.banned ? t('admin.unban') : t('admin.ban')"
+                      :title="user.isDisabled ? t('admin.unban') : t('admin.ban')"
                       class="hover:bg-amber-50 dark:hover:bg-amber-900/20 disabled:opacity-30 p-1.5 rounded-lg text-gray-400 hover:text-amber-500 transition"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -249,9 +249,13 @@
 import { ref, onMounted } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { useI18n } from "../composables/useI18n";
+import { useConfirm } from "../composables/useConfirm";
+import { useToast } from "../composables/useToast";
 
 const authStore = useAuthStore();
 const { t } = useI18n();
+const { confirm } = useConfirm();
+const toast = useToast();
 
 const stats = ref({ users: 0, bookmarks: 0, folders: 0, tags: 0 });
 const users = ref<any[]>([]);
@@ -317,11 +321,20 @@ async function toggleDisable(user: any) {
 }
 
 async function deleteUser(user: any) {
-  if (!confirm(t('admin.deleteUserConfirm', { name: user.name }))) return;
+  const ok = await confirm({
+    title: t('common.delete'),
+    message: t('admin.deleteUserConfirm', { name: user.name }),
+    confirmText: t('common.delete'),
+    variant: 'danger',
+  });
+  if (!ok) return;
   try {
     await fetch(`/api/admin/users/${user.id}`, { method: "DELETE" });
     await loadData();
-  } catch {}
+    toast.success(t('toast.userDeleted'));
+  } catch {
+    toast.error(t('common.saveError'));
+  }
 }
 
 async function updateSystemSetting(key: string, value: string) {

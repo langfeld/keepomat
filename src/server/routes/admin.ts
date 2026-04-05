@@ -32,8 +32,9 @@ adminRoutes.get("/users", async (c) => {
       isDisabled: schema.users.isDisabled,
       createdAt: schema.users.createdAt,
       bookmarkCount: sql<number>`(
-        SELECT COUNT(*) FROM bookmarks WHERE bookmarks.user_id = ${schema.users.id}
+        SELECT COUNT(*) FROM bookmarks WHERE bookmarks.user_id = "users"."id"
       )`,
+
     })
     .from(schema.users)
     .orderBy(desc(schema.users.createdAt))

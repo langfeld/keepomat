@@ -36,23 +36,38 @@
         <div class="flex items-center bg-gray-100 dark:bg-gray-800 p-0.5 rounded-xl">
           <button
             @click="viewMode = 'list'"
-            :class="viewMode === 'list' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''"
+            :class="viewMode === 'list' ? 'bg-primary-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             class="p-2 rounded-lg transition"
+            :title="t('bookmarks.viewList')"
           >
-            <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           <button
             @click="viewMode = 'grid'"
-            :class="viewMode === 'grid' ? 'bg-white dark:bg-gray-700 shadow-sm' : ''"
+            :class="viewMode === 'grid' ? 'bg-primary-500 text-white shadow-sm' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'"
             class="p-2 rounded-lg transition"
+            :title="t('bookmarks.viewGrid')"
           >
-            <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
             </svg>
           </button>
         </div>
+
+        <!-- Screenshot-Toggle -->
+        <button
+          @click="showScreenshots = !showScreenshots"
+          :class="showScreenshots ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-primary-300 dark:border-primary-700' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700'"
+          class="hover:bg-gray-50 dark:hover:bg-gray-700 p-2 border rounded-xl transition"
+          :title="showScreenshots ? t('bookmarks.showImages') : t('bookmarks.showScreenshots')"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
 
         <!-- Import/Export -->
         <div class="relative" ref="exportMenuRef">
@@ -66,16 +81,28 @@
           </button>
           <div
             v-if="showExportMenu"
-            class="right-0 z-10 absolute bg-white dark:bg-gray-800 shadow-lg mt-2 py-1 border border-gray-200 dark:border-gray-700 rounded-xl w-48"
+            class="right-0 z-10 absolute bg-white dark:bg-gray-800 shadow-lg mt-2 py-1 border border-gray-200 dark:border-gray-700 rounded-xl w-56"
           >
-            <button @click="importBookmarks" class="hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 w-full text-gray-700 dark:text-gray-300 text-sm text-left">
+            <!-- Import-Sektion -->
+            <div class="px-3 pt-1.5 pb-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('bookmarks.importSection') }}</div>
+            <button @click="importHtmlBookmarks" class="hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 w-full text-gray-700 dark:text-gray-300 text-sm text-left">
               {{ t('bookmarks.importHtml') }}
             </button>
+            <button @click="importJsonBookmarks" class="hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 w-full text-gray-700 dark:text-gray-300 text-sm text-left">
+              {{ t('bookmarks.importJson') }}
+            </button>
+            <!-- Trennlinie -->
+            <div class="my-1 border-t border-gray-200 dark:border-gray-700"></div>
+            <!-- Export-Sektion -->
+            <div class="px-3 pt-1.5 pb-1 text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">{{ t('bookmarks.exportSection') }}</div>
             <a href="/api/export/html" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
               {{ t('bookmarks.exportHtml') }}
             </a>
             <a href="/api/export/json" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
               {{ t('bookmarks.exportJson') }}
+            </a>
+            <a href="/api/export/json?includeImages=true" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
+              {{ t('bookmarks.exportJsonImages') }}
             </a>
             <a href="/api/export/pdf" class="block hover:bg-gray-50 dark:hover:bg-gray-700 px-4 py-2 text-gray-700 dark:text-gray-300 text-sm">
               {{ t('bookmarks.exportPdf') }}
@@ -99,8 +126,10 @@
         :key="bookmark.id"
         :bookmark="bookmark"
         :compact="viewMode === 'list'"
+        :showScreenshot="showScreenshots"
         @edit="editBookmark"
         @delete="deleteBookmark"
+        @retakeScreenshot="retakeScreenshot"
       />
     </div>
 
@@ -123,8 +152,10 @@
       </button>
     </div>
 
-    <!-- Versteckter Import-Input -->
-    <input ref="importInput" type="file" accept=".html,.htm" class="hidden" @change="handleImport" />
+    <!-- Versteckter Import-Input (HTML) -->
+    <input ref="importHtmlInput" type="file" accept=".html,.htm" class="hidden" @change="handleHtmlImport" />
+    <!-- Versteckter Import-Input (JSON) -->
+    <input ref="importJsonInput" type="file" accept=".json" class="hidden" @change="handleJsonImport" />
 
     <!-- Edit Modal -->
     <EditBookmarkModal
@@ -141,20 +172,26 @@ import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useBookmarksStore } from "../stores/bookmarks";
 import { useI18n } from "../composables/useI18n";
+import { useConfirm } from "../composables/useConfirm";
+import { useToast } from "../composables/useToast";
 import BookmarkCard from "../components/BookmarkCard.vue";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
 
 const route = useRoute();
 const bookmarksStore = useBookmarksStore();
 const { t } = useI18n();
+const { confirm } = useConfirm();
+const toast = useToast();
 
 const filter = ref("");
 const selectedTag = ref("");
 const viewMode = ref<"list" | "grid">("list");
+const showScreenshots = ref(false);
 const tags = ref<any[]>([]);
 const showExportMenu = ref(false);
 const exportMenuRef = ref<HTMLElement>();
-const importInput = ref<HTMLInputElement>();
+const importHtmlInput = ref<HTMLInputElement>();
+const importJsonInput = ref<HTMLInputElement>();
 const editingBookmark = ref<any>(null);
 const currentFolder = ref<any>(null);
 
@@ -200,8 +237,25 @@ function editBookmark(bookmark: any) {
 }
 
 async function deleteBookmark(id: number) {
-  if (!confirm(t('bookmarks.deleteConfirm'))) return;
+  const ok = await confirm({
+    title: t('common.delete'),
+    message: t('bookmarks.deleteConfirm'),
+    confirmText: t('common.delete'),
+    variant: 'danger',
+  });
+  if (!ok) return;
   await bookmarksStore.deleteBookmark(id);
+  toast.success(t('toast.bookmarkDeleted'));
+}
+
+async function retakeScreenshot(bookmark: any) {
+  try {
+    toast.info(t('toast.screenshotCreating'));
+    await bookmarksStore.retakeScreenshot(bookmark.id);
+    toast.success(t('toast.screenshotCreated'));
+  } catch {
+    toast.error(t('toast.screenshotFailed'));
+  }
 }
 
 function handleBookmarkSaved() {
@@ -209,12 +263,17 @@ function handleBookmarkSaved() {
   loadBookmarks();
 }
 
-function importBookmarks() {
+function importHtmlBookmarks() {
   showExportMenu.value = false;
-  importInput.value?.click();
+  importHtmlInput.value?.click();
 }
 
-async function handleImport(e: Event) {
+function importJsonBookmarks() {
+  showExportMenu.value = false;
+  importJsonInput.value?.click();
+}
+
+async function handleHtmlImport(e: Event) {
   const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
 
@@ -222,20 +281,51 @@ async function handleImport(e: Event) {
   formData.append("file", file);
 
   try {
+    toast.info(t('toast.importing'));
     const res = await fetch("/api/export/import", {
       method: "POST",
       body: formData,
     });
     if (res.ok) {
       const result = await res.json();
-      alert(t('bookmarks.importResult', { imported: String(result.imported), skipped: String(result.skipped) }));
+      toast.success(t('bookmarks.importResult', { imported: String(result.imported), skipped: String(result.skipped) }));
       loadBookmarks();
     } else {
-      alert(t('common.importFailed'));
+      toast.error(t('common.importFailed'));
     }
   } catch {
-    alert(t('common.importFailed'));
+    toast.error(t('common.importFailed'));
   }
+  // Input zurücksetzen für erneuten Import derselben Datei
+  if (importHtmlInput.value) importHtmlInput.value.value = '';
+}
+
+async function handleJsonImport(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    toast.info(t('toast.importing'));
+    const res = await fetch("/api/export/import-json", {
+      method: "POST",
+      body: formData,
+    });
+    if (res.ok) {
+      const result = await res.json();
+      toast.success(t('bookmarks.importResult', { imported: String(result.imported), skipped: String(result.skipped) }));
+      loadBookmarks();
+    } else {
+      const err = await res.json().catch(() => null);
+      toast.error(err?.error || t('common.importFailed'));
+    }
+  } catch {
+    toast.error(t('common.importFailed'));
+  }
+  // Input zurücksetzen für erneuten Import derselben Datei
+  if (importJsonInput.value) importJsonInput.value.value = '';
 }
 
 // Klick außerhalb Export-Menü
