@@ -75,7 +75,7 @@
 
       <!-- API-Schlüssel -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <div class="flex justify-between items-center mb-4">
+        <div class="flex justify-between items-center mb-2">
           <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.apiKeys') }}</h2>
           <button
             @click="createApiKey"
@@ -84,6 +84,7 @@
             {{ t('settings.apiKeyNew') }}
           </button>
         </div>
+        <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">{{ t('settings.apiKeysDescription') }}</p>
 
         <!-- Neuer Schlüssel anzeigen -->
         <div v-if="newApiKey" class="bg-green-50 dark:bg-green-900/20 mb-4 p-4 border border-green-200 dark:border-green-800 rounded-xl">
@@ -119,21 +120,142 @@
         <p v-else class="text-gray-400 dark:text-gray-500 text-sm">{{ t('settings.apiKeysEmpty') }}</p>
       </div>
 
+      <!-- Browser-Erweiterung -->
+      <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="flex justify-center items-center bg-blue-100 dark:bg-blue-900/30 rounded-xl w-10 h-10">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+            </svg>
+          </div>
+          <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.extension') }}</h2>
+        </div>
+        <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">{{ t('settings.extensionDescription') }}</p>
+
+        <!-- Features -->
+        <div class="mb-4">
+          <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.extensionFeatures') }}</h3>
+          <ul class="space-y-1.5">
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.extensionFeature1') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.extensionFeature2') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.extensionFeature3') }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Setup-Anleitung -->
+        <details class="group">
+          <summary class="flex items-center gap-2 cursor-pointer text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 transition">
+            <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            {{ t('settings.extensionSetup') }}
+          </summary>
+          <div class="mt-3 ml-6 space-y-2">
+            <ol class="space-y-2 text-gray-600 dark:text-gray-400 text-sm list-decimal list-inside">
+              <li>{{ t('settings.extensionStep1', { folder: 'extension/' }) }}</li>
+              <li>
+                {{ t('settings.extensionStep2', { page: '' }) }}
+                <code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">chrome://extensions</code>
+              </li>
+              <li>{{ t('settings.extensionStep3') }}</li>
+              <li>{{ t('settings.extensionStep4', { folder: 'extension/' }) }}</li>
+              <li>{{ t('settings.extensionStep5') }}</li>
+            </ol>
+            <p class="mt-3 text-amber-600 dark:text-amber-400 text-xs font-medium">
+              💡 {{ t('settings.extensionNeedsKey') }}
+            </p>
+          </div>
+        </details>
+      </div>
+
       <!-- Telegram -->
       <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
-        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.telegram') }}</h2>
+        <div class="flex items-center gap-3 mb-2">
+          <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-xl w-10 h-10">
+            <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.telegram') }}</h2>
+          </div>
+          <span v-if="telegramLinked" class="bg-green-100 dark:bg-green-900/20 px-2.5 py-1 rounded-full text-green-700 dark:text-green-400 text-xs font-medium">
+            {{ t('settings.telegramLinked') }}
+          </span>
+          <span v-else class="bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-full text-gray-500 dark:text-gray-400 text-xs font-medium">
+            {{ t('settings.telegramNotLinked') }}
+          </span>
+        </div>
         <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">
           {{ t('settings.telegramDescription') }}
         </p>
-        <div v-if="telegramLinked" class="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 p-3 border border-green-200 dark:border-green-800 rounded-xl">
+
+        <!-- Features -->
+        <div class="mb-4">
+          <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.telegramFeatures') }}</h3>
+          <ul class="space-y-1.5">
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.telegramFeature1') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.telegramFeature2') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.telegramFeature3') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.telegramFeature4') }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Verknüpfungs-Status -->
+        <div v-if="telegramLinked" class="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 mb-4 p-3 border border-green-200 dark:border-green-800 rounded-xl">
           <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
           </svg>
           <span class="text-green-700 dark:text-green-400 text-sm">{{ t('settings.telegramLinked') }}</span>
         </div>
-        <p v-else class="text-gray-400 text-sm">
-          {{ t('settings.telegramInstruction', { command: '/start' }).split('/start')[0] }}<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">/start</code>{{ t('settings.telegramInstruction', { command: '/start' }).split('/start')[1] }}
-        </p>
+
+        <!-- Bot-Befehle -->
+        <div class="mb-4">
+          <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.telegramCommands') }}</h3>
+          <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl space-y-1">
+            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdStart') }}</p>
+            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdRecent') }}</p>
+            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdSearch') }}</p>
+            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdHelp') }}</p>
+          </div>
+        </div>
+
+        <!-- Setup-Anleitung -->
+        <details v-if="!telegramLinked" class="group">
+          <summary class="flex items-center gap-2 cursor-pointer text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 transition">
+            <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            {{ t('settings.telegramSetup') }}
+          </summary>
+          <div class="mt-3 ml-6">
+            <ol class="space-y-2 text-gray-600 dark:text-gray-400 text-sm list-decimal list-inside">
+              <li>{{ t('settings.telegramStep1') }}</li>
+              <li>
+                {{ t('settings.telegramStep2').split('/start')[0] }}<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">/start</code>{{ t('settings.telegramStep2').split('/start')[1] || '' }}
+              </li>
+              <li>{{ t('settings.telegramStep3') }}</li>
+              <li>{{ t('settings.telegramStep4') }}</li>
+            </ol>
+          </div>
+        </details>
       </div>
 
       <!-- Eigener AI-Provider -->

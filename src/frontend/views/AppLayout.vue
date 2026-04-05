@@ -1,5 +1,5 @@
 <template>
-  <div class="flex bg-gray-50 dark:bg-gray-950 min-h-screen">
+  <div class="flex bg-gray-50 dark:bg-gray-950 h-screen overflow-hidden">
     <!-- Sidebar -->
     <aside
       :class="[
@@ -143,7 +143,7 @@
     />
 
     <!-- Hauptinhalt -->
-    <div class="flex flex-col flex-1 min-h-screen">
+    <div class="flex flex-col flex-1 min-w-0">
       <!-- Header -->
       <header class="flex items-center gap-4 bg-white dark:bg-gray-900 px-4 lg:px-6 border-gray-200 dark:border-gray-800 border-b h-16 shrink-0">
         <button
