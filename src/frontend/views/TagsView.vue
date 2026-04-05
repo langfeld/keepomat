@@ -11,13 +11,13 @@
 
       <div class="flex items-center gap-2">
         <!-- Sortierung -->
-        <select
-          v-model="sortBy"
-          class="bg-white dark:bg-gray-800 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white text-sm"
-        >
-          <option value="name">{{ t('tags.sortName') }}</option>
-          <option value="count">{{ t('tags.sortCount') }}</option>
-        </select>
+        <SearchableSelect
+          :model-value="sortBy"
+          :options="sortOptions"
+          :placeholder="t('tags.sortName')"
+          @update:model-value="sortBy = String($event) as 'name' | 'count'"
+          trigger-class="!py-2 !text-sm"
+        />
       </div>
     </div>
 
@@ -183,6 +183,10 @@ const toast = useToast();
 
 const tags = ref<TagWithCount[]>([]);
 const loading = ref(false);
+const sortOptions = computed<SelectOption[]>(() => [
+  { value: 'name', label: t('tags.sortName') },
+  { value: 'count', label: t('tags.sortCount') },
+]);
 const sortBy = useLocalStorage<"name" | "count">("tagSort", "name");
 const editingTag = ref<TagWithCount | null>(null);
 const editName = ref("");

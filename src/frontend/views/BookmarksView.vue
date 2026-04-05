@@ -13,15 +13,13 @@
 
       <div class="flex flex-wrap items-center gap-2">
         <!-- Filter -->
-        <select
-          v-model="filter"
-          class="bg-white dark:bg-gray-800 px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white text-sm"
-        >
-          <option value="">{{ t('bookmarks.filterAll') }}</option>
-          <option value="unread">{{ t('bookmarks.filterUnread') }}</option>
-          <option value="favorites">{{ t('bookmarks.filterFavorites') }}</option>
-          <option value="dead">{{ t('bookmarks.filterDead') }}</option>
-        </select>
+        <SearchableSelect
+          :model-value="filter"
+          :options="filterOptions"
+          :placeholder="t('bookmarks.filterAll')"
+          @update:model-value="filter = String($event)"
+          trigger-class="!py-2 !text-sm"
+        />
 
         <!-- Tag-Filter -->
         <SearchableSelect
@@ -187,6 +185,11 @@ const { confirm } = useConfirm();
 const toast = useToast();
 
 const filter = ref("");
+const filterOptions = computed<SelectOption[]>(() => [
+  { value: 'unread', label: t('bookmarks.filterUnread') },
+  { value: 'favorites', label: t('bookmarks.filterFavorites') },
+  { value: 'dead', label: t('bookmarks.filterDead') },
+]);
 const selectedTag = ref("");
 const viewMode = useLocalStorage<"list" | "grid">("viewMode", "list");
 const showScreenshots = useLocalStorage("showScreenshots", false);

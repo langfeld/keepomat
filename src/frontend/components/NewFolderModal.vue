@@ -26,15 +26,12 @@
 
           <div>
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('newFolder.parent') }}</label>
-            <select
-              v-model="parentId"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
-            >
-              <option value="">{{ t('newFolder.noParent') }}</option>
-              <option v-for="folder in flatFolders" :key="folder.id" :value="folder.id">
-                {{ '  '.repeat(folder.depth) }}{{ folder.name }}
-              </option>
-            </select>
+            <SearchableSelect
+              :model-value="parentId"
+              :options="folderOptions"
+              :placeholder="t('newFolder.noParent')"
+              @update:model-value="parentId = String($event)"
+            />
           </div>
 
           <div>
@@ -75,9 +72,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useFoldersStore } from "../stores/folders";
 import { useI18n } from "../composables/useI18n";
+import SearchableSelect from "./SearchableSelect.vue";
+import type { SelectOption } from "./SearchableSelect.vue";
 
 const emit = defineEmits(["close"]);
 const foldersStore = useFoldersStore();
@@ -96,6 +95,14 @@ interface FlatFolder {
 }
 
 const flatFolders = ref<FlatFolder[]>([]);
+
+const folderOptions = computed<SelectOption[]>(() =>
+  flatFolders.value.map((f) => ({
+    value: f.id,
+    label: f.name,
+    displayHtml: '\u00A0\u00A0'.repeat(f.depth) + f.name,
+  }))
+);
 
 function flattenFolders(folders: any[], depth = 0): FlatFolder[] {
   const result: FlatFolder[] = [];

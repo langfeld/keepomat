@@ -169,16 +169,11 @@
 
           <div>
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiProvider') }}</label>
-            <select
-              v-model="aiProvider"
-              @change="updateSystemSetting('ai_provider', aiProvider)"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white"
-            >
-              <option value="kimi">Moonshot (Kimi)</option>
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic</option>
-              <option value="ollama">Ollama (lokal)</option>
-            </select>
+            <SearchableSelect
+              :model-value="aiProvider"
+              :options="aiProviderOptions"
+              @update:model-value="aiProvider = String($event); updateSystemSetting('ai_provider', aiProvider)"
+            />
           </div>
 
           <div>
@@ -270,11 +265,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
+import SearchableSelect from "../components/SearchableSelect.vue";
+import type { SelectOption } from "../components/SearchableSelect.vue";
 
 const authStore = useAuthStore();
 const { t } = useI18n();
@@ -287,6 +284,12 @@ const saved = ref(false);
 const registrationEnabled = ref(true);
 const aiSharedEnabled = ref(true);
 const aiProvider = ref("kimi");
+const aiProviderOptions: SelectOption[] = [
+  { value: 'kimi', label: 'Moonshot (Kimi)' },
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'anthropic', label: 'Anthropic' },
+  { value: 'ollama', label: 'Ollama (lokal)' },
+];
 const aiApiKey = ref("");
 const aiModel = ref("");
 const aiThinkingEnabled = ref(false);

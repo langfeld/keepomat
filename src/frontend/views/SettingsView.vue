@@ -32,14 +32,11 @@
           <!-- Sprache -->
           <div>
             <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.language') }}</label>
-            <select
-              v-model="language"
-              @change="saveSetting('language', language)"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 dark:text-white"
-            >
-              <option value="de">Deutsch</option>
-              <option value="en">English</option>
-            </select>
+            <SearchableSelect
+              :model-value="language"
+              :options="languageOptions"
+              @update:model-value="language = String($event); saveSetting('language', language)"
+            />
           </div>
 
           <!-- Ordnermodus -->
@@ -162,19 +159,12 @@
           <!-- Provider -->
           <div>
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.aiProvider') }}</label>
-            <select
-              v-model="aiProvider"
-              @change="onAiProviderChange"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
-            >
-              <option value="">{{ t('settings.aiProviderNone') }}</option>
-              <option value="openai">OpenAI</option>
-              <option value="anthropic">Anthropic (Claude)</option>
-              <option value="groq">Groq</option>
-              <option value="mistral">Mistral</option>
-              <option value="ollama">Ollama (lokal)</option>
-              <option value="kimi">Kimi (Moonshot)</option>
-            </select>
+            <SearchableSelect
+              :model-value="aiProvider"
+              :options="aiProviderOptions"
+              :placeholder="t('settings.aiProviderNone')"
+              @update:model-value="aiProvider = String($event); onAiProviderChange()"
+            />
           </div>
 
           <!-- API Key (nur wenn Provider gewählt) -->
@@ -283,6 +273,8 @@ import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
+import SearchableSelect from "../components/SearchableSelect.vue";
+import type { SelectOption } from "../components/SearchableSelect.vue";
 
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
@@ -290,6 +282,10 @@ const { confirm } = useConfirm();
 const toast = useToast();
 
 const language = ref("de");
+const languageOptions: SelectOption[] = [
+  { value: 'de', label: 'Deutsch' },
+  { value: 'en', label: 'English' },
+];
 const apiKeys = ref<any[]>([]);
 const newApiKey = ref("");
 const telegramLinked = ref(false);
@@ -297,6 +293,14 @@ const saved = ref(false);
 
 // AI-Einstellungen
 const aiProvider = ref("");
+const aiProviderOptions: SelectOption[] = [
+  { value: 'openai', label: 'OpenAI' },
+  { value: 'anthropic', label: 'Anthropic (Claude)' },
+  { value: 'groq', label: 'Groq' },
+  { value: 'mistral', label: 'Mistral' },
+  { value: 'ollama', label: 'Ollama (lokal)' },
+  { value: 'kimi', label: 'Kimi (Moonshot)' },
+];
 const aiApiKey = ref("");
 const aiModel = ref("");
 const aiBaseUrl = ref("");
