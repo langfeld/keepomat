@@ -160,7 +160,12 @@ ${folderTree || "noch keine Ordner"}
 
 Aufgaben:
 1. Schlage 3-7 passende Tags vor (bevorzuge existierende Tags, erstelle neue nur wenn nötig)
-2. Schlage den passendsten existierenden Ordner vor (oder einen neuen Ordnernamen)
+2. Ordne das Lesezeichen dem EINEN am besten passenden Ordner zu. Beachte dabei:
+   - Wähle den spezifischsten Ordner, der INHALTLICH EXAKT zum Thema der Seite passt.
+   - Sei STRENG: Ein allgemeiner Nachrichtenportal (z.B. Spiegel, Welt) gehört NICHT in einen spezialisierten Ordner (z.B. "IT-News"), sondern in einen allgemeinen (z.B. "Nachrichten").
+   - Der Ordnername muss zum HAUPTTHEMA der Website passen, nicht zu einem Nebenthema.
+   - Wenn KEIN existierender Ordner gut passt, schlage einen neuen Ordnernamen vor.
+   - Setze folderId NUR wenn du dir SICHER bist, dass es der richtige Ordner ist.
 3. Fasse den Inhalt in 2-3 kurzen Sätzen zusammen
 
 Antworte NUR mit folgendem JSON-Format:
@@ -180,7 +185,7 @@ Tags sollen kleingeschrieben sein, ohne Sonderzeichen, ausschließlich auf ${lan
       messages: [
         {
           role: "system",
-          content: "Du bist ein präziser Bookmark-Kategorisierer. Antworte immer mit validem JSON.",
+          content: "Du bist ein präziser Bookmark-Kategorisierer. Ordne Lesezeichen STRENG nach dem Hauptthema der Website zu – nicht nach Nebenthemen. Ein allgemeines Nachrichtenportal ist KEINE IT-Seite, auch wenn es IT-Artikel enthält. Antworte immer mit validem JSON.",
         },
         { role: "user", content: prompt },
       ],
@@ -237,6 +242,11 @@ Existierende Tags: ${tagNames.length > 0 ? tagNames.join(", ") : "noch keine"}
 Existierende Ordnerstruktur:
 ${folderTree || "noch keine Ordner"}
 
+WICHTIG zur Ordner-Zuordnung:
+- Ordne jedes Bookmark dem EINEN Ordner zu, der INHALTLICH EXAKT zum Hauptthema passt.
+- Sei STRENG: Allgemeine Nachrichtenportale gehören NICHT in spezialisierte Ordner (z.B. "IT-News"), auch wenn sie gelegentlich IT-Artikel enthalten.
+- Der Ordner muss zum KERNTHEMA der Website passen, nicht zu einem Nebenthema.
+
 Antworte mit einem JSON-Array, ein Objekt pro Bookmark in der gleichen Reihenfolge:
 [
   {
@@ -253,7 +263,7 @@ Antworte mit einem JSON-Array, ein Objekt pro Bookmark in der gleichen Reihenfol
       messages: [
         {
           role: "system",
-          content: "Du bist ein präziser Bookmark-Kategorisierer. Antworte immer mit validem JSON.",
+          content: "Du bist ein präziser Bookmark-Kategorisierer. Ordne Lesezeichen STRENG nach dem Hauptthema der Website zu – nicht nach Nebenthemen. Ein allgemeines Nachrichtenportal ist KEINE IT-Seite, auch wenn es IT-Artikel enthält. Antworte immer mit validem JSON.",
         },
         { role: "user", content: prompt },
       ],

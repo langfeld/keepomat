@@ -223,7 +223,9 @@ export default {
   "search.fulltextHint": "Durchsuche Titel, Beschreibungen und Zusammenfassungen.",
 
   // Search Bar
-  "searchBar.placeholder": "Suche...",
+  "searchBar.placeholder": "Suchen oder URL einfügen...",
+  "searchBar.addHint": "Lesezeichen speichern",
+  "searchBar.added": "Lesezeichen hinzugefügt",
 
   // Theme Toggle
   "themeToggle.title": "Design: {mode}",

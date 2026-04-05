@@ -221,7 +221,9 @@ export default {
   "search.fulltextHint": "Search titles, descriptions and summaries.",
 
   // Search Bar
-  "searchBar.placeholder": "Search...",
+  "searchBar.placeholder": "Search or paste URL...",
+  "searchBar.addHint": "Save bookmark",
+  "searchBar.added": "Bookmark added",
 
   // Theme Toggle
   "themeToggle.title": "Theme: {mode}",

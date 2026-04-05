@@ -157,21 +157,10 @@
 
         <!-- Schnellsuche -->
         <div class="flex-1">
-          <SearchBar @search="handleQuickSearch" />
+          <SearchBar @search="handleQuickSearch" @add-url="handleQuickAdd" />
         </div>
 
-        <div class="flex items-center gap-2">
-          <ThemeToggle />
-          <button
-            @click="showAddBookmark = true"
-            class="flex items-center gap-2 bg-primary-600 hover:bg-primary-700 shadow-sm px-4 py-2 rounded-xl font-medium text-white text-sm transition"
-          >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-            </svg>
-            <span class="hidden sm:inline">{{ t('bookmarks.add') }}</span>
-          </button>
-        </div>
+        <ThemeToggle />
       </header>
 
       <!-- Seiteninhalt -->
@@ -179,6 +168,17 @@
         <router-view />
       </main>
     </div>
+
+    <!-- Floating Action Button -->
+    <button
+      @click="showAddBookmark = true"
+      class="right-6 bottom-6 z-50 fixed flex items-center gap-2 bg-primary-600 hover:bg-primary-700 shadow-lg hover:shadow-xl px-5 py-3 rounded-2xl font-medium text-white transition-all active:scale-95 group"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span class="hidden sm:inline">{{ t('bookmarks.add') }}</span>
+    </button>
 
     <!-- Modals -->
     <AddBookmarkModal v-if="showAddBookmark" @close="showAddBookmark = false" />
@@ -192,7 +192,9 @@ import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useFoldersStore } from "../stores/folders";
 import { useSettingsStore } from "../stores/settings";
+import { useBookmarksStore } from "../stores/bookmarks";
 import { useI18n } from "../composables/useI18n";
+import { useToast } from "../composables/useToast";
 import FolderTree from "../components/FolderTree.vue";
 import SearchBar from "../components/SearchBar.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
@@ -206,6 +208,8 @@ const route = useRoute();
 const authStore = useAuthStore();
 const foldersStore = useFoldersStore();
 const settingsStore = useSettingsStore();
+const bookmarksStore = useBookmarksStore();
+const toast = useToast();
 
 const sidebarOpen = ref(false);
 const showAddBookmark = ref(false);
@@ -234,6 +238,19 @@ function handleFolderSelect(folderId: number) {
 
 function handleQuickSearch(query: string) {
   router.push({ path: "/search", query: { q: query } });
+}
+
+async function handleQuickAdd(url: string) {
+  try {
+    await bookmarksStore.createBookmark({ url });
+    toast.success(t('searchBar.added'));
+    // Wenn auf Bookmarks-Seite → neu laden
+    if (route.path === "/bookmarks" || route.path.startsWith("/folders/")) {
+      await bookmarksStore.fetchBookmarks();
+    }
+  } catch (e: any) {
+    toast.error(e.message || t('common.saveError'));
+  }
 }
 
 async function handleLogout() {
