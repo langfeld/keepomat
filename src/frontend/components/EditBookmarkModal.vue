@@ -52,13 +52,46 @@
 
           <div>
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('editBookmark.folder') }}</label>
+            <!-- Multi-Folder-Modus -->
+            <div v-if="isMultiFolder" class="space-y-2">
+              <div v-if="selectedFolderIds.length" class="flex flex-wrap gap-1.5">
+                <span
+                  v-for="id in selectedFolderIds"
+                  :key="id"
+                  class="inline-flex items-center gap-1 bg-primary-100 dark:bg-primary-900/30 px-2.5 py-1 rounded-lg text-primary-700 dark:text-primary-300 text-sm"
+                >
+                  {{ getFolderName(id) }}
+                  <button type="button" @click="removeFolder(id)" class="hover:text-primary-900 dark:hover:text-primary-100">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </span>
+              </div>
+              <select
+                @change="addFolder($event)"
+                class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
+              >
+                <option value="">{{ t('addBookmark.addFolder') }}</option>
+                <option
+                  v-for="folder in availableFolders"
+                  :key="folder.id"
+                  :value="folder.id"
+                >
+                  {{ '\u00A0\u00A0'.repeat(folder.depth) }}{{ folder.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Single-Folder-Modus -->
             <select
+              v-else
               v-model="selectedFolderId"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
             >
               <option value="">{{ t('common.noFolder') }}</option>
               <option v-for="folder in flatFolders" :key="folder.id" :value="folder.id">
-                {{ '  '.repeat(folder.depth) }}{{ folder.name }}
+                {{ '\u00A0\u00A0'.repeat(folder.depth) }}{{ folder.name }}
               </option>
             </select>
           </div>
@@ -107,14 +140,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useFoldersStore } from "../stores/folders";
+import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 
 const props = defineProps<{ bookmark: any }>();
 const emit = defineEmits(["close", "saved"]);
 const foldersStore = useFoldersStore();
+const settingsStore = useSettingsStore();
 const { t } = useI18n();
+
+const isMultiFolder = computed(() => settingsStore.settings.folderMode === "multi");
 
 const form = ref({
   url: props.bookmark.url || "",
@@ -131,15 +168,22 @@ const tagsInput = ref(
 const selectedFolderId = ref(
   props.bookmark.folders?.[0]?.id || ""
 );
+const selectedFolderIds = ref<number[]>(
+  (props.bookmark.folders || []).map((f: any) => f.id)
+);
 const error = ref("");
 const loading = ref(false);
 
 interface FlatFolder {
-  id: string;
+  id: number;
   name: string;
   depth: number;
 }
 const flatFolders = ref<FlatFolder[]>([]);
+
+const availableFolders = computed(() =>
+  flatFolders.value.filter((f) => !selectedFolderIds.value.includes(f.id))
+);
 
 function flattenFolders(folders: any[], depth = 0): FlatFolder[] {
   const result: FlatFolder[] = [];
@@ -148,6 +192,22 @@ function flattenFolders(folders: any[], depth = 0): FlatFolder[] {
     if (f.children?.length) result.push(...flattenFolders(f.children, depth + 1));
   }
   return result;
+}
+
+function getFolderName(id: number): string {
+  return flatFolders.value.find((f) => f.id === id)?.name || String(id);
+}
+
+function addFolder(e: Event) {
+  const val = parseInt((e.target as HTMLSelectElement).value);
+  if (val && !selectedFolderIds.value.includes(val)) {
+    selectedFolderIds.value.push(val);
+  }
+  (e.target as HTMLSelectElement).value = "";
+}
+
+function removeFolder(id: number) {
+  selectedFolderIds.value = selectedFolderIds.value.filter((fid) => fid !== id);
 }
 
 onMounted(() => {
@@ -172,8 +232,13 @@ async function handleSubmit() {
       isFavorite: form.value.isFavorite,
       isRead: form.value.isRead,
       tags,
-      folderIds: selectedFolderId.value ? [selectedFolderId.value] : [],
     };
+
+    if (isMultiFolder.value) {
+      body.folderIds = selectedFolderIds.value;
+    } else {
+      body.folderIds = selectedFolderId.value ? [selectedFolderId.value] : [];
+    }
 
     const res = await fetch(`/api/bookmarks/${props.bookmark.id}`, {
       method: "PATCH",

@@ -135,6 +135,8 @@ export default {
   "addBookmark.folder": "Folder",
   "addBookmark.tags": "Tags (comma-separated)",
   "addBookmark.tagsPlaceholder": "web, tools, dev",
+  "addBookmark.details": "Details",
+  "addBookmark.addFolder": "Add folder…",
 
   // Edit Bookmark
   "editBookmark.title": "Edit bookmark",

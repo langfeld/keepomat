@@ -137,6 +137,8 @@ export default {
   "addBookmark.folder": "Ordner",
   "addBookmark.tags": "Tags (kommagetrennt)",
   "addBookmark.tagsPlaceholder": "web, tools, dev",
+  "addBookmark.details": "Details",
+  "addBookmark.addFolder": "Ordner hinzufügen…",
 
   // Edit Bookmark
   "editBookmark.title": "Lesezeichen bearbeiten",

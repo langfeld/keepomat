@@ -251,22 +251,17 @@ bookmarkRoutes.post("/", async (c) => {
     .get();
 
   // Folder-Zuweisung
-  const settings = db
-    .select()
-    .from(schema.userSettings)
-    .where(eq(schema.userSettings.userId, user.id))
-    .get();
-
-  if (data.folderId) {
-    db.insert(schema.bookmarkFolders)
-      .values({ bookmarkId: bookmark.id, folderId: data.folderId })
-      .run();
-  } else if (data.folderIds && settings?.folderMode === "multi") {
+  if (data.folderIds && data.folderIds.length > 0) {
     for (const folderId of data.folderIds) {
       db.insert(schema.bookmarkFolders)
         .values({ bookmarkId: bookmark.id, folderId })
+        .onConflictDoNothing()
         .run();
     }
+  } else if (data.folderId) {
+    db.insert(schema.bookmarkFolders)
+      .values({ bookmarkId: bookmark.id, folderId: data.folderId })
+      .run();
   }
 
   // Manuelle Tags hinzufügen
@@ -488,19 +483,24 @@ async function analyzeAndUpdateBookmark(
       }
     }
 
-    // Folder vorschlagen (wenn kein Folder zugewiesen)
+    // Folder vorschlagen
+    const folderMode = settings?.folderMode || "single";
     const hasFolder = db
       .select()
       .from(schema.bookmarkFolders)
       .where(eq(schema.bookmarkFolders.bookmarkId, bookmarkId))
       .get();
 
-    if (!hasFolder && suggestion.folderId) {
+    // Im Single-Modus nur zuweisen wenn noch kein Ordner vorhanden
+    // Im Multi-Modus immer hinzufügen (AI ergänzt Ordner)
+    const shouldAssignFolder = folderMode === "multi" || !hasFolder;
+
+    if (shouldAssignFolder && suggestion.folderId) {
       db.insert(schema.bookmarkFolders)
         .values({ bookmarkId, folderId: suggestion.folderId })
         .onConflictDoNothing()
         .run();
-    } else if (!hasFolder && suggestion.folderName) {
+    } else if (shouldAssignFolder && suggestion.folderName) {
       // Neuen Ordner erstellen, wenn vorgeschlagen
       const newFolder = db
         .insert(schema.folders)
@@ -511,6 +511,7 @@ async function analyzeAndUpdateBookmark(
       if (newFolder) {
         db.insert(schema.bookmarkFolders)
           .values({ bookmarkId, folderId: newFolder.id })
+          .onConflictDoNothing()
           .run();
       }
     }

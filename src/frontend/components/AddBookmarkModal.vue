@@ -12,49 +12,103 @@
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4 p-6">
+          <!-- URL (immer sichtbar) -->
           <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.url') }}</label>
             <input
               v-model="url"
               type="url"
               required
-              placeholder="https://..."
+              :placeholder="t('addBookmark.urlPlaceholder')"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
               autofocus
             />
           </div>
 
-          <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.titleLabel') }}</label>
-            <input
-              v-model="title"
-              type="text"
-              :placeholder="t('addBookmark.titlePlaceholder')"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
-            />
-          </div>
-
-          <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.folder') }}</label>
-            <select
-              v-model="folderId"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
+          <!-- Ausklappbare Details -->
+          <button
+            type="button"
+            @click="showDetails = !showDetails"
+            class="flex items-center gap-1.5 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 text-sm transition"
+          >
+            <svg
+              class="w-4 h-4 transition-transform"
+              :class="showDetails ? 'rotate-90' : ''"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor"
             >
-              <option value="">{{ t('common.noFolder') }}</option>
-              <option v-for="folder in flatFolders" :key="folder.id" :value="folder.id">
-                {{ '  '.repeat(folder.depth) }}{{ folder.name }}
-              </option>
-            </select>
-          </div>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+            {{ t('addBookmark.details') }}
+          </button>
 
-          <div>
-            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.tags') }}</label>
-            <input
-              v-model="tagsInput"
-              type="text"
-              placeholder="web, tools, dev"
-              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
-            />
+          <div v-if="showDetails" class="space-y-4 animate-fade-in">
+            <!-- Titel -->
+            <div>
+              <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.titleLabel') }}</label>
+              <input
+                v-model="title"
+                type="text"
+                :placeholder="t('addBookmark.titlePlaceholder')"
+                class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
+              />
+            </div>
+
+            <!-- Ordner -->
+            <div>
+              <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.folder') }}</label>
+              <!-- Multi-Folder-Modus -->
+              <div v-if="isMultiFolder" class="space-y-2">
+                <div v-if="selectedFolderIds.length" class="flex flex-wrap gap-1.5">
+                  <span
+                    v-for="id in selectedFolderIds"
+                    :key="id"
+                    class="inline-flex items-center gap-1 bg-primary-100 dark:bg-primary-900/30 px-2.5 py-1 rounded-lg text-primary-700 dark:text-primary-300 text-sm"
+                  >
+                    {{ getFolderName(id) }}
+                    <button type="button" @click="removeFolder(id)" class="hover:text-primary-900 dark:hover:text-primary-100">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                </div>
+                <select
+                  @change="addFolder($event)"
+                  class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
+                >
+                  <option value="">{{ t('addBookmark.addFolder') }}</option>
+                  <option
+                    v-for="folder in availableFolders"
+                    :key="folder.id"
+                    :value="folder.id"
+                  >
+                    {{ '\u00A0\u00A0'.repeat(folder.depth) }}{{ folder.name }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Single-Folder-Modus -->
+              <select
+                v-else
+                v-model="singleFolderId"
+                class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition"
+              >
+                <option value="">{{ t('common.noFolder') }}</option>
+                <option v-for="folder in flatFolders" :key="folder.id" :value="folder.id">
+                  {{ '\u00A0\u00A0'.repeat(folder.depth) }}{{ folder.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Tags -->
+            <div>
+              <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.tags') }}</label>
+              <input
+                v-model="tagsInput"
+                type="text"
+                :placeholder="t('addBookmark.tagsPlaceholder')"
+                class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
+              />
+            </div>
           </div>
 
           <div v-if="error" class="bg-red-50 dark:bg-red-900/20 p-3 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
@@ -88,30 +142,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useBookmarksStore } from "../stores/bookmarks";
 import { useFoldersStore } from "../stores/folders";
+import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 
 const emit = defineEmits(["close"]);
 const bookmarksStore = useBookmarksStore();
 const foldersStore = useFoldersStore();
+const settingsStore = useSettingsStore();
 const { t } = useI18n();
 
 const url = ref("");
 const title = ref("");
-const folderId = ref("");
+const singleFolderId = ref("");
+const selectedFolderIds = ref<number[]>([]);
 const tagsInput = ref("");
 const error = ref("");
 const loading = ref(false);
+const showDetails = ref(false);
+
+const isMultiFolder = computed(() => settingsStore.settings.folderMode === "multi");
 
 interface FlatFolder {
-  id: string;
+  id: number;
   name: string;
   depth: number;
 }
 
 const flatFolders = ref<FlatFolder[]>([]);
+
+const availableFolders = computed(() =>
+  flatFolders.value.filter((f) => !selectedFolderIds.value.includes(f.id))
+);
 
 function flattenFolders(folders: any[], depth = 0): FlatFolder[] {
   const result: FlatFolder[] = [];
@@ -124,12 +188,32 @@ function flattenFolders(folders: any[], depth = 0): FlatFolder[] {
   return result;
 }
 
+function getFolderName(id: number): string {
+  return flatFolders.value.find((f) => f.id === id)?.name || String(id);
+}
+
+function addFolder(e: Event) {
+  const val = parseInt((e.target as HTMLSelectElement).value);
+  if (val && !selectedFolderIds.value.includes(val)) {
+    selectedFolderIds.value.push(val);
+  }
+  (e.target as HTMLSelectElement).value = "";
+}
+
+function removeFolder(id: number) {
+  selectedFolderIds.value = selectedFolderIds.value.filter((fid) => fid !== id);
+}
+
 onMounted(async () => {
   if (!foldersStore.tree.length) await foldersStore.fetchTree();
   flatFolders.value = flattenFolders(foldersStore.tree);
 
   if (foldersStore.activeFolderId) {
-    folderId.value = String(foldersStore.activeFolderId);
+    if (isMultiFolder.value) {
+      selectedFolderIds.value = [foldersStore.activeFolderId];
+    } else {
+      singleFolderId.value = String(foldersStore.activeFolderId);
+    }
   }
 });
 
@@ -145,8 +229,13 @@ async function handleSubmit() {
 
     const body: Record<string, any> = { url: url.value };
     if (title.value) body.title = title.value;
-    if (folderId.value) body.folderIds = [folderId.value];
     if (tags.length) body.tags = tags;
+
+    if (isMultiFolder.value) {
+      if (selectedFolderIds.value.length) body.folderIds = selectedFolderIds.value;
+    } else {
+      if (singleFolderId.value) body.folderIds = [parseInt(singleFolderId.value)];
+    }
 
     const res = await fetch("/api/bookmarks", {
       method: "POST",
