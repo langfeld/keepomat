@@ -29,6 +29,9 @@ export const auth = betterAuth({
     },
     cookiePrefix: "keepomat",
   },
+  // __Secure- Cookie-Präfix nur bei HTTPS verwenden.
+  // Ohne HTTPS lehnt der Browser diese Cookies ab.
+  useSecureCookies: (process.env.BETTER_AUTH_URL || "").startsWith("https://"),
   user: {
     additionalFields: {
       isAdmin: {
