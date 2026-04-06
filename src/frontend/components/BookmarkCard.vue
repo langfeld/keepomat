@@ -21,11 +21,10 @@
         </svg>
       </div>
       <!-- Screenshot-Badge -->
-      <div v-if="showScreenshot && bookmark.screenshot" class="absolute top-2 left-2 flex items-center gap-1 bg-black/50 backdrop-blur-sm px-2 py-1 rounded-lg text-white text-xs">
+      <div v-if="showScreenshot && bookmark.screenshot" class="absolute top-2 left-2 flex items-center gap-1 bg-black/20 backdrop-blur-sm px-2 py-1 rounded-lg text-white text-xs" :title="t('bookmark.screenshot')">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
         </svg>
-        {{ t('bookmark.screenshot') }}
       </div>
     </div>
 
