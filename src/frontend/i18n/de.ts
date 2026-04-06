@@ -68,7 +68,7 @@ export default {
   "settings.showAiSummary": "AI-Zusammenfassung anzeigen",
   "settings.showAiSummaryHint": "Zeigt die AI-generierte Zusammenfassung bei Lesezeichen an. Die Zusammenfassung wird weiterhin für die AI-Suche generiert.",
   "settings.apiKeys": "API-Schlüssel",
-  "settings.apiKeysDescription": "API-Schlüssel werden für die Browser-Erweiterung und den externen API-Zugriff benötigt. Erstelle einen Schlüssel und verwende ihn in der Erweiterung oder in eigenen Integrationen.",
+  "settings.apiKeysDescription": "API-Schlüssel werden für das Userscript, den Telegram-Bot und den externen API-Zugriff benötigt. Erstelle einen Schlüssel und verwende ihn im Userscript oder in eigenen Integrationen.",
   "settings.apiKeyNew": "Neuer Schlüssel",
   "settings.apiKeyCreatedMsg": "Neuer API-Schlüssel erstellt! Diesen jetzt kopieren – er wird nicht erneut angezeigt.",
   "settings.apiKeyCreatedAt": "Erstellt:",
@@ -76,23 +76,8 @@ export default {
   "settings.apiKeyNamePrompt": "Name für den API-Schlüssel:",
   "settings.apiKeyDeleteConfirm": "API-Schlüssel wirklich löschen?",
 
-  // Browser-Erweiterung
-  "settings.extension": "Browser-Erweiterung",
-  "settings.extensionDescription": "Mit der Browser-Erweiterung speicherst du Webseiten mit einem Klick direkt in Keepomat – inkl. Titel, Tags und Ordner-Auswahl.",
-  "settings.extensionFeatures": "Funktionen",
-  "settings.extensionFeature1": "Aktuelle Seite mit einem Klick speichern",
-  "settings.extensionFeature2": "Links per Rechtsklick-Kontextmenü speichern",
-  "settings.extensionFeature3": "Tags und Ordner direkt im Popup auswählen",
-  "settings.extensionSetup": "Einrichtung",
-  "settings.extensionStep1": "Lade den Ordner {folder} aus dem Projektverzeichnis",
-  "settings.extensionStep2": "Öffne {page} in deinem Browser",
-  "settings.extensionStep3": "Aktiviere den Entwicklermodus und klicke auf „Entpackte Erweiterung laden“",
-  "settings.extensionStep4": "Wähle den {folder}-Ordner aus",
-  "settings.extensionStep5": "Klicke auf das Keepomat-Symbol in der Toolbar und gib deine Server-URL und einen API-Schlüssel ein",
-  "settings.extensionNeedsKey": "Du benötigst einen API-Schlüssel (siehe oben), um die Erweiterung zu verbinden.",
-
   // Userscript
-  "settings.userscript": "Userscript (Alternative)",
+  "settings.userscript": "Userscript",
   "settings.userscriptDescription": "Speichere Webseiten über Tampermonkey, Violentmonkey oder Greasemonkey – ohne Installation aus dem Chrome Web Store.",
   "settings.userscriptFeatures": "Funktionen",
   "settings.userscriptFeature1": "Schwebender Speicher-Button auf jeder Webseite",
@@ -363,14 +348,12 @@ export default {
   // Dashboard Quick Start
   "dashboard.quickStart": "Schnellstart",
   "dashboard.quickStartHint": "Speichere Lesezeichen noch schneller:",
-  "dashboard.quickStartExtension": "Browser-Erweiterung einrichten",
-  "dashboard.quickStartExtensionDesc": "Webseiten mit einem Klick speichern",
   "dashboard.quickStartTelegram": "Telegram-Bot verbinden",
   "dashboard.quickStartTelegramDesc": "Links per Chat speichern",
   "dashboard.quickStartApiKey": "API-Schlüssel erstellen",
-  "dashboard.quickStartApiKeyDesc": "Für Erweiterung und Integrationen",
+  "dashboard.quickStartApiKeyDesc": "Für Userscript und Integrationen",
   "dashboard.quickStartUserscript": "Userscript installieren",
-  "dashboard.quickStartUserscriptDesc": "Alternative ohne Chrome Web Store",
+  "dashboard.quickStartUserscriptDesc": "Lesezeichen per Tastenkürzel speichern",
   "dashboard.quickStartDismiss": "Verstanden",
 
   // Toasts

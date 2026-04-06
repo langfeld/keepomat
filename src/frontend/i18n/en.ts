@@ -68,7 +68,7 @@ export default {
   "settings.showAiSummary": "Show AI summary",
   "settings.showAiSummaryHint": "Shows the AI-generated summary on bookmarks. The summary is still generated for AI search.",
   "settings.apiKeys": "API Keys",
-  "settings.apiKeysDescription": "API keys are required for the browser extension and external API access. Create a key and use it in the extension or your own integrations.",
+  "settings.apiKeysDescription": "API keys are required for the userscript, the Telegram bot and external API access. Create a key and use it in the userscript or your own integrations.",
   "settings.apiKeyNew": "New key",
   "settings.apiKeyCreatedMsg": "New API key created! Copy it now – it won't be shown again.",
   "settings.apiKeyCreatedAt": "Created:",
@@ -76,23 +76,8 @@ export default {
   "settings.apiKeyNamePrompt": "Name for the API key:",
   "settings.apiKeyDeleteConfirm": "Really delete this API key?",
 
-  // Browser Extension
-  "settings.extension": "Browser Extension",
-  "settings.extensionDescription": "Save web pages to Keepomat with a single click – including title, tags, and folder selection.",
-  "settings.extensionFeatures": "Features",
-  "settings.extensionFeature1": "Save the current page with one click",
-  "settings.extensionFeature2": "Save links via right-click context menu",
-  "settings.extensionFeature3": "Select tags and folders directly in the popup",
-  "settings.extensionSetup": "Setup",
-  "settings.extensionStep1": "Get the {folder} folder from the project directory",
-  "settings.extensionStep2": "Open {page} in your browser",
-  "settings.extensionStep3": "Enable \"Developer mode\" and click \"Load unpacked\"",
-  "settings.extensionStep4": "Select the {folder} folder",
-  "settings.extensionStep5": "Click the Keepomat icon in the toolbar and enter your server URL and API key",
-  "settings.extensionNeedsKey": "You need an API key (see above) to connect the extension.",
-
   // Userscript
-  "settings.userscript": "Userscript (Alternative)",
+  "settings.userscript": "Userscript",
   "settings.userscriptDescription": "Save web pages via Tampermonkey, Violentmonkey or Greasemonkey – no Chrome Web Store installation required.",
   "settings.userscriptFeatures": "Features",
   "settings.userscriptFeature1": "Floating save button on every web page",
@@ -361,14 +346,12 @@ export default {
   // Dashboard Quick Start
   "dashboard.quickStart": "Quick Start",
   "dashboard.quickStartHint": "Save bookmarks even faster:",
-  "dashboard.quickStartExtension": "Set up browser extension",
-  "dashboard.quickStartExtensionDesc": "Save web pages with one click",
   "dashboard.quickStartTelegram": "Connect Telegram bot",
   "dashboard.quickStartTelegramDesc": "Save links via chat",
   "dashboard.quickStartApiKey": "Create API key",
-  "dashboard.quickStartApiKeyDesc": "For extension and integrations",
+  "dashboard.quickStartApiKeyDesc": "For userscript and integrations",
   "dashboard.quickStartUserscript": "Install userscript",
-  "dashboard.quickStartUserscriptDesc": "Alternative without Chrome Web Store",
+  "dashboard.quickStartUserscriptDesc": "Save bookmarks via keyboard shortcut",
   "dashboard.quickStartDismiss": "Got it",
 
   // Toasts

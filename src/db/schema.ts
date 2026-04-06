@@ -136,7 +136,7 @@ export const userSettings = sqliteTable("user_settings", {
   showAiSummary: integer("show_ai_summary", { mode: "boolean" }).default(true).notNull(),
 });
 
-// ── API Keys (für Extension + Bot) ──
+// ── API Keys (für Userscript + Bot) ──
 export const apiKeys = sqliteTable("api_keys", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),

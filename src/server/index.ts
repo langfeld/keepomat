@@ -76,7 +76,7 @@ app.route("/api/admin", adminRoutes);
 
 // ── Userscript ausliefern ──
 app.get("/keepomat.user.js", async (c) => {
-  const scriptPath = resolve(import.meta.dir, "../../extension/keepomat.user.js");
+  const scriptPath = resolve(import.meta.dir, "../../keepomat.user.js");
   const file = Bun.file(scriptPath);
   let content = await file.text();
 

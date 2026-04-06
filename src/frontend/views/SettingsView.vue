@@ -144,62 +144,7 @@
         <p v-else class="text-gray-400 dark:text-gray-500 text-sm">{{ t('settings.apiKeysEmpty') }}</p>
       </div>
 
-      <!-- Browser-Erweiterung -->
-      <div id="extension" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl transition-shadow duration-700">
-        <div class="flex items-center gap-3 mb-2">
-          <div class="flex justify-center items-center bg-blue-100 dark:bg-blue-900/30 rounded-xl w-10 h-10">
-            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-            </svg>
-          </div>
-          <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.extension') }}</h2>
-        </div>
-        <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">{{ t('settings.extensionDescription') }}</p>
-
-        <!-- Features -->
-        <div class="mb-4">
-          <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.extensionFeatures') }}</h3>
-          <ul class="space-y-1.5">
-            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
-              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-              {{ t('settings.extensionFeature1') }}
-            </li>
-            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
-              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-              {{ t('settings.extensionFeature2') }}
-            </li>
-            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
-              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
-              {{ t('settings.extensionFeature3') }}
-            </li>
-          </ul>
-        </div>
-
-        <!-- Setup-Anleitung -->
-        <details class="group">
-          <summary class="flex items-center gap-2 cursor-pointer text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 transition">
-            <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            {{ t('settings.extensionSetup') }}
-          </summary>
-          <div class="mt-3 ml-6 space-y-2">
-            <ol class="space-y-2 text-gray-600 dark:text-gray-400 text-sm list-decimal list-inside">
-              <li>{{ t('settings.extensionStep1', { folder: 'extension/' }) }}</li>
-              <li>
-                {{ t('settings.extensionStep2', { page: '' }) }}
-                <code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">chrome://extensions</code>
-              </li>
-              <li>{{ t('settings.extensionStep3') }}</li>
-              <li>{{ t('settings.extensionStep4', { folder: 'extension/' }) }}</li>
-              <li>{{ t('settings.extensionStep5') }}</li>
-            </ol>
-            <p class="mt-3 text-amber-600 dark:text-amber-400 text-xs font-medium">
-              💡 {{ t('settings.extensionNeedsKey') }}
-            </p>
-          </div>
-        </details>
-      </div>
-
-      <!-- Userscript (Alternative) -->
+      <!-- Userscript -->
       <div id="userscript" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl transition-shadow duration-700">
         <div class="flex items-center gap-3 mb-2">
           <div class="flex justify-center items-center bg-amber-100 dark:bg-amber-900/30 rounded-xl w-10 h-10">

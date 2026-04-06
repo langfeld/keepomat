@@ -9,7 +9,7 @@ Smart Bookmark Manager mit AI-gestützter Organisation, Tagging und Volltextsuch
 - **Volltextsuche (FTS5)** – Blitzschnelle Suche über Titel, Beschreibungen und Zusammenfassungen
 - **Link-Vorschau** – Automatisches Abrufen von OG-Images, Favicons und Metadaten
 - **Telegram-Bot** – Links per Chat automatisch als Lesezeichen speichern
-- **Browser-Extension** – Chrome/Firefox Extension für schnelles Speichern
+- **Userscript** – Tampermonkey/Violentmonkey Userscript für schnelles Speichern per Tastenkürzel
 - **Import/Export** – Netscape HTML, JSON und PDF Export
 - **Geteilte Ordner** – Ordner mit anderen Benutzern teilen
 - **Dark/Light Mode** – Automatisch oder manuell umschaltbar
@@ -77,12 +77,12 @@ Die App ist unter `http://localhost:8080` erreichbar.
 | `PUID` | User ID (Docker) | `1000` |
 | `PGID` | Group ID (Docker) | `1000` |
 
-## Browser-Extension
+## Userscript
 
-1. `chrome://extensions` öffnen
-2. Entwicklermodus aktivieren
-3. „Entpackte Erweiterung laden" → `extension/` Ordner auswählen
-4. Server-URL und API-Schlüssel in der Extension konfigurieren
+1. Userscript-Manager installieren (z.B. [Tampermonkey](https://www.tampermonkey.net/) oder [Violentmonkey](https://violentmonkey.github.io/))
+2. Userscript über `https://<deine-url>/keepomat.user.js` installieren
+3. Auf einer beliebigen Webseite den 🔖-Button klicken oder `Alt+K` drücken
+4. Beim ersten Mal Server-URL und API-Schlüssel eingeben
 
 ## API
 

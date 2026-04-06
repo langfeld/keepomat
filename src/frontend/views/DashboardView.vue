@@ -67,18 +67,7 @@
             </svg>
           </button>
         </div>
-        <div class="gap-3 grid sm:grid-cols-2 lg:grid-cols-4">
-          <router-link to="/settings#extension" class="flex items-start gap-3 bg-white dark:bg-gray-900 p-4 border border-gray-200 dark:border-gray-800 rounded-xl hover:border-primary-300 dark:hover:border-primary-700 transition group">
-            <div class="flex justify-center items-center bg-blue-100 dark:bg-blue-900/30 rounded-lg w-8 h-8 shrink-0">
-              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
-              </svg>
-            </div>
-            <div>
-              <p class="font-medium text-gray-900 dark:text-white text-sm group-hover:text-primary-600 dark:group-hover:text-primary-400 transition">{{ t('dashboard.quickStartExtension') }}</p>
-              <p class="text-gray-400 dark:text-gray-500 text-xs">{{ t('dashboard.quickStartExtensionDesc') }}</p>
-            </div>
-          </router-link>
+        <div class="gap-3 grid sm:grid-cols-2 lg:grid-cols-3">
           <router-link to="/settings#telegram" class="flex items-start gap-3 bg-white dark:bg-gray-900 p-4 border border-gray-200 dark:border-gray-800 rounded-xl hover:border-primary-300 dark:hover:border-primary-700 transition group">
             <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-lg w-8 h-8 shrink-0">
               <svg class="w-4 h-4 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="currentColor">
