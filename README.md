@@ -59,24 +59,55 @@
 
 ```yaml
 services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    # For LAN access: set CADDY_HOST to your LAN IP
+    # environment:
+    #   - CADDY_HOST=192.168.1.100
+    depends_on:
+      - keepomat
+
   keepomat:
     image: ghcr.io/langfeld/keepomat:latest
     container_name: keepomat
     restart: unless-stopped
-    ports:
-      - "8080:3000"
+    expose:
+      - "3000"
     volumes:
       - ./data:/app/data
     environment:
       - BETTER_AUTH_SECRET=CHANGE_ME       # openssl rand -base64 48
-      - BETTER_AUTH_URL=http://localhost:8080
-      # - TRUSTED_ORIGINS=http://192.168.1.100  # optional: additional origins
+      - BETTER_AUTH_URL=https://localhost
+      # - TRUSTED_ORIGINS=https://bookmarks.example.com  # optional: Pangolin domain
       - MOONSHOT_API_KEY=                  # optional: AI features
       - AI_MODEL=kimi-k2-turbo-preview
       - TELEGRAM_BOT_TOKEN=               # optional: Telegram bot
       - PUID=1000
       - PGID=1000
+
+volumes:
+  caddy_data:
+  caddy_config:
 ```
+
+You also need a `Caddyfile` in the same directory:
+
+```caddyfile
+{$CADDY_HOST:localhost} {
+	tls internal
+	reverse_proxy keepomat:3000
+}
+```
+
+Caddy automatically generates a self-signed certificate. Accept it once in the browser, or install Caddy's root CA on your devices (see [LAN Access](#lan--multi-device-access)).
 
 #### 2. Start the container
 
@@ -84,7 +115,9 @@ services:
 docker compose up -d
 ```
 
-The app will be available at `http://localhost:8080`. The first registered user automatically becomes admin.
+The app will be available at `https://localhost`. The first registered user automatically becomes admin.
+
+> **Without Caddy:** Remove the `caddy` service, replace `expose` with `ports: ["8080:3000"]`, and set `BETTER_AUTH_URL=http://localhost:8080`.
 
 #### Configuration
 
@@ -92,13 +125,13 @@ The app will be available at `http://localhost:8080`. The first registered user 
 |----------|------------|----------|
 | `BETTER_AUTH_SECRET` | Auth secret (min. 32 chars). Generate: `openssl rand -base64 48` | **Yes** |
 | `BETTER_AUTH_URL` | Public URL of the app (important for cookies) | **Yes** |
-| `TRUSTED_ORIGINS` | Additional trusted origins, comma-separated (e.g. LAN IP, extra domains) | No |
+| `TRUSTED_ORIGINS` | Additional trusted origins, comma-separated (e.g. Pangolin domain) | No |
 | `MOONSHOT_API_KEY` | API key for [Moonshot/Kimi](https://platform.moonshot.cn/) AI | No |
 | `AI_MODEL` | AI model to use | No |
 | `TELEGRAM_BOT_TOKEN` | Bot token from [@BotFather](https://t.me/BotFather) | No |
 | `PUID` / `PGID` | User/Group ID for file permissions (default: 1000) | No |
 
-#### Alternative: `docker run`
+#### Alternative: `docker run` (without Caddy)
 
 ```bash
 docker run -d \
@@ -124,17 +157,42 @@ All data (SQLite database, screenshots) is stored in the `./data` volume. Back u
 
 #### LAN / Multi-Device Access
 
-If you access Keepomat from other devices in your local network (e.g. `http://192.168.1.100:8080`), add the LAN URL to `TRUSTED_ORIGINS`:
+To access Keepomat from other devices in your LAN, set `CADDY_HOST` to your LAN IP and adjust `BETTER_AUTH_URL`:
 
 ```yaml
-- TRUSTED_ORIGINS=http://192.168.1.100:8080
+# In docker-compose.yml:
+caddy:
+  environment:
+    - CADDY_HOST=192.168.1.100
+
+keepomat:
+  environment:
+    - BETTER_AUTH_URL=https://192.168.1.100
+    - TRUSTED_ORIGINS=https://bookmarks.example.com  # external domain (e.g. Pangolin)
 ```
 
-Multiple origins can be comma-separated: `http://192.168.1.100:8080,http://10.0.0.5:8080`
+The `Caddyfile` does not need to be modified – it uses `CADDY_HOST` automatically.
+
+**Avoid browser warnings:** Install Caddy's root CA certificate on your devices:
+
+```bash
+# Copy the root CA from the Caddy container:
+docker cp keepomat-caddy:/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca.crt
+```
+
+Then install `caddy-root-ca.crt` as a trusted certificate on your devices (system settings → certificates).
 
 #### Reverse proxy
 
-When running behind a reverse proxy (Nginx, Caddy, Traefik), set `BETTER_AUTH_URL` to your public URL (e.g. `https://bookmarks.example.com`). The container exposes port `3000` internally.
+If you already use an external reverse proxy (Nginx, Traefik, Pangolin), you can bypass Caddy and expose the port directly:
+
+```yaml
+# Remove the caddy service and replace expose with:
+ports:
+  - "8080:3000"
+```
+
+Set `BETTER_AUTH_URL` to your public URL (e.g. `https://bookmarks.example.com`).
 
 ### Development
 

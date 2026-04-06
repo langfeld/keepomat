@@ -59,24 +59,55 @@
 
 ```yaml
 services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    # Für LAN-Zugriff: CADDY_HOST auf die LAN-IP setzen
+    # environment:
+    #   - CADDY_HOST=192.168.1.100
+    depends_on:
+      - keepomat
+
   keepomat:
     image: ghcr.io/langfeld/keepomat:latest
     container_name: keepomat
     restart: unless-stopped
-    ports:
-      - "8080:3000"
+    expose:
+      - "3000"
     volumes:
       - ./data:/app/data
     environment:
       - BETTER_AUTH_SECRET=CHANGE_ME       # openssl rand -base64 48
-      - BETTER_AUTH_URL=http://localhost:8080
-      # - TRUSTED_ORIGINS=http://192.168.1.100  # optional: weitere Origins
+      - BETTER_AUTH_URL=https://localhost
+      # - TRUSTED_ORIGINS=https://bookmarks.example.com  # optional: Pangolin-Domain
       - MOONSHOT_API_KEY=                  # optional: KI-Features
       - AI_MODEL=kimi-k2-turbo-preview
       - TELEGRAM_BOT_TOKEN=               # optional: Telegram-Bot
       - PUID=1000
       - PGID=1000
+
+volumes:
+  caddy_data:
+  caddy_config:
 ```
+
+Zusätzlich wird ein `Caddyfile` im selben Verzeichnis benötigt:
+
+```caddyfile
+{$CADDY_HOST:localhost} {
+	tls internal
+	reverse_proxy keepomat:3000
+}
+```
+
+Caddy generiert automatisch ein selbstsigniertes Zertifikat. Beim ersten Zugriff im Browser einmalig akzeptieren oder Caddy Root-CA auf den Geräten installieren (siehe [LAN-Zugriff](#lan---multi-device-zugriff)).
 
 #### 2. Container starten
 
@@ -84,7 +115,9 @@ services:
 docker compose up -d
 ```
 
-Die App ist unter `http://localhost:8080` erreichbar. Der erste registrierte Benutzer wird automatisch Admin.
+Die App ist unter `https://localhost` erreichbar. Der erste registrierte Benutzer wird automatisch Admin.
+
+> **Ohne Caddy:** Den `caddy`-Service entfernen, `expose` durch `ports: ["8080:3000"]` ersetzen und `BETTER_AUTH_URL=http://localhost:8080` setzen.
 
 #### Konfiguration
 
@@ -92,13 +125,13 @@ Die App ist unter `http://localhost:8080` erreichbar. Der erste registrierte Ben
 |----------|-------------|--------|
 | `BETTER_AUTH_SECRET` | Auth-Secret (min. 32 Zeichen). Generieren: `openssl rand -base64 48` | **Ja** |
 | `BETTER_AUTH_URL` | Öffentliche URL der App (wichtig für Cookies) | **Ja** |
-| `TRUSTED_ORIGINS` | Zusätzliche Trusted Origins, kommagetrennt (z.B. LAN-IP, weitere Domains) | Nein |
+| `TRUSTED_ORIGINS` | Zusätzliche Trusted Origins, kommagetrennt (z.B. Pangolin-Domain) | Nein |
 | `MOONSHOT_API_KEY` | API-Schlüssel für [Moonshot/Kimi](https://platform.moonshot.cn/) KI | Nein |
 | `AI_MODEL` | Zu verwendendes KI-Modell | Nein |
 | `TELEGRAM_BOT_TOKEN` | Bot-Token von [@BotFather](https://t.me/BotFather) | Nein |
 | `PUID` / `PGID` | Benutzer-/Gruppen-ID für Dateiberechtigungen (Standard: 1000) | Nein |
 
-#### Alternative: `docker run`
+#### Alternative: `docker run` (ohne Caddy)
 
 ```bash
 docker run -d \
@@ -124,17 +157,42 @@ Alle Daten (SQLite-Datenbank, Screenshots) werden im `./data`-Volume gespeichert
 
 #### LAN- / Multi-Device-Zugriff
 
-Wenn du Keepomat von anderen Geräten im lokalen Netzwerk erreichst (z.B. `http://192.168.1.100:8080`), füge die LAN-URL zu `TRUSTED_ORIGINS` hinzu:
+Für den Zugriff von anderen Geräten im LAN `CADDY_HOST` auf die LAN-IP und `BETTER_AUTH_URL` entsprechend setzen:
 
 ```yaml
-- TRUSTED_ORIGINS=http://192.168.1.100:8080
+# In docker-compose.yml:
+caddy:
+  environment:
+    - CADDY_HOST=192.168.1.100
+
+keepomat:
+  environment:
+    - BETTER_AUTH_URL=https://192.168.1.100
+    - TRUSTED_ORIGINS=https://bookmarks.example.com  # externe Domain (z.B. Pangolin)
 ```
 
-Mehrere Origins können kommagetrennt angegeben werden: `http://192.168.1.100:8080,http://10.0.0.5:8080`
+Das `Caddyfile` muss nicht angepasst werden – es verwendet `CADDY_HOST` automatisch.
+
+**Browser-Warnungen vermeiden:** Caddy Root-CA-Zertifikat auf den Geräten installieren:
+
+```bash
+# Root-CA aus dem Caddy-Container kopieren:
+docker cp keepomat-caddy:/data/caddy/pki/authorities/local/root.crt ./caddy-root-ca.crt
+```
+
+Dann `caddy-root-ca.crt` als vertrauenswürdiges Zertifikat auf den Geräten installieren (Systemeinstellungen → Zertifikate).
 
 #### Reverse Proxy
 
-Bei Betrieb hinter einem Reverse Proxy (Nginx, Caddy, Traefik) muss `BETTER_AUTH_URL` auf die öffentliche URL gesetzt werden (z.B. `https://bookmarks.example.com`). Der Container exponiert intern Port `3000`.
+Wenn bereits ein externer Reverse Proxy (Nginx, Traefik, Pangolin) vorhanden ist, kann Caddy umgangen und der Port direkt exponiert werden:
+
+```yaml
+# caddy-Service entfernen und expose ersetzen:
+ports:
+  - "8080:3000"
+```
+
+`BETTER_AUTH_URL` auf die öffentliche URL setzen (z.B. `https://bookmarks.example.com`).
 
 ### Entwicklung
 

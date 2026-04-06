@@ -30,7 +30,7 @@ export const auth = betterAuth({
   },
   advanced: {
     cookiePrefix: "keepomat",
-    // __Secure- Cookie-Präfix nur bei HTTPS verwenden.
+    // __Secure- Cookie-Präfix automatisch bei HTTPS aktivieren.
     // Ohne HTTPS lehnt der Browser diese Cookies ab.
     useSecureCookies: (process.env.BETTER_AUTH_URL || "").startsWith("https://"),
   },
@@ -53,7 +53,7 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
     "http://localhost:5173", // Vite Dev Server
     // Weitere trusted Origins aus TRUSTED_ORIGINS (kommagetrennt) laden,
-    // z.B. für LAN-Zugriff: TRUSTED_ORIGINS=http://10.1.10.107,http://192.168.1.100
+    // z.B. für Pangolin-Domain: TRUSTED_ORIGINS=https://bookmarks.example.com
     ...(process.env.TRUSTED_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean) || []),
   ],
 });
