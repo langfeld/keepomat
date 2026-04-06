@@ -25,10 +25,19 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
-# Build-Artefakte kopieren
-COPY --from=build /app/dist ./dist
+# Frontend build artifacts
+COPY --from=build /app/dist/frontend ./dist/frontend
+
+# Server source (Bun runs TypeScript directly)
+COPY --from=build /app/src/server ./src/server
+COPY --from=build /app/src/shared ./src/shared
+COPY --from=build /app/src/bot ./src/bot
 COPY --from=build /app/src/db ./src/db
+
+# Config files
 COPY --from=build /app/drizzle.config.ts ./drizzle.config.ts
+COPY --from=build /app/tsconfig.json ./tsconfig.json
+COPY --from=build /app/keepomat.user.js ./keepomat.user.js
 
 # Entrypoint
 COPY entrypoint.sh /entrypoint.sh
@@ -51,4 +60,4 @@ ENV NODE_ENV=production
 ENV DATABASE_URL=/app/data/keepomat.db
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["bun", "run", "dist/server/index.js"]
+CMD ["bun", "run", "src/server/index.ts"]
