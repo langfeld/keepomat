@@ -383,4 +383,6 @@ export default {
   "toast.screenshotFailed": "Screenshot konnte nicht erstellt werden",
   "toast.apiKeyDeleted": "API-Schlüssel gelöscht",
   "toast.userDeleted": "Benutzer gelöscht",
+  "toast.updateFailed": "Aktualisierung fehlgeschlagen",
+  "toast.deleteFailed": "Löschen fehlgeschlagen",
 } as const;

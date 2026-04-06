@@ -381,4 +381,6 @@ export default {
   "toast.screenshotFailed": "Failed to create screenshot",
   "toast.apiKeyDeleted": "API key deleted",
   "toast.userDeleted": "User deleted",
+  "toast.updateFailed": "Update failed",
+  "toast.deleteFailed": "Delete failed",
 } as const;

@@ -149,6 +149,8 @@
         :showAiSummary="showAiSummary"
         @edit="editBookmark"
         @delete="deleteBookmark"
+        @toggleFavorite="handleToggleFavorite"
+        @toggleRead="handleToggleRead"
         @retakeScreenshot="retakeScreenshot"
       />
     </div>
@@ -317,6 +319,22 @@ async function retakeScreenshot(bookmark: any) {
     await loadBookmarks();
   } catch {
     toast.error(t('toast.screenshotFailed'));
+  }
+}
+
+async function handleToggleFavorite(bookmark: any) {
+  try {
+    await bookmarksStore.toggleFavorite(bookmark.id);
+  } catch {
+    toast.error(t('toast.updateFailed'));
+  }
+}
+
+async function handleToggleRead(bookmark: any) {
+  try {
+    await bookmarksStore.toggleRead(bookmark.id);
+  } catch {
+    toast.error(t('toast.updateFailed'));
   }
 }
 

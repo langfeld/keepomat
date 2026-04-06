@@ -119,6 +119,11 @@
           :key="bookmark.id"
           :bookmark="bookmark"
           compact
+          @toggleFavorite="handleToggleFavorite"
+          @toggleRead="handleToggleRead"
+          @retakeScreenshot="handleRetakeScreenshot"
+          @edit="handleEdit"
+          @delete="handleDelete"
         />
       </div>
       <div v-else class="bg-white dark:bg-gray-900 p-8 border border-gray-200 dark:border-gray-800 rounded-2xl text-center">
@@ -144,24 +149,43 @@
           :key="bookmark.id"
           :bookmark="bookmark"
           compact
+          @toggleFavorite="handleToggleFavorite"
+          @toggleRead="handleToggleRead"
+          @retakeScreenshot="handleRetakeScreenshot"
+          @edit="handleEdit"
+          @delete="handleDelete"
         />
       </div>
     </div>
+
+    <!-- Edit Modal -->
+    <EditBookmarkModal
+      v-if="editingBookmark"
+      :bookmark="editingBookmark"
+      @close="editingBookmark = null"
+      @saved="handleBookmarkSaved"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import BookmarkCard from "../components/BookmarkCard.vue";
+import EditBookmarkModal from "../components/EditBookmarkModal.vue";
 import { useI18n } from "../composables/useI18n";
+import { useConfirm } from "../composables/useConfirm";
+import { useToast } from "../composables/useToast";
 import { useLocalStorage } from "../composables/useLocalStorage";
 
 const { t } = useI18n();
+const { confirm } = useConfirm();
+const toast = useToast();
 
 const stats = ref({ bookmarks: 0, folders: 0, tags: 0, unread: 0 });
 const recentBookmarks = ref<any[]>([]);
 const favorites = ref<any[]>([]);
 
+const editingBookmark = ref<any>(null);
 const quickStartDismissed = useLocalStorage("keepomat-quickstart-dismissed", false);
 const showQuickStart = ref(!quickStartDismissed.value);
 
@@ -170,7 +194,105 @@ function dismissQuickStart() {
   quickStartDismissed.value = true;
 }
 
-onMounted(async () => {
+function updateLocalBookmark(id: number, data: Record<string, any>) {
+  for (const list of [recentBookmarks, favorites]) {
+    const idx = list.value.findIndex((b: any) => b.id === id);
+    if (idx !== -1) {
+      list.value[idx] = { ...list.value[idx], ...data };
+    }
+  }
+}
+
+function removeLocalBookmark(id: number) {
+  recentBookmarks.value = recentBookmarks.value.filter((b: any) => b.id !== id);
+  favorites.value = favorites.value.filter((b: any) => b.id !== id);
+}
+
+async function handleToggleFavorite(bookmark: any) {
+  try {
+    const res = await fetch(`/api/bookmarks/${bookmark.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ isFavorite: !bookmark.isFavorite }),
+    });
+    if (!res.ok) throw new Error();
+    const updated = await res.json();
+    updateLocalBookmark(bookmark.id, updated);
+    // Favoriten-Liste aktualisieren
+    if (!updated.isFavorite) {
+      favorites.value = favorites.value.filter((b: any) => b.id !== bookmark.id);
+    } else if (!favorites.value.find((b: any) => b.id === bookmark.id)) {
+      favorites.value.unshift({ ...bookmark, ...updated });
+    }
+  } catch {
+    toast.error(t('toast.updateFailed'));
+  }
+}
+
+async function handleToggleRead(bookmark: any) {
+  try {
+    const res = await fetch(`/api/bookmarks/${bookmark.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ isRead: !bookmark.isRead }),
+    });
+    if (!res.ok) throw new Error();
+    const updated = await res.json();
+    updateLocalBookmark(bookmark.id, updated);
+  } catch {
+    toast.error(t('toast.updateFailed'));
+  }
+}
+
+async function handleRetakeScreenshot(bookmark: any) {
+  try {
+    toast.info(t('toast.screenshotCreating'));
+    const res = await fetch(`/api/bookmarks/${bookmark.id}/screenshot`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error();
+    toast.success(t('toast.screenshotCreated'));
+  } catch {
+    toast.error(t('toast.screenshotFailed'));
+  }
+}
+
+function handleEdit(bookmark: any) {
+  editingBookmark.value = { ...bookmark };
+}
+
+async function handleDelete(id: number) {
+  const ok = await confirm({
+    title: t('common.delete'),
+    message: t('bookmarks.deleteConfirm'),
+    confirmText: t('common.delete'),
+    variant: 'danger',
+  });
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/bookmarks/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (!res.ok) throw new Error();
+    removeLocalBookmark(id);
+    stats.value.bookmarks--;
+    toast.success(t('toast.bookmarkDeleted'));
+  } catch {
+    toast.error(t('toast.deleteFailed'));
+  }
+}
+
+async function handleBookmarkSaved() {
+  editingBookmark.value = null;
+  // Dashboard-Daten neu laden
+  await loadDashboardData();
+}
+
+async function loadDashboardData() {
   try {
     const [statsRes, recentRes, favRes] = await Promise.all([
       fetch("/api/bookmarks?limit=1"),
@@ -210,5 +332,7 @@ onMounted(async () => {
   } catch (e) {
     console.error("Dashboard-Daten laden fehlgeschlagen:", e);
   }
-});
+}
+
+onMounted(loadDashboardData);
 </script>
