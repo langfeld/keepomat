@@ -74,7 +74,7 @@
       </div>
 
       <!-- API-Schlüssel -->
-      <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+      <div id="api-keys" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl transition-shadow duration-700">
         <div class="flex justify-between items-center mb-2">
           <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.apiKeys') }}</h2>
           <button
@@ -121,7 +121,7 @@
       </div>
 
       <!-- Browser-Erweiterung -->
-      <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+      <div id="extension" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl transition-shadow duration-700">
         <div class="flex items-center gap-3 mb-2">
           <div class="flex justify-center items-center bg-blue-100 dark:bg-blue-900/30 rounded-xl w-10 h-10">
             <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -175,8 +175,85 @@
         </details>
       </div>
 
+      <!-- Userscript (Alternative) -->
+      <div id="userscript" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl transition-shadow duration-700">
+        <div class="flex items-center gap-3 mb-2">
+          <div class="flex justify-center items-center bg-amber-100 dark:bg-amber-900/30 rounded-xl w-10 h-10">
+            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+            </svg>
+          </div>
+          <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.userscript') }}</h2>
+        </div>
+        <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">{{ t('settings.userscriptDescription') }}</p>
+
+        <!-- Features -->
+        <div class="mb-4">
+          <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.userscriptFeatures') }}</h3>
+          <ul class="space-y-1.5">
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.userscriptFeature1') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.userscriptFeature2') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.userscriptFeature3') }}
+            </li>
+            <li class="flex items-start gap-2 text-gray-600 dark:text-gray-400 text-sm">
+              <svg class="w-4 h-4 mt-0.5 text-green-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+              {{ t('settings.userscriptFeature4') }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- Install-Link -->
+        <div class="flex items-center gap-3 bg-amber-50 dark:bg-amber-900/20 mb-4 p-3 border border-amber-200 dark:border-amber-800 rounded-xl">
+          <svg class="w-5 h-5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <a
+            :href="userscriptUrl"
+            class="font-medium text-amber-700 dark:text-amber-400 text-sm hover:underline"
+          >
+            {{ t('settings.userscriptInstallLink') }}
+          </a>
+        </div>
+
+        <!-- Kompatibilität -->
+        <p class="mb-2 text-gray-500 dark:text-gray-400 text-xs">{{ t('settings.userscriptManagers') }}</p>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <a href="https://www.tampermonkey.net/" target="_blank" rel="noopener" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-400 text-xs transition">Tampermonkey</a>
+          <a href="https://violentmonkey.github.io/" target="_blank" rel="noopener" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-400 text-xs transition">Violentmonkey</a>
+          <a href="https://www.greasespot.net/" target="_blank" rel="noopener" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-400 text-xs transition">Greasemonkey</a>
+        </div>
+
+        <!-- Setup-Anleitung -->
+        <details class="group">
+          <summary class="flex items-center gap-2 cursor-pointer text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 transition">
+            <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+            {{ t('settings.userscriptInstall') }}
+          </summary>
+          <div class="mt-3 ml-6 space-y-2">
+            <ol class="space-y-2 text-gray-600 dark:text-gray-400 text-sm list-decimal list-inside">
+              <li>{{ t('settings.userscriptStep1', { manager: 'Tampermonkey' }) }}</li>
+              <li>{{ t('settings.userscriptStep2') }}</li>
+              <li>{{ t('settings.userscriptStep3') }}</li>
+              <li>{{ t('settings.userscriptStep4') }}</li>
+              <li>{{ t('settings.userscriptStep5') }}</li>
+            </ol>
+            <p class="mt-3 text-amber-600 dark:text-amber-400 text-xs font-medium">
+              💡 {{ t('settings.userscriptNeedsKey') }}
+            </p>
+          </div>
+        </details>
+      </div>
+
       <!-- Telegram -->
-      <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+      <div id="telegram" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl transition-shadow duration-700">
         <div class="flex items-center gap-3 mb-2">
           <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-xl w-10 h-10">
             <svg class="w-5 h-5 text-sky-600 dark:text-sky-400" viewBox="0 0 24 24" fill="currentColor">
@@ -390,13 +467,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
+import { useRoute } from "vue-router";
 import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
 import SearchableSelect from "../components/SearchableSelect.vue";
 import type { SelectOption } from "../components/SearchableSelect.vue";
+
+const route = useRoute();
 
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
@@ -443,6 +523,10 @@ const aiModelPlaceholder = computed(() => {
   return defaultModels[aiProvider.value] || t("settings.aiModelPlaceholder");
 });
 
+const userscriptUrl = computed(() => {
+  return `${window.location.origin}/keepomat.user.js`;
+});
+
 const themes = computed(() => [
   { value: "light", label: t('settings.themeLight'), icon: "☀️" },
   { value: "dark", label: t('settings.themeDark'), icon: "🌙" },
@@ -458,6 +542,18 @@ onMounted(async () => {
   aiModel.value = settingsStore.settings?.aiModel || "";
   aiBaseUrl.value = settingsStore.settings?.aiBaseUrl || "";
   await loadApiKeys();
+
+  // Hash-basiertes Scrollen + Highlight
+  await nextTick();
+  const hash = route.hash?.slice(1);
+  if (hash) {
+    const el = document.getElementById(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.classList.add("settings-highlight");
+      setTimeout(() => el.classList.remove("settings-highlight"), 2000);
+    }
+  }
 });
 
 function updateTheme(theme: string) {
@@ -630,3 +726,16 @@ async function testAiConnection() {
   }
 }
 </script>
+
+<style scoped>
+.settings-highlight {
+  box-shadow: 0 0 0 3px var(--color-primary-400);
+  animation: settings-highlight-fade 2s ease-out forwards;
+}
+
+@keyframes settings-highlight-fade {
+  0% { box-shadow: 0 0 0 3px var(--color-primary-400); }
+  70% { box-shadow: 0 0 0 3px var(--color-primary-400); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+</style>

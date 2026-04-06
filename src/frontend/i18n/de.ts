@@ -88,6 +88,24 @@ export default {
   "settings.extensionStep5": "Klicke auf das Keepomat-Symbol in der Toolbar und gib deine Server-URL und einen API-Schlüssel ein",
   "settings.extensionNeedsKey": "Du benötigst einen API-Schlüssel (siehe oben), um die Erweiterung zu verbinden.",
 
+  // Userscript
+  "settings.userscript": "Userscript (Alternative)",
+  "settings.userscriptDescription": "Speichere Webseiten über Tampermonkey, Violentmonkey oder Greasemonkey – ohne Installation aus dem Chrome Web Store.",
+  "settings.userscriptFeatures": "Funktionen",
+  "settings.userscriptFeature1": "Schwebender Speicher-Button auf jeder Webseite",
+  "settings.userscriptFeature2": "Tastenkürzel Alt+K zum schnellen Speichern",
+  "settings.userscriptFeature3": "Tags und Ordner direkt im Overlay auswählen",
+  "settings.userscriptFeature4": "Funktioniert in jedem Browser mit Userscript-Manager",
+  "settings.userscriptInstall": "Installation",
+  "settings.userscriptStep1": "Installiere einen Userscript-Manager wie {manager} in deinem Browser",
+  "settings.userscriptStep2": "Klicke auf den Installations-Link unten – der Userscript-Manager erkennt das Skript automatisch",
+  "settings.userscriptStep3": "Bestätige die Installation im Userscript-Manager",
+  "settings.userscriptStep4": "Klicke auf einer beliebigen Webseite auf den 🔖-Button oder drücke Alt+K",
+  "settings.userscriptStep5": "Gib beim ersten Mal deine Server-URL und deinen API-Schlüssel ein",
+  "settings.userscriptNeedsKey": "Du benötigst einen API-Schlüssel (siehe oben), um das Userscript zu verbinden.",
+  "settings.userscriptInstallLink": "Userscript installieren",
+  "settings.userscriptManagers": "Kompatibel mit:",
+
   // Telegram
   "settings.telegram": "Telegram-Bot",
   "settings.telegramDescription": "Mit dem Telegram-Bot kannst du Links direkt per Chat speichern, deine letzten Lesezeichen abrufen und deine Sammlung durchsuchen.",
@@ -318,6 +336,8 @@ export default {
   "dashboard.quickStartTelegramDesc": "Links per Chat speichern",
   "dashboard.quickStartApiKey": "API-Schlüssel erstellen",
   "dashboard.quickStartApiKeyDesc": "Für Erweiterung und Integrationen",
+  "dashboard.quickStartUserscript": "Userscript installieren",
+  "dashboard.quickStartUserscriptDesc": "Alternative ohne Chrome Web Store",
   "dashboard.quickStartDismiss": "Verstanden",
 
   // Toasts

@@ -74,6 +74,23 @@ app.route("/api/keys", apiKeyRoutes);
 app.route("/api/export", exportRoutes);
 app.route("/api/admin", adminRoutes);
 
+// ── Userscript ausliefern ──
+app.get("/keepomat.user.js", async (c) => {
+  const scriptPath = resolve(import.meta.dir, "../../extension/keepomat.user.js");
+  const file = Bun.file(scriptPath);
+  let content = await file.text();
+
+  // Server-URL dynamisch einsetzen
+  const baseUrl = (process.env.BETTER_AUTH_URL || `http://localhost:${parseInt(process.env.PORT || "3000", 10)}`).replace(/\/$/, "");
+  content = content.replace("{{DOWNLOAD_URL}}", `${baseUrl}/keepomat.user.js`);
+  content = content.replace("{{UPDATE_URL}}", `${baseUrl}/keepomat.user.js`);
+
+  return c.text(content, 200, {
+    "Content-Type": "text/javascript",
+    "Content-Disposition": 'inline; filename="keepomat.user.js"',
+  });
+});
+
 // ── Statische Dateien (Production) ──
 if (process.env.NODE_ENV === "production") {
   const frontendPath = resolve(import.meta.dir, "../../dist/frontend");

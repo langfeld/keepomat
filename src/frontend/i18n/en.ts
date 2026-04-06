@@ -88,6 +88,24 @@ export default {
   "settings.extensionStep5": "Click the Keepomat icon in the toolbar and enter your server URL and API key",
   "settings.extensionNeedsKey": "You need an API key (see above) to connect the extension.",
 
+  // Userscript
+  "settings.userscript": "Userscript (Alternative)",
+  "settings.userscriptDescription": "Save web pages via Tampermonkey, Violentmonkey or Greasemonkey – no Chrome Web Store installation required.",
+  "settings.userscriptFeatures": "Features",
+  "settings.userscriptFeature1": "Floating save button on every web page",
+  "settings.userscriptFeature2": "Keyboard shortcut Alt+K for quick saving",
+  "settings.userscriptFeature3": "Select tags and folders directly in the overlay",
+  "settings.userscriptFeature4": "Works in any browser with a userscript manager",
+  "settings.userscriptInstall": "Installation",
+  "settings.userscriptStep1": "Install a userscript manager like {manager} in your browser",
+  "settings.userscriptStep2": "Click the install link below – the userscript manager will detect the script automatically",
+  "settings.userscriptStep3": "Confirm the installation in the userscript manager",
+  "settings.userscriptStep4": "Click the 🔖 button on any web page or press Alt+K",
+  "settings.userscriptStep5": "Enter your server URL and API key on first use",
+  "settings.userscriptNeedsKey": "You need an API key (see above) to connect the userscript.",
+  "settings.userscriptInstallLink": "Install userscript",
+  "settings.userscriptManagers": "Compatible with:",
+
   // Telegram
   "settings.telegram": "Telegram Bot",
   "settings.telegramDescription": "With the Telegram bot you can save links via chat, view your recent bookmarks, and search your collection.",
@@ -316,6 +334,8 @@ export default {
   "dashboard.quickStartTelegramDesc": "Save links via chat",
   "dashboard.quickStartApiKey": "Create API key",
   "dashboard.quickStartApiKeyDesc": "For extension and integrations",
+  "dashboard.quickStartUserscript": "Install userscript",
+  "dashboard.quickStartUserscriptDesc": "Alternative without Chrome Web Store",
   "dashboard.quickStartDismiss": "Got it",
 
   // Toasts
