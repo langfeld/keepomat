@@ -83,6 +83,7 @@
             :folders="foldersStore.tree"
             :active-id="foldersStore.activeFolderId"
             @select="handleFolderSelect"
+            @drop-bookmark="handleDropBookmark"
           />
           <p v-else class="px-3 text-gray-400 dark:text-gray-500 text-sm">{{ t('folders.empty') }}</p>
         </div>
@@ -234,6 +235,26 @@ function handleFolderSelect(folderId: number) {
   foldersStore.activeFolderId = folderId;
   router.push(`/folders/${folderId}`);
   sidebarOpen.value = false;
+}
+
+async function handleDropBookmark(data: { bookmarkId: number; folderId: number; folderName: string }) {
+  try {
+    const res = await fetch(`/api/bookmarks/${data.bookmarkId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ folderId: data.folderId }),
+    });
+    if (res.ok) {
+      toast.success(t('bookmarks.movedToFolder', { folder: data.folderName }));
+      // Bookmarks neu laden wenn auf der Bookmarks-Seite
+      if (route.path === "/bookmarks" || route.path.startsWith("/folders/")) {
+        await bookmarksStore.fetchBookmarks();
+      }
+    }
+  } catch {
+    toast.error(t('common.saveError'));
+  }
 }
 
 function handleQuickSearch(query: string) {

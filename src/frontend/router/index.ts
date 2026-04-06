@@ -32,6 +32,11 @@ const router = createRouter({
           component: () => import("../views/BookmarksView.vue"),
         },
         {
+          path: "bookmarks/:id",
+          name: "bookmark-detail",
+          component: () => import("../views/BookmarkDetailView.vue"),
+        },
+        {
           path: "folders/:folderId?",
           name: "folders",
           component: () => import("../views/BookmarksView.vue"),

@@ -55,6 +55,47 @@
       </svg>
       <p class="text-gray-500 dark:text-gray-400 text-lg">{{ t('search.noResults') }}</p>
       <p class="mt-1 text-gray-400 dark:text-gray-500 text-sm">{{ t('search.noResultsHint') }}</p>
+
+      <!-- AI-Suche Button -->
+      <button
+        v-if="!aiSearching && !aiResults.length"
+        @click="aiSearch"
+        class="inline-flex items-center gap-2 bg-primary-500 hover:bg-primary-600 mt-4 px-5 py-2.5 rounded-xl font-medium text-white text-sm transition"
+      >
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" />
+        </svg>
+        {{ t('search.aiSearch') }}
+      </button>
+      <div v-if="aiSearching" class="flex justify-center items-center gap-2 mt-4">
+        <svg class="w-5 h-5 text-primary-500 animate-spin" viewBox="0 0 24 24" fill="none">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+        </svg>
+        <span class="text-gray-500 dark:text-gray-400 text-sm">{{ t('search.aiSearching') }}</span>
+      </div>
+    </div>
+
+    <!-- AI-Suchergebnisse -->
+    <div v-if="aiResults.length" class="space-y-3">
+      <div class="flex items-center gap-2 mb-4">
+        <svg class="w-4 h-4 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" />
+        </svg>
+        <p class="text-gray-500 dark:text-gray-400 text-sm">
+          {{ t('search.aiResultsFor', { query: lastQuery, count: String(aiResults.length) }) }}
+        </p>
+      </div>
+      <p v-if="aiReason" class="bg-primary-50/50 dark:bg-primary-900/10 mb-4 p-3 rounded-xl text-gray-600 dark:text-gray-400 text-xs italic">
+        {{ aiReason }}
+      </p>
+      <BookmarkCard
+        v-for="bookmark in aiResults"
+        :key="bookmark.id"
+        :bookmark="bookmark"
+        compact
+        :highlight="lastQuery"
+      />
     </div>
 
     <div v-else-if="!searched" class="bg-white dark:bg-gray-900 p-12 border border-gray-200 dark:border-gray-800 rounded-2xl text-center">
@@ -84,11 +125,16 @@ const loading = ref(false);
 const searched = ref(false);
 const hasMore = ref(false);
 const page = ref(1);
+const aiSearching = ref(false);
+const aiResults = ref<any[]>([]);
+const aiReason = ref("");
 
 let debounceTimer: ReturnType<typeof setTimeout>;
 
 function debouncedSearch() {
   clearTimeout(debounceTimer);
+  aiResults.value = [];
+  aiReason.value = "";
   debounceTimer = setTimeout(() => {
     page.value = 1;
     search();
@@ -134,6 +180,28 @@ async function search() {
 function loadMore() {
   page.value++;
   search();
+}
+
+async function aiSearch() {
+  if (!lastQuery.value.trim()) return;
+  aiSearching.value = true;
+  try {
+    const res = await fetch("/api/search/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ q: lastQuery.value }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      aiResults.value = data.data || [];
+      aiReason.value = data.aiReason || "";
+    }
+  } catch (e) {
+    console.error("AI-Suche fehlgeschlagen:", e);
+  } finally {
+    aiSearching.value = false;
+  }
 }
 
 onMounted(() => {

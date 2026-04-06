@@ -30,6 +30,15 @@
           trigger-class="!py-2 !text-sm"
         />
 
+        <!-- Sortierung -->
+        <SearchableSelect
+          :model-value="sortBy"
+          :options="sortOptions"
+          :placeholder="t('bookmarks.sortNewest')"
+          @update:model-value="sortBy = String($event)"
+          trigger-class="!py-2 !text-sm"
+        />
+
         <!-- Ansicht -->
         <div class="flex items-center bg-gray-100 dark:bg-gray-800 p-0.5 rounded-xl">
           <button
@@ -64,6 +73,18 @@
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+
+        <!-- AI-Zusammenfassung Toggle -->
+        <button
+          @click="showAiSummary = !showAiSummary"
+          :class="showAiSummary ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-primary-300 dark:border-primary-700' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700'"
+          class="hover:bg-gray-50 dark:hover:bg-gray-700 p-2 border rounded-xl transition"
+          :title="showAiSummary ? t('bookmarks.hideAiSummary') : t('bookmarks.showAiSummary')"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" />
           </svg>
         </button>
 
@@ -125,6 +146,7 @@
         :bookmark="bookmark"
         :compact="viewMode === 'list'"
         :showScreenshot="showScreenshots"
+        :showAiSummary="showAiSummary"
         @edit="editBookmark"
         @delete="deleteBookmark"
         @retakeScreenshot="retakeScreenshot"
@@ -191,8 +213,17 @@ const filterOptions = computed<SelectOption[]>(() => [
   { value: 'dead', label: t('bookmarks.filterDead') },
 ]);
 const selectedTag = ref("");
+const sortBy = useLocalStorage<string>("bookmarkSort", "");
+const sortOptions = computed<SelectOption[]>(() => [
+  { value: 'createdAt_desc', label: t('bookmarks.sortNewest') },
+  { value: 'createdAt_asc', label: t('bookmarks.sortOldest') },
+  { value: 'title_asc', label: t('bookmarks.sortTitleAZ') },
+  { value: 'title_desc', label: t('bookmarks.sortTitleZA') },
+  { value: 'updatedAt_desc', label: t('bookmarks.sortUpdated') },
+]);
 const viewMode = useLocalStorage<"list" | "grid">("viewMode", "list");
 const showScreenshots = useLocalStorage("showScreenshots", false);
+const showAiSummary = useLocalStorage("showAiSummary", true);
 const tags = ref<any[]>([]);
 const tagOptions = computed<SelectOption[]>(() =>
   tags.value.map((tag) => ({ value: String(tag.id), label: tag.name }))
@@ -232,7 +263,7 @@ watch(
   { immediate: true }
 );
 
-watch([filter, selectedTag], () => loadBookmarks());
+watch([filter, selectedTag, sortBy], () => loadBookmarks());
 
 async function loadBookmarks() {
   const params: Record<string, string> = {};
@@ -241,6 +272,11 @@ async function loadBookmarks() {
   if (filter.value === "unread") params.isRead = "false";
   if (filter.value === "favorites") params.isFavorite = "true";
   if (filter.value === "dead") params.isDeadLink = "true";
+  if (sortBy.value) {
+    const [sort, order] = sortBy.value.split("_");
+    params.sort = sort;
+    params.order = order;
+  }
 
   await bookmarksStore.fetchBookmarks(params);
 }

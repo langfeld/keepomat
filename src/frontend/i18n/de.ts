@@ -23,6 +23,7 @@ export default {
   "common.noFolder": "Kein Ordner",
   "common.saveError": "Fehler beim Speichern",
   "common.importFailed": "Import fehlgeschlagen",
+  "common.back": "Zurück",
 
   // Auth
   "auth.login": "Anmelden",
@@ -190,6 +191,14 @@ export default {
   "bookmarks.showImages": "Vorschaubilder anzeigen",
   "bookmarks.viewList": "Listenansicht",
   "bookmarks.viewGrid": "Rasteransicht",
+  "bookmarks.sortNewest": "Neueste zuerst",
+  "bookmarks.sortOldest": "Älteste zuerst",
+  "bookmarks.sortTitleAZ": "Titel A–Z",
+  "bookmarks.sortTitleZA": "Titel Z–A",
+  "bookmarks.sortUpdated": "Zuletzt aktualisiert",
+  "bookmarks.showAiSummary": "AI-Zusammenfassung anzeigen",
+  "bookmarks.hideAiSummary": "AI-Zusammenfassung ausblenden",
+  "bookmarks.movedToFolder": "In \"{folder}\" verschoben",
 
   // Bookmark Card
   "bookmark.dead": "Tot",
@@ -200,6 +209,17 @@ export default {
   "bookmark.aiSummary": "AI-Zusammenfassung",
   "bookmark.screenshot": "Screenshot",
   "bookmark.retakeScreenshot": "Screenshot neu erstellen",
+
+  // Bookmark Detail
+  "bookmarkDetail.description": "Beschreibung",
+  "bookmarkDetail.previewImage": "Vorschaubild",
+  "bookmarkDetail.metadata": "Metadaten",
+  "bookmarkDetail.createdAt": "Erstellt",
+  "bookmarkDetail.updatedAt": "Aktualisiert",
+  "bookmarkDetail.lastChecked": "Zuletzt geprüft",
+  "bookmarkDetail.domain": "Domain",
+  "bookmarkDetail.noTags": "Keine Tags zugewiesen",
+  "bookmarkDetail.notFound": "Lesezeichen nicht gefunden",
 
   // Add Bookmark
   "addBookmark.title": "Lesezeichen hinzufügen",
@@ -271,6 +291,9 @@ export default {
   "search.resultsFor": "Ergebnisse für \"{query}\"",
   "search.noResults": "Keine Ergebnisse gefunden",
   "search.noResultsHint": "Versuche andere Suchbegriffe.",
+  "search.aiSearch": "AI-Suche starten",
+  "search.aiSearching": "AI sucht semantisch...",
+  "search.aiResultsFor": "{count} AI-Ergebnisse für \"{query}\"",
   "search.fulltext": "Volltextsuche",
   "search.fulltextHint": "Durchsuche Titel, Beschreibungen und Zusammenfassungen.",
 

@@ -4,6 +4,8 @@
       'bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 overflow-hidden transition hover:shadow-md group',
       compact ? 'flex items-center gap-4 p-4' : 'flex flex-col'
     ]"
+    draggable="true"
+    @dragstart="onDragStart"
   >
     <!-- Bild (Grid-Ansicht): Screenshot oder OG-Image -->
     <div v-if="!compact && displayImage" class="relative bg-gray-100 dark:bg-gray-800 h-40 overflow-hidden">
@@ -57,8 +59,8 @@
             :href="bookmark.url"
             target="_blank"
             rel="noopener"
-            class="font-medium text-gray-900 hover:text-primary-600 dark:hover:text-primary-400 dark:text-white text-sm line-clamp-1 transition"
-            @click="markAsRead"
+            class="font-medium text-gray-900 hover:text-primary-600 dark:hover:text-primary-400 dark:text-white text-sm line-clamp-1 transition cursor-pointer"
+            @click.prevent="router.push({ name: 'bookmark-detail', params: { id: bookmark.id } })"
           >
             {{ bookmark.title || bookmark.url }}
           </a>
@@ -139,8 +141,8 @@
         </div>
       </div>
 
-      <!-- AI-Zusammenfassung (Grid-Ansicht) -->
-      <div v-if="!compact && bookmark.aiSummary" class="bg-primary-50/50 dark:bg-primary-900/10 mt-3 p-3 rounded-xl">
+      <!-- AI-Zusammenfassung (Grid-Ansicht, wenn aktiviert) -->
+      <div v-if="!compact && showAiSummary !== false && bookmark.aiSummary" class="bg-primary-50/50 dark:bg-primary-900/10 mt-3 p-3 rounded-xl">
         <p class="flex items-center gap-1 mb-1 text-gray-600 dark:text-gray-400 text-xs">
           <svg class="w-3 h-3 text-primary-500" fill="currentColor" viewBox="0 0 20 20">
             <path d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" />
@@ -155,8 +157,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import { useI18n } from "../composables/useI18n";
 
+const router = useRouter();
 const { t } = useI18n();
 
 const props = defineProps<{
@@ -164,6 +168,7 @@ const props = defineProps<{
   compact?: boolean;
   highlight?: string;
   showScreenshot?: boolean;
+  showAiSummary?: boolean;
 }>();
 
 const emit = defineEmits(["edit", "delete", "toggleFavorite", "toggleRead", "retakeScreenshot"]);
@@ -201,6 +206,13 @@ async function markAsRead() {
         body: JSON.stringify({ isRead: true }),
       });
     } catch {}
+  }
+}
+
+function onDragStart(event: DragEvent) {
+  if (event.dataTransfer) {
+    event.dataTransfer.setData("application/x-bookmark-id", String(props.bookmark.id));
+    event.dataTransfer.effectAllowed = "move";
   }
 }
 </script>

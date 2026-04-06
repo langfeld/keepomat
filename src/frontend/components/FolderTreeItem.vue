@@ -2,11 +2,16 @@
   <div>
     <button
       @click="handleClick"
+      @dragover.prevent="onDragOver"
+      @dragleave="onDragLeave"
+      @drop.prevent="onDrop"
       :class="[
         'w-full flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition group',
-        folder.id === activeId
-          ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium'
-          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+        dragOver
+          ? 'bg-primary-100 dark:bg-primary-900/40 ring-2 ring-primary-400 dark:ring-primary-600'
+          : folder.id === activeId
+            ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 font-medium'
+            : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
       ]"
       :style="{ paddingLeft: `${depth * 16 + 12}px` }"
     >
@@ -49,6 +54,7 @@
         :active-id="activeId"
         :depth="depth + 1"
         @select="$emit('select', $event)"
+        @drop-bookmark="$emit('drop-bookmark', $event)"
       />
     </div>
   </div>
@@ -63,11 +69,35 @@ const props = defineProps<{
   depth: number;
 }>();
 
-const emit = defineEmits(["select"]);
+const emit = defineEmits(["select", "drop-bookmark"]);
 
 const expanded = ref(props.depth < 1);
+const dragOver = ref(false);
 
 function handleClick() {
   emit("select", props.folder.id);
+}
+
+function onDragOver(event: DragEvent) {
+  if (event.dataTransfer?.types.includes("application/x-bookmark-id")) {
+    dragOver.value = true;
+    event.dataTransfer.dropEffect = "move";
+  }
+}
+
+function onDragLeave() {
+  dragOver.value = false;
+}
+
+function onDrop(event: DragEvent) {
+  dragOver.value = false;
+  const bookmarkId = event.dataTransfer?.getData("application/x-bookmark-id");
+  if (bookmarkId) {
+    emit("drop-bookmark", {
+      bookmarkId: parseInt(bookmarkId),
+      folderId: props.folder.id,
+      folderName: props.folder.name,
+    });
+  }
 }
 </script>

@@ -23,6 +23,7 @@ export default {
   "common.noFolder": "No folder",
   "common.saveError": "Failed to save",
   "common.importFailed": "Import failed",
+  "common.back": "Back",
 
   // Auth
   "auth.login": "Log in",
@@ -190,6 +191,14 @@ export default {
   "bookmarks.showImages": "Show preview images",
   "bookmarks.viewList": "List view",
   "bookmarks.viewGrid": "Grid view",
+  "bookmarks.sortNewest": "Newest first",
+  "bookmarks.sortOldest": "Oldest first",
+  "bookmarks.sortTitleAZ": "Title A–Z",
+  "bookmarks.sortTitleZA": "Title Z–A",
+  "bookmarks.sortUpdated": "Last updated",
+  "bookmarks.showAiSummary": "Show AI summary",
+  "bookmarks.hideAiSummary": "Hide AI summary",
+  "bookmarks.movedToFolder": "Moved to \"{folder}\"",
 
   // Bookmark Card
   "bookmark.dead": "Dead",
@@ -200,6 +209,17 @@ export default {
   "bookmark.aiSummary": "AI Summary",
   "bookmark.screenshot": "Screenshot",
   "bookmark.retakeScreenshot": "Retake screenshot",
+
+  // Bookmark Detail
+  "bookmarkDetail.description": "Description",
+  "bookmarkDetail.previewImage": "Preview image",
+  "bookmarkDetail.metadata": "Metadata",
+  "bookmarkDetail.createdAt": "Created",
+  "bookmarkDetail.updatedAt": "Updated",
+  "bookmarkDetail.lastChecked": "Last checked",
+  "bookmarkDetail.domain": "Domain",
+  "bookmarkDetail.noTags": "No tags assigned",
+  "bookmarkDetail.notFound": "Bookmark not found",
   "addBookmark.title": "Add bookmark",
   "addBookmark.url": "URL *",
   "addBookmark.urlPlaceholder": "https://...",
@@ -269,6 +289,9 @@ export default {
   "search.resultsFor": "Results for \"{query}\"",
   "search.noResults": "No results found",
   "search.noResultsHint": "Try different search terms.",
+  "search.aiSearch": "Start AI search",
+  "search.aiSearching": "AI is searching semantically...",
+  "search.aiResultsFor": "{count} AI results for \"{query}\"",
   "search.fulltext": "Full-text search",
   "search.fulltextHint": "Search titles, descriptions and summaries.",
 

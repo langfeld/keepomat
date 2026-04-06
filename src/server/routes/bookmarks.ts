@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { db } from "../../db";
 import * as schema from "../../db/schema";
-import { eq, and, desc, sql, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, sql, inArray } from "drizzle-orm";
 import { createBookmarkSchema, updateBookmarkSchema } from "../../shared/validators";
 import { fetchMetadata } from "../services/metadata";
 import { analyzeBookmark, isAiConfigured, getEffectiveAiConfig, isAiConfiguredForUser } from "../services/ai";
@@ -20,14 +20,15 @@ bookmarkRoutes.get("/", async (c) => {
   const isRead = c.req.query("isRead");
   const isFavorite = c.req.query("isFavorite");
   const isDeadLink = c.req.query("isDeadLink");
+  const sortBy = c.req.query("sort") || "createdAt";
+  const sortOrder = c.req.query("order") || "desc";
 
-  let query = db
-    .select()
-    .from(schema.bookmarks)
-    .where(eq(schema.bookmarks.userId, user.id))
-    .orderBy(desc(schema.bookmarks.createdAt))
-    .limit(limit)
-    .offset(offset);
+  // Sortier-Spalte bestimmen
+  const sortColumn = sortBy === "title" ? schema.bookmarks.title
+    : sortBy === "url" ? schema.bookmarks.url
+    : sortBy === "updatedAt" ? schema.bookmarks.updatedAt
+    : schema.bookmarks.createdAt;
+  const orderFn = sortOrder === "asc" ? asc : desc;
 
   // Filter anwenden
   const conditions = [eq(schema.bookmarks.userId, user.id)];
@@ -39,7 +40,7 @@ bookmarkRoutes.get("/", async (c) => {
     .select()
     .from(schema.bookmarks)
     .where(and(...conditions))
-    .orderBy(desc(schema.bookmarks.createdAt))
+    .orderBy(orderFn(sortColumn))
     .limit(limit)
     .offset(offset)
     .all();
