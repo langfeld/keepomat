@@ -4,6 +4,7 @@ import AdblockerPlugin from "puppeteer-extra-plugin-adblocker";
 import { existsSync, mkdirSync, statSync } from "fs";
 import { resolve } from "path";
 import { dismissCookieBanners } from "./cookie-banner";
+import { isSafeUrl } from "../utils/url-validation";
 
 // puppeteer-extra mit Adblocker-Plugin (blockiert Cookie-Banner via Filterlisten)
 const puppeteer = addExtra(puppeteerCore as any);
@@ -74,6 +75,12 @@ export async function captureScreenshot(
   url: string,
   bookmarkId: number
 ): Promise<string | null> {
+  // SSRF-Schutz
+  if (!isSafeUrl(url)) {
+    console.warn(`⚠️ URL blockiert (SSRF-Schutz): ${url}`);
+    return null;
+  }
+
   const chromePath = findChromePath();
   if (!chromePath) {
     console.warn("⚠️ Kein Chrome/Chromium gefunden – Screenshot übersprungen");

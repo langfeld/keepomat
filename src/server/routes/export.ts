@@ -27,10 +27,14 @@ exportRoutes.get("/html", async (c) => {
     .all();
 
   const bookmarkFolderMap = new Map<number, number[]>();
-  const allBfLinks = db
-    .select()
-    .from(schema.bookmarkFolders)
-    .all();
+  const userBookmarkIds = bookmarks.map((b) => b.id);
+  const allBfLinks = userBookmarkIds.length > 0
+    ? db
+        .select()
+        .from(schema.bookmarkFolders)
+        .where(inArray(schema.bookmarkFolders.bookmarkId, userBookmarkIds))
+        .all()
+    : [];
 
   for (const bf of allBfLinks) {
     if (!bookmarkFolderMap.has(bf.bookmarkId)) {
@@ -297,14 +301,18 @@ exportRoutes.post("/import", async (c) => {
   let html = "";
   const contentType = c.req.header("content-type") || "";
 
+  const MAX_IMPORT_SIZE = 10 * 1024 * 1024; // 10 MB
+
   if (contentType.includes("multipart/form-data")) {
     const formData = await c.req.formData();
     const file = formData.get("file") as File | null;
     if (!file) return c.json({ error: "Datei erforderlich" }, 400);
+    if (file.size > MAX_IMPORT_SIZE) return c.json({ error: "Datei zu groß (max. 10 MB)" }, 413);
     html = await file.text();
   } else {
     const body = await c.req.json();
     html = body.html || "";
+    if (html.length > MAX_IMPORT_SIZE) return c.json({ error: "Import-Daten zu groß (max. 10 MB)" }, 413);
   }
 
   if (!html) {

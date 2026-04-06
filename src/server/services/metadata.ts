@@ -1,4 +1,5 @@
 import ogs from "open-graph-scraper";
+import { isSafeUrl } from "../utils/url-validation";
 
 export interface LinkMetadata {
   title: string | null;
@@ -9,6 +10,11 @@ export interface LinkMetadata {
 }
 
 export async function fetchMetadata(url: string): Promise<LinkMetadata> {
+  // SSRF-Schutz
+  if (!isSafeUrl(url)) {
+    return { title: null, description: null, ogImage: null, favicon: null, siteName: null };
+  }
+
   try {
     const { result } = await ogs({
       url,
@@ -81,6 +87,9 @@ export async function fetchMetadata(url: string): Promise<LinkMetadata> {
 
 // Link-Erreichbarkeit prüfen (für Dead-Link-Check)
 export async function checkLinkAlive(url: string): Promise<boolean> {
+  // SSRF-Schutz
+  if (!isSafeUrl(url)) return false;
+
   try {
     const response = await fetch(url, {
       method: "HEAD",

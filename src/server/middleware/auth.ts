@@ -11,10 +11,12 @@ export async function authGuard(c: Context, next: Next) {
   });
 
   if (!session) {
-    // Prüfe auf API-Key
+    // Prüfe auf API-Key (Bearer-Token oder X-API-Key Header)
     const authHeader = c.req.header("Authorization");
-    if (authHeader?.startsWith("Bearer ")) {
-      const token = authHeader.slice(7);
+    const xApiKey = c.req.header("X-API-Key");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : xApiKey;
+
+    if (token) {
       const keyHash = await hashApiKey(token);
 
       const apiKey = db

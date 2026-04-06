@@ -69,7 +69,7 @@
             ]"
             role="option"
           >
-            <span v-html="option.displayHtml || option.label"></span>
+            <span>{{ option.label }}</span>
           </li>
 
           <!-- Keine Ergebnisse -->

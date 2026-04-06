@@ -6,15 +6,17 @@ import { createBookmarkSchema, updateBookmarkSchema } from "../../shared/validat
 import { fetchMetadata } from "../services/metadata";
 import { analyzeBookmark, isAiConfigured, getEffectiveAiConfig, isAiConfiguredForUser } from "../services/ai";
 import { captureScreenshot, getScreenshotPath } from "../services/screenshot";
+import { validateUrlForFetch } from "../utils/url-validation";
 import { existsSync } from "fs";
+import { safeParseInt } from "../utils/parse";
 
 export const bookmarkRoutes = new Hono();
 
 // Alle Bookmarks des Users abrufen
 bookmarkRoutes.get("/", async (c) => {
   const user = c.get("user" as never) as any;
-  const limit = parseInt(c.req.query("limit") || "20");
-  const offset = parseInt(c.req.query("offset") || "0");
+  const limit = safeParseInt(c.req.query("limit"), 20, 1, 100);
+  const offset = safeParseInt(c.req.query("offset"), 0, 0);
   const folderId = c.req.query("folderId");
   const tagId = c.req.query("tagId");
   const isRead = c.req.query("isRead");
@@ -222,6 +224,12 @@ bookmarkRoutes.post("/", async (c) => {
   }
 
   const data = parsed.data;
+
+  // SSRF-Schutz: URL gegen interne Netzwerke validieren
+  const urlError = validateUrlForFetch(data.url);
+  if (urlError) {
+    return c.json({ error: urlError }, 400);
+  }
 
   // Duplikat-Check
   const existing = db

@@ -3,6 +3,7 @@ import { db, sqlite } from "../../db";
 import * as schema from "../../db/schema";
 import { eq, and, inArray, sql } from "drizzle-orm";
 import { getEffectiveAiConfig, isAiConfiguredForUser } from "../services/ai";
+import { safeParseInt } from "../utils/parse";
 import OpenAI from "openai";
 
 export const searchRoutes = new Hono();
@@ -11,8 +12,8 @@ export const searchRoutes = new Hono();
 searchRoutes.get("/", async (c) => {
   const user = c.get("user" as never) as any;
   const query = c.req.query("q") || "";
-  const limit = parseInt(c.req.query("limit") || "20");
-  const offset = parseInt(c.req.query("offset") || "0");
+  const limit = safeParseInt(c.req.query("limit"), 20, 1, 100);
+  const offset = safeParseInt(c.req.query("offset"), 0, 0);
   const folderId = c.req.query("folderId");
   const tagFilter = c.req.query("tag");
 
@@ -20,11 +21,16 @@ searchRoutes.get("/", async (c) => {
     return c.json({ data: [], total: 0, query: "" });
   }
 
-  // FTS5-Suche
+  // FTS5-Suche (Anführungszeichen escapen um FTS-Injection zu verhindern)
   const ftsQuery = query
     .split(/\s+/)
-    .map((term) => `"${term}"*`)
+    .map((term) => `"${term.replace(/"/g, '')}"*`)
+    .filter((term) => term !== '""*')
     .join(" OR ");
+
+  if (!ftsQuery) {
+    return c.json({ data: [], total: 0, query });
+  }
 
   try {
     const ftsResults = sqlite

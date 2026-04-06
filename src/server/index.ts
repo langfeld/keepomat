@@ -1,8 +1,11 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { secureHeaders } from "hono/secure-headers";
 import { logger } from "hono/logger";
 import { serveStatic } from "hono/bun";
 import { resolve } from "path";
+import { eq, sql } from "drizzle-orm";
+import * as schema from "../db/schema";
 
 import { db, runMigrations, setupFTS } from "../db";
 import { auth, handlePostRegistration } from "./auth";
@@ -25,13 +28,26 @@ const app = new Hono();
 
 // ── Middleware ──
 app.use("*", logger());
+
+// Security-Header
+app.use("*", secureHeaders({
+  xFrameOptions: "DENY",
+  xContentTypeOptions: "nosniff",
+  referrerPolicy: "strict-origin-when-cross-origin",
+  ...(process.env.NODE_ENV === "production" ? {
+    strictTransportSecurity: "max-age=63072000; includeSubDomains; preload",
+  } : {}),
+}));
+
+// CORS – localhost:5173 nur im Development-Modus
+const corsOrigins = [process.env.BETTER_AUTH_URL || "http://localhost:3000"];
+if (process.env.NODE_ENV !== "production") {
+  corsOrigins.push("http://localhost:5173");
+}
 app.use(
   "/api/*",
   cors({
-    origin: [
-      process.env.BETTER_AUTH_URL || "http://localhost:3000",
-      "http://localhost:5173",
-    ],
+    origin: corsOrigins,
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization", "X-API-Key"],
@@ -45,6 +61,21 @@ app.get("/api/health", (c) => {
     name: "Keepomat",
     version: "0.1.0",
     uptime: process.uptime(),
+  });
+});
+
+// ── Öffentliche Route: Registrierungsstatus ──
+app.get("/api/registration-status", async (c) => {
+  const userCount = db.select({ count: sql<number>`count(*)` }).from(schema.users).get();
+  const registrationSetting = db
+    .select()
+    .from(schema.systemSettings)
+    .where(eq(schema.systemSettings.key, "registration_enabled"))
+    .get();
+
+  return c.json({
+    isFirstUser: (userCount?.count || 0) === 0,
+    registrationEnabled: registrationSetting?.value !== "false",
   });
 });
 

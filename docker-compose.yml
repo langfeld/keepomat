@@ -8,7 +8,9 @@ services:
     volumes:
       - ./data:/app/data
     environment:
-      - BETTER_AUTH_SECRET=dein-geheimes-secret-hier-aendern
+      # ⚠️ SICHERHEITSHINWEIS: Unbedingt durch ein sicheres Secret ersetzen!
+      # Generieren mit: openssl rand -base64 48
+      - BETTER_AUTH_SECRET=CHANGE_ME_USE_openssl_rand_base64_48
       - MOONSHOT_API_KEY=
       - AI_MODEL=kimi-k2-turbo-preview
       - TELEGRAM_BOT_TOKEN=

@@ -123,7 +123,7 @@ const registrationOpen = ref(true);
 
 onMounted(async () => {
   try {
-    const res = await fetch("/api/admin/registration-status");
+    const res = await fetch("/api/registration-status");
     if (res.ok) {
       const data = await res.json();
       isFirstUser.value = data.isFirstUser;
