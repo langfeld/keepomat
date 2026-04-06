@@ -62,16 +62,13 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    command: sh -c 'printf "{\n\tdefault_sni %s\n}\n\n%s {\n\ttls internal\n\treverse_proxy keepomat:3000\n}\n" "$$CADDY_HOST" "$$CADDY_HOST" > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile'
     ports:
       - "443:443"
-      - "80:80"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
-      - caddy_config:/config
-    # For LAN access: set CADDY_HOST to your LAN IP
-    # environment:
-    #   - CADDY_HOST=192.168.1.100
+    environment:
+      - CADDY_HOST=localhost  # For LAN access: set to your LAN IP
     depends_on:
       - keepomat
 
@@ -95,19 +92,9 @@ services:
 
 volumes:
   caddy_data:
-  caddy_config:
 ```
 
-You also need a `Caddyfile` in the same directory:
-
-```caddyfile
-{$CADDY_HOST:localhost} {
-	tls internal
-	reverse_proxy keepomat:3000
-}
-```
-
-Caddy automatically generates a self-signed certificate. Accept it once in the browser, or install Caddy's root CA on your devices (see [LAN Access](#lan--multi-device-access)).
+No additional config files needed – Caddy runs entirely via `command:`. It automatically generates a self-signed certificate. Accept it once in the browser, or install Caddy's root CA on your devices (see [LAN Access](#lan--multi-device-access)).
 
 #### 2. Start the container
 
@@ -171,7 +158,17 @@ keepomat:
     - TRUSTED_ORIGINS=https://bookmarks.example.com  # external domain (e.g. Pangolin)
 ```
 
-The `Caddyfile` does not need to be modified – it uses `CADDY_HOST` automatically.
+No separate config files needed – `CADDY_HOST` is read at container startup via the `command:` directive.
+
+If multiple services share the same host (e.g. TrueNAS), bind each to a specific IP via `host_ip` in the `ports` section to avoid port conflicts:
+
+```yaml
+ports:
+  - host_ip: 192.168.1.100
+    published: 443
+    target: 443
+    protocol: tcp
+```
 
 **Avoid browser warnings:** Install Caddy's root CA certificate on your devices:
 

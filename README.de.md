@@ -62,16 +62,13 @@ services:
   caddy:
     image: caddy:2-alpine
     restart: unless-stopped
+    command: sh -c 'printf "{\n\tdefault_sni %s\n}\n\n%s {\n\ttls internal\n\treverse_proxy keepomat:3000\n}\n" "$$CADDY_HOST" "$$CADDY_HOST" > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile'
     ports:
       - "443:443"
-      - "80:80"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
-      - caddy_config:/config
-    # Für LAN-Zugriff: CADDY_HOST auf die LAN-IP setzen
-    # environment:
-    #   - CADDY_HOST=192.168.1.100
+    environment:
+      - CADDY_HOST=localhost  # Für LAN-Zugriff: auf die LAN-IP setzen
     depends_on:
       - keepomat
 
@@ -95,19 +92,9 @@ services:
 
 volumes:
   caddy_data:
-  caddy_config:
 ```
 
-Zusätzlich wird ein `Caddyfile` im selben Verzeichnis benötigt:
-
-```caddyfile
-{$CADDY_HOST:localhost} {
-	tls internal
-	reverse_proxy keepomat:3000
-}
-```
-
-Caddy generiert automatisch ein selbstsigniertes Zertifikat. Beim ersten Zugriff im Browser einmalig akzeptieren oder Caddy Root-CA auf den Geräten installieren (siehe [LAN-Zugriff](#lan---multi-device-zugriff)).
+Es werden keine zusätzlichen Konfigurationsdateien benötigt – Caddy läuft vollständig über `command:`. Caddy generiert automatisch ein selbstsigniertes Zertifikat. Beim ersten Zugriff im Browser einmalig akzeptieren oder Caddy Root-CA auf den Geräten installieren (siehe [LAN-Zugriff](#lan---multi-device-zugriff)).
 
 #### 2. Container starten
 
@@ -171,7 +158,17 @@ keepomat:
     - TRUSTED_ORIGINS=https://bookmarks.example.com  # externe Domain (z.B. Pangolin)
 ```
 
-Das `Caddyfile` muss nicht angepasst werden – es verwendet `CADDY_HOST` automatisch.
+Keine separaten Konfigurationsdateien nötig – `CADDY_HOST` wird beim Container-Start über die `command:`-Direktive gelesen.
+
+Wenn mehrere Dienste sich denselben Host teilen (z.B. TrueNAS), kann jeder über `host_ip` im `ports`-Abschnitt an eine eigene IP gebunden werden, um Port-Konflikte zu vermeiden:
+
+```yaml
+ports:
+  - host_ip: 192.168.1.100
+    published: 443
+    target: 443
+    protocol: tcp
+```
 
 **Browser-Warnungen vermeiden:** Caddy Root-CA-Zertifikat auf den Geräten installieren:
 

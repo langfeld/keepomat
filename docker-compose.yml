@@ -3,16 +3,14 @@ services:
     image: caddy:2-alpine
     container_name: keepomat-caddy
     restart: unless-stopped
+    command: sh -c 'printf "{\n\tdefault_sni %s\n}\n\n%s {\n\ttls internal\n\treverse_proxy keepomat:3000\n}\n" "$$CADDY_HOST" "$$CADDY_HOST" > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile'
     ports:
       - "443:443"
-      - "80:80"
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
-      - caddy_config:/config
-    # Für HTTPS-LAN-Zugriff: CADDY_HOST auf die LAN-IP setzen
-    # environment:
-    #   - CADDY_HOST=192.168.1.100
+    environment:
+      # Für LAN-Zugriff: CADDY_HOST auf die LAN-IP setzen
+      - CADDY_HOST=localhost
     depends_on:
       - keepomat
 
@@ -43,4 +41,3 @@ services:
 
 volumes:
   caddy_data:
-  caddy_config:
