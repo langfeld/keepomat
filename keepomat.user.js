@@ -208,36 +208,37 @@
     #keepomat-fab {
       position: fixed;
       z-index: 2147483645;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(100, 100, 120, 0.35);
-      color: rgba(255, 255, 255, 0.7);
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: transparent;
       border: none;
       cursor: grab;
       box-shadow: none;
-      backdrop-filter: blur(4px);
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.25s ease, background 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
-      font-size: 16px;
-      opacity: 0.4;
+      transition: opacity 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
+      opacity: 0.45;
       user-select: none;
       touch-action: none;
+      padding: 0;
+    }
+    #keepomat-fab svg {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
     #keepomat-fab:hover {
       opacity: 1;
-      background: #6366f1;
-      color: #fff;
-      box-shadow: 0 4px 14px rgba(99,102,241,0.45);
+      box-shadow: 0 4px 14px rgba(59,130,246,0.5);
+      transform: scale(1.08);
     }
     #keepomat-fab.km-dragging {
       cursor: grabbing;
-      opacity: 0.9;
-      background: #6366f1;
-      color: #fff;
-      box-shadow: 0 6px 20px rgba(99,102,241,0.5);
+      opacity: 0.95;
+      box-shadow: 0 6px 20px rgba(59,130,246,0.5);
+      transform: scale(1.12);
     }
 
     /* Setup-Modus */
@@ -298,7 +299,7 @@
     const fab = document.createElement("button");
     fab.id = "keepomat-fab";
     fab.title = "In Keepomat speichern (Alt+K) – ziehen zum Verschieben";
-    fab.innerHTML = "🔖";
+    fab.innerHTML = '<svg viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="#3b82f6"/><path d="M8 8h6v2H10v12h4v2H8V8zm10 0h6v16h-6v-2h4V10h-4V8z" fill="white"/><circle cx="16" cy="16" r="3" fill="#fbbf24"/></svg>';
     document.body.appendChild(fab);
     applyFabPosition(fab);
 

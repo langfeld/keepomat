@@ -3,11 +3,11 @@
     <div class="w-full max-w-md animate-fade-in">
       <!-- Logo -->
       <div class="mb-8 text-center">
-        <div class="inline-flex justify-center items-center bg-primary-500 shadow-lg mb-4 rounded-2xl w-16 h-16">
-          <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-          </svg>
-        </div>
+        <svg class="shadow-lg mb-4 w-16 h-16" viewBox="0 0 32 32" fill="none">
+          <rect width="32" height="32" rx="8" fill="#3b82f6"/>
+          <path d="M8 8h6v2H10v12h4v2H8V8zm10 0h6v16h-6v-2h4V10h-4V8z" fill="white"/>
+          <circle cx="16" cy="16" r="3" fill="#fbbf24"/>
+        </svg>
         <h1 class="font-bold text-gray-900 dark:text-white text-3xl">{{ t('app.name') }}</h1>
         <p class="mt-1 text-gray-500 dark:text-gray-400">{{ t('app.tagline') }}</p>
       </div>
