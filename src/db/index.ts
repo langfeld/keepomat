@@ -25,6 +25,31 @@ export function runMigrations() {
   } catch (error) {
     console.error("❌ Migration error:", error);
   }
+
+  // Better Auth Admin Plugin benötigt role, banned, ban_reason, ban_expires
+  // in der users-Tabelle. Diese Spalten fehlten in der ursprünglichen Migration
+  // und müssen nachträglich sicher hinzugefügt werden.
+  ensureAdminPluginColumns();
+}
+
+/** Fehlende Admin-Plugin-Spalten sicher zur users-Tabelle hinzufügen */
+function ensureAdminPluginColumns() {
+  const existingCols = sqlite.query("PRAGMA table_info(users)").all() as { name: string }[];
+  const existingNames = new Set(existingCols.map((c) => c.name));
+
+  const requiredColumns = [
+    { name: "role", sql: `ALTER TABLE users ADD COLUMN role TEXT DEFAULT 'user'` },
+    { name: "banned", sql: `ALTER TABLE users ADD COLUMN banned INTEGER DEFAULT 0` },
+    { name: "ban_reason", sql: `ALTER TABLE users ADD COLUMN ban_reason TEXT` },
+    { name: "ban_expires", sql: `ALTER TABLE users ADD COLUMN ban_expires INTEGER` },
+  ];
+
+  for (const col of requiredColumns) {
+    if (!existingNames.has(col.name)) {
+      sqlite.run(col.sql);
+      console.log(`✅ Added missing column users.${col.name}`);
+    }
+  }
 }
 
 // FTS5 Volltextsuche einrichten
