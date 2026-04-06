@@ -1,102 +1,204 @@
-# Keepomat 🔖
+<p align="center">
+  <img src="docs/logo.svg" alt="Keepomat Logo" width="100" />
+</p>
 
-Smart Bookmark Manager mit AI-gestützter Organisation, Tagging und Volltextsuche.
+<h1 align="center">Keepomat</h1>
+
+<p align="center">
+  Smart Bookmark Manager with AI-powered organization, tagging and full-text search.
+</p>
+
+<p align="center">
+  <a href="https://github.com/langfeld/keepomat/actions/workflows/docker.yml"><img src="https://github.com/langfeld/keepomat/actions/workflows/docker.yml/badge.svg" alt="Docker Build" /></a>
+  <a href="https://github.com/langfeld/keepomat/pkgs/container/keepomat"><img src="https://img.shields.io/badge/ghcr.io-keepomat-blue?logo=docker" alt="GHCR" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="License" /></a>
+</p>
+
+<p align="center">
+  <a href="README.de.md">🇩🇪 Deutsche Version</a>
+</p>
+
+---
 
 ## Features
 
-- **AI-Tagging & Kategorisierung** – Automatische Tags, Ordnervorschläge und Zusammenfassungen via Moonshot/Kimi
-- **Unbegrenzt verschachtelte Ordner** – Organisiere Lesezeichen in beliebig tiefen Ordnerstrukturen
-- **Volltextsuche (FTS5)** – Blitzschnelle Suche über Titel, Beschreibungen und Zusammenfassungen
-- **Link-Vorschau** – Automatisches Abrufen von OG-Images, Favicons und Metadaten
-- **Telegram-Bot** – Links per Chat automatisch als Lesezeichen speichern
-- **Userscript** – Tampermonkey/Violentmonkey Userscript für schnelles Speichern per Tastenkürzel
-- **Import/Export** – Netscape HTML, JSON und PDF Export
-- **Geteilte Ordner** – Ordner mit anderen Benutzern teilen
-- **Dark/Light Mode** – Automatisch oder manuell umschaltbar
-- **Benutzerverwaltung** – Erster Benutzer = Admin, Registrierung steuerbar
-- **API-Keys** – Programmatischer Zugriff über API-Schlüssel
-- **Dead-Link-Check** – Erkennung toter Links
+- **AI Tagging & Categorization** — Automatic tags, folder suggestions and summaries via OpenAI-compatible API (Moonshot/Kimi)
+- **Unlimited nested folders** — Organize bookmarks in arbitrarily deep folder structures
+- **Full-text search (FTS5)** — Blazing-fast search across titles, descriptions and summaries
+- **Link previews** — Automatic fetching of OG images, favicons and metadata
+- **Telegram Bot** — Save links as bookmarks directly from chat
+- **Userscript** — Tampermonkey/Violentmonkey userscript for quick saving via keyboard shortcut
+- **Import/Export** — Netscape HTML, JSON and PDF export
+- **Shared folders** — Share folders with other users
+- **Dark/Light Mode** — Automatic or manual toggle
+- **User management** — First user = admin, controllable registration
+- **API keys** — Programmatic access via API keys
+- **Dead link check** — Detection of broken links
+- **Multi-language** — English and German UI
 
-## Tech-Stack
+## Tech Stack
 
-| Komponente | Technologie |
-|------------|-------------|
-| Runtime | Bun |
-| Backend | Hono |
-| Datenbank | SQLite (bun:sqlite) + Drizzle ORM |
-| Auth | Better Auth |
-| Frontend | Vue 3 + Tailwind CSS 4 |
-| State | Pinia |
-| AI | OpenAI SDK → Moonshot/Kimi |
-| Telegram | grammY |
-| PDF | PDFKit |
-| Validation | Zod |
+| Component | Technology |
+|-----------|-----------|
+| Runtime | [Bun](https://bun.sh/) |
+| Backend | [Hono](https://hono.dev/) |
+| Database | SQLite ([bun:sqlite](https://bun.sh/docs/api/sqlite)) + [Drizzle ORM](https://orm.drizzle.team/) |
+| Auth | [Better Auth](https://www.better-auth.com/) |
+| Frontend | [Vue 3](https://vuejs.org/) + [Tailwind CSS 4](https://tailwindcss.com/) |
+| State | [Pinia](https://pinia.vuejs.org/) |
+| AI | [OpenAI SDK](https://github.com/openai/openai-node) → Moonshot/Kimi |
+| Telegram | [grammY](https://grammy.dev/) |
+| PDF | [PDFKit](https://pdfkit.org/) |
+| Validation | [Zod](https://zod.dev/) |
 
-## Schnellstart
+## Quick Start
 
-### Entwicklung
+### Docker (recommended)
 
-```bash
-# Abhängigkeiten installieren
-bun install
+#### 1. Create a `docker-compose.yml`
 
-# Datenbank-Migrationen generieren
-bun run db:generate
-
-# Entwicklungsserver starten (Backend + Frontend)
-bun run dev
+```yaml
+services:
+  keepomat:
+    image: ghcr.io/langfeld/keepomat:latest
+    container_name: keepomat
+    restart: unless-stopped
+    ports:
+      - "8080:3000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - BETTER_AUTH_SECRET=CHANGE_ME       # openssl rand -base64 48
+      - BETTER_AUTH_URL=http://localhost:8080
+      - MOONSHOT_API_KEY=                  # optional: AI features
+      - AI_MODEL=kimi-k2-turbo-preview
+      - TELEGRAM_BOT_TOKEN=               # optional: Telegram bot
+      - PUID=1000
+      - PGID=1000
 ```
 
-Backend: `http://localhost:3000`
-Frontend (Vite): `http://localhost:5173`
-
-### Docker
+#### 2. Start the container
 
 ```bash
 docker compose up -d
 ```
 
-Anpassungen in `docker-compose.yml`:
-- `BETTER_AUTH_SECRET` – Mindestens 32 Zeichen
-- `MOONSHOT_API_KEY` – API-Schlüssel für Moonshot/Kimi AI
-- `TELEGRAM_BOT_TOKEN` – Bot-Token von @BotFather
-- `PUID/PGID` – Benutzer/Gruppen-ID (Standard: 1000)
+The app will be available at `http://localhost:8080`. The first registered user automatically becomes admin.
 
-Die App ist unter `http://localhost:8080` erreichbar.
+#### Configuration
 
-## Umgebungsvariablen
+| Variable | Description | Required |
+|----------|------------|----------|
+| `BETTER_AUTH_SECRET` | Auth secret (min. 32 chars). Generate: `openssl rand -base64 48` | **Yes** |
+| `BETTER_AUTH_URL` | Public URL of the app (important for cookies) | **Yes** |
+| `MOONSHOT_API_KEY` | API key for [Moonshot/Kimi](https://platform.moonshot.cn/) AI | No |
+| `AI_MODEL` | AI model to use | No |
+| `TELEGRAM_BOT_TOKEN` | Bot token from [@BotFather](https://t.me/BotFather) | No |
+| `PUID` / `PGID` | User/Group ID for file permissions (default: 1000) | No |
 
-| Variable | Beschreibung | Standard |
-|----------|-------------|----------|
-| `PORT` | Server-Port | `3000` |
-| `DATABASE_URL` | SQLite-Datenbankpfad | `./data/keepomat.db` |
-| `BETTER_AUTH_SECRET` | Auth-Secret (min. 32 Zeichen) | – |
-| `MOONSHOT_API_KEY` | Moonshot/Kimi API-Key | – |
-| `AI_MODEL` | AI-Modell | `kimi-k2-turbo-preview` |
-| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token | – |
+#### Alternative: `docker run`
+
+```bash
+docker run -d \
+  --name keepomat \
+  --restart unless-stopped \
+  -p 8080:3000 \
+  -v ./data:/app/data \
+  -e BETTER_AUTH_SECRET=$(openssl rand -base64 48) \
+  -e BETTER_AUTH_URL=http://localhost:8080 \
+  ghcr.io/langfeld/keepomat:latest
+```
+
+#### Updates
+
+```bash
+docker compose pull
+docker compose up -d
+```
+
+#### Data persistence
+
+All data (SQLite database, screenshots) is stored in the `./data` volume. Back up this directory to preserve your bookmarks.
+
+#### Reverse proxy
+
+When running behind a reverse proxy (Nginx, Caddy, Traefik), set `BETTER_AUTH_URL` to your public URL (e.g. `https://bookmarks.example.com`). The container exposes port `3000` internally.
+
+### Development
+
+```bash
+# Install dependencies
+bun install
+
+# Run database migrations
+bun run db:generate
+
+# Start development server (backend + frontend)
+bun run dev
+```
+
+- Backend: `http://localhost:3000`
+- Frontend (Vite): `http://localhost:5173`
+
+## Environment Variables
+
+| Variable | Description | Default |
+|----------|------------|---------|
+| `PORT` | Server port | `3000` |
+| `DATABASE_URL` | SQLite database path | `./data/keepomat.db` |
+| `BETTER_AUTH_SECRET` | Auth secret (min. 32 chars) | — |
+| `BETTER_AUTH_URL` | Base URL | `http://localhost:3000` |
+| `MOONSHOT_API_KEY` | Moonshot/Kimi API key | — |
+| `AI_MODEL` | AI model | `kimi-k2-turbo-preview` |
+| `TELEGRAM_BOT_TOKEN` | Telegram bot token | — |
 | `PUID` | User ID (Docker) | `1000` |
 | `PGID` | Group ID (Docker) | `1000` |
 
 ## Userscript
 
-1. Userscript-Manager installieren (z.B. [Tampermonkey](https://www.tampermonkey.net/) oder [Violentmonkey](https://violentmonkey.github.io/))
-2. Userscript über `https://<deine-url>/keepomat.user.js` installieren
-3. Auf einer beliebigen Webseite den 🔖-Button klicken oder `Alt+K` drücken
-4. Beim ersten Mal Server-URL und API-Schlüssel eingeben
+1. Install a userscript manager (e.g. [Tampermonkey](https://www.tampermonkey.net/) or [Violentmonkey](https://violentmonkey.github.io/))
+2. Install the userscript via `https://<your-url>/keepomat.user.js`
+3. Click the 🔖 button on any webpage or press `Alt+K`
+4. Enter server URL and API key on first use
 
 ## API
 
-Alle API-Endpunkte unter `/api/`:
-- `POST /api/auth/sign-up/email` – Registrierung
-- `POST /api/auth/sign-in/email` – Login
-- `GET /api/bookmarks` – Lesezeichen auflisten
-- `POST /api/bookmarks` – Lesezeichen erstellen
-- `GET /api/folders/tree` – Ordner-Baum
-- `GET /api/search?q=...` – Volltextsuche
-- `GET /api/export/html` – HTML-Export
+All API endpoints under `/api/`:
 
-Auth via Session-Cookie oder `X-API-Key` Header.
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/auth/sign-up/email` | Register |
+| `POST` | `/api/auth/sign-in/email` | Login |
+| `GET` | `/api/bookmarks` | List bookmarks |
+| `POST` | `/api/bookmarks` | Create bookmark |
+| `GET` | `/api/folders/tree` | Folder tree |
+| `GET` | `/api/search?q=...` | Full-text search |
+| `GET` | `/api/export/html` | HTML export |
+| `GET` | `/api/health` | Health check |
 
-## Lizenz
+Authentication via session cookie or `X-API-Key` / `Authorization: Bearer <key>` header.
 
-MIT
+## Project Structure
+
+```
+src/
+├── server/          # Hono backend (API)
+│   ├── routes/      # API routes
+│   ├── services/    # Business logic (AI, metadata, screenshots)
+│   ├── middleware/   # Auth guards
+│   └── utils/       # Helper functions
+├── frontend/        # Vue 3 SPA
+│   ├── views/       # Pages
+│   ├── components/  # Reusable components
+│   ├── stores/      # Pinia stores
+│   ├── composables/ # Vue composables
+│   ├── i18n/        # Translations (en, de)
+│   └── router/      # Vue Router
+├── db/              # Drizzle ORM (schema, migrations)
+├── bot/             # Telegram bot (grammY)
+└── shared/          # Shared types & validators
+```
+
+## License
+
+[MIT](LICENSE)
