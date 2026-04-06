@@ -263,13 +263,35 @@
   function getFabPosition() {
     try {
       const stored = GM_getValue(FAB_POS_KEY, null);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Migrate old absolute format to edge-anchored format
+        if ("x" in parsed && !("anchorX" in parsed)) {
+          const size = 40;
+          return absoluteToAnchored(parsed.x, parsed.y, size);
+        }
+        return parsed;
+      }
     } catch {}
     return null;
   }
 
+  function absoluteToAnchored(x, y, size) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const centerX = x + size / 2;
+    const centerY = y + size / 2;
+    return {
+      anchorX: centerX < w / 2 ? "left" : "right",
+      offsetX: centerX < w / 2 ? x : w - x - size,
+      anchorY: centerY < h / 2 ? "top" : "bottom",
+      offsetY: centerY < h / 2 ? y : h - y - size,
+    };
+  }
+
   function saveFabPosition(x, y) {
-    GM_setValue(FAB_POS_KEY, JSON.stringify({ x, y }));
+    const size = 40;
+    GM_setValue(FAB_POS_KEY, JSON.stringify(absoluteToAnchored(x, y, size)));
   }
 
   function clampPosition(x, y, size) {
@@ -285,7 +307,9 @@
     const pos = getFabPosition();
     const size = 40;
     if (pos) {
-      const clamped = clampPosition(pos.x, pos.y, size);
+      const x = pos.anchorX === "left" ? pos.offsetX : window.innerWidth - size - pos.offsetX;
+      const y = pos.anchorY === "top" ? pos.offsetY : window.innerHeight - size - pos.offsetY;
+      const clamped = clampPosition(x, y, size);
       fab.style.left = clamped.x + "px";
       fab.style.top = clamped.y + "px";
     } else {
