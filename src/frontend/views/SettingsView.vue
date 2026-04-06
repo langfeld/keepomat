@@ -232,7 +232,7 @@
           <div class="flex-1">
             <h2 class="font-semibold text-gray-900 dark:text-white text-lg">{{ t('settings.telegram') }}</h2>
           </div>
-          <span v-if="telegramLinked" class="bg-green-100 dark:bg-green-900/20 px-2.5 py-1 rounded-full text-green-700 dark:text-green-400 text-xs font-medium">
+          <span v-if="telegramActive" class="bg-green-100 dark:bg-green-900/20 px-2.5 py-1 rounded-full text-green-700 dark:text-green-400 text-xs font-medium">
             {{ t('settings.telegramLinked') }}
           </span>
           <span v-else class="bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-full text-gray-500 dark:text-gray-400 text-xs font-medium">
@@ -266,42 +266,166 @@
           </ul>
         </div>
 
-        <!-- Verknüpfungs-Status -->
-        <div v-if="telegramLinked" class="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 mb-4 p-3 border border-green-200 dark:border-green-800 rounded-xl">
-          <svg class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          <span class="text-green-700 dark:text-green-400 text-sm">{{ t('settings.telegramLinked') }}</span>
+        <!-- Verbunden: Bot-Info + Trennen -->
+        <div v-if="telegramActive" class="space-y-4">
+          <div class="flex items-center gap-3 bg-green-50 dark:bg-green-900/20 p-4 border border-green-200 dark:border-green-800 rounded-xl">
+            <div class="flex justify-center items-center bg-green-100 dark:bg-green-800 rounded-full w-10 h-10">
+              <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <p class="font-medium text-green-700 dark:text-green-400 text-sm">{{ t('settings.telegramLinked') }}</p>
+              <p v-if="telegramBotUsername" class="text-green-600 dark:text-green-500 text-xs">{{ t('settings.telegramBotName', { username: telegramBotUsername }) }}</p>
+            </div>
+            <a v-if="telegramBotUsername" :href="`https://t.me/${telegramBotUsername}`" target="_blank" rel="noopener"
+              class="bg-sky-100 dark:bg-sky-900/30 hover:bg-sky-200 dark:hover:bg-sky-900/50 px-3 py-1.5 rounded-lg text-sky-700 dark:text-sky-400 text-xs font-medium transition">
+              {{ t('settings.telegramOpenBot') }} →
+            </a>
+          </div>
+
+          <!-- Bot-Befehle -->
+          <div>
+            <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.telegramCommands') }}</h3>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl space-y-1">
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdStart') }}</p>
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdRecent') }}</p>
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdSearch') }}</p>
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdHelp') }}</p>
+            </div>
+          </div>
+
+          <button
+            @click="disconnectTelegram"
+            class="hover:bg-red-50 dark:hover:bg-red-900/20 px-4 py-2 rounded-xl font-medium text-red-500 hover:text-red-700 text-sm transition"
+          >
+            {{ t('settings.telegramDisconnect') }}
+          </button>
         </div>
 
-        <!-- Bot-Befehle -->
-        <div class="mb-4">
-          <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.telegramCommands') }}</h3>
-          <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl space-y-1">
-            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdStart') }}</p>
-            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdRecent') }}</p>
-            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdSearch') }}</p>
-            <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdHelp') }}</p>
+        <!-- Nicht verbunden: Setup-Anleitung + Token-Eingabe -->
+        <div v-else class="space-y-4">
+          <!-- Schritt-für-Schritt-Anleitung -->
+          <details class="group" open>
+            <summary class="flex items-center gap-2 cursor-pointer text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 transition">
+              <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+              {{ t('settings.telegramSetup') }}
+            </summary>
+            <div class="mt-4 space-y-0">
+              <p class="mb-4 text-gray-500 dark:text-gray-400 text-sm">{{ t('settings.telegramSetupIntro') }}</p>
+
+              <!-- Step 1 -->
+              <div class="flex gap-3 pb-6 relative">
+                <div class="flex flex-col items-center">
+                  <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-full w-8 h-8 text-sky-700 dark:text-sky-400 font-bold text-sm shrink-0">1</div>
+                  <div class="w-0.5 flex-1 bg-gray-200 dark:bg-gray-700 mt-2"></div>
+                </div>
+                <div class="pb-2">
+                  <p class="font-medium text-gray-900 dark:text-white text-sm mb-1">🔍 {{ t('settings.telegramStep1Title') }}</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">{{ t('settings.telegramStep1') }}</p>
+                  <a href="https://t.me/BotFather" target="_blank" rel="noopener"
+                    class="inline-flex items-center gap-1.5 mt-2 bg-sky-50 dark:bg-sky-900/20 hover:bg-sky-100 dark:hover:bg-sky-900/40 px-3 py-1.5 rounded-lg text-sky-700 dark:text-sky-400 text-sm font-medium transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+                    @BotFather öffnen
+                  </a>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="flex gap-3 pb-6 relative">
+                <div class="flex flex-col items-center">
+                  <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-full w-8 h-8 text-sky-700 dark:text-sky-400 font-bold text-sm shrink-0">2</div>
+                  <div class="w-0.5 flex-1 bg-gray-200 dark:bg-gray-700 mt-2"></div>
+                </div>
+                <div class="pb-2">
+                  <p class="font-medium text-gray-900 dark:text-white text-sm mb-1">🤖 {{ t('settings.telegramStep2Title') }}</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">{{ t('settings.telegramStep2') }}</p>
+                  <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg space-y-1.5 text-sm">
+                    <div class="flex items-start gap-2">
+                      <span class="text-sky-500 shrink-0">a)</span>
+                      <span class="text-gray-600 dark:text-gray-400">{{ t('settings.telegramStep2a') }}</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                      <span class="text-sky-500 shrink-0">b)</span>
+                      <span class="text-gray-600 dark:text-gray-400">{{ t('settings.telegramStep2b') }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="flex gap-3 pb-6 relative">
+                <div class="flex flex-col items-center">
+                  <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-full w-8 h-8 text-sky-700 dark:text-sky-400 font-bold text-sm shrink-0">3</div>
+                  <div class="w-0.5 flex-1 bg-gray-200 dark:bg-gray-700 mt-2"></div>
+                </div>
+                <div class="pb-2">
+                  <p class="font-medium text-gray-900 dark:text-white text-sm mb-1">📋 {{ t('settings.telegramStep3Title') }}</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">{{ t('settings.telegramStep3') }}</p>
+                  <code class="inline-block bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-lg font-mono text-xs text-gray-600 dark:text-gray-400">{{ t('settings.telegramStep3Example') }}</code>
+                  <p class="mt-2 text-amber-600 dark:text-amber-400 text-xs font-medium">⚠️ {{ t('settings.telegramStep3Hint') }}</p>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="flex gap-3 pb-6 relative">
+                <div class="flex flex-col items-center">
+                  <div class="flex justify-center items-center bg-sky-100 dark:bg-sky-900/30 rounded-full w-8 h-8 text-sky-700 dark:text-sky-400 font-bold text-sm shrink-0">4</div>
+                  <div class="w-0.5 flex-1 bg-gray-200 dark:bg-gray-700 mt-2"></div>
+                </div>
+                <div class="pb-2">
+                  <p class="font-medium text-gray-900 dark:text-white text-sm mb-1">🔑 {{ t('settings.telegramStep4Title') }}</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">{{ t('settings.telegramStep4') }}</p>
+                </div>
+              </div>
+
+              <!-- Step 5 -->
+              <div class="flex gap-3 relative">
+                <div class="flex flex-col items-center">
+                  <div class="flex justify-center items-center bg-green-100 dark:bg-green-900/30 rounded-full w-8 h-8 text-green-700 dark:text-green-400 font-bold text-sm shrink-0">✓</div>
+                </div>
+                <div>
+                  <p class="font-medium text-gray-900 dark:text-white text-sm mb-1">🎉 {{ t('settings.telegramStep5Title') }}</p>
+                  <p class="text-gray-600 dark:text-gray-400 text-sm">{{ t('settings.telegramStep5') }}</p>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <!-- Token-Eingabe -->
+          <div class="bg-sky-50 dark:bg-sky-900/10 p-4 border border-sky-200 dark:border-sky-800 rounded-xl">
+            <label class="block mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.telegramTokenLabel') }}</label>
+            <div class="flex gap-2">
+              <input
+                v-model="telegramToken"
+                type="password"
+                :placeholder="t('settings.telegramTokenPlaceholder')"
+                class="flex-1 bg-white dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-sky-500 text-gray-900 dark:text-white text-sm transition placeholder-gray-400 font-mono"
+              />
+              <button
+                @click="connectTelegram"
+                :disabled="!telegramToken.trim() || telegramConnecting"
+                class="bg-sky-600 hover:bg-sky-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed px-5 py-2.5 rounded-xl font-medium text-white text-sm transition whitespace-nowrap"
+              >
+                {{ telegramConnecting ? t('settings.telegramConnecting') : t('settings.telegramConnect') }}
+              </button>
+            </div>
+            <div v-if="telegramError" class="mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-xs">
+              {{ telegramError }}
+            </div>
+          </div>
+
+          <!-- Bot-Befehle (Vorschau) -->
+          <div>
+            <h3 class="mb-2 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.telegramCommands') }}</h3>
+            <div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-xl space-y-1">
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdStart') }}</p>
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdRecent') }}</p>
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdSearch') }}</p>
+              <p class="text-gray-600 dark:text-gray-400 font-mono text-xs">{{ t('settings.telegramCmdHelp') }}</p>
+            </div>
           </div>
         </div>
-
-        <!-- Setup-Anleitung -->
-        <details v-if="!telegramLinked" class="group">
-          <summary class="flex items-center gap-2 cursor-pointer text-primary-600 dark:text-primary-400 text-sm font-medium hover:text-primary-700 dark:hover:text-primary-300 transition">
-            <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-            {{ t('settings.telegramSetup') }}
-          </summary>
-          <div class="mt-3 ml-6">
-            <ol class="space-y-2 text-gray-600 dark:text-gray-400 text-sm list-decimal list-inside">
-              <li>{{ t('settings.telegramStep1') }}</li>
-              <li>
-                {{ t('settings.telegramStep2').split('/start')[0] }}<code class="bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded text-xs">/start</code>{{ t('settings.telegramStep2').split('/start')[1] || '' }}
-              </li>
-              <li>{{ t('settings.telegramStep3') }}</li>
-              <li>{{ t('settings.telegramStep4') }}</li>
-            </ol>
-          </div>
-        </details>
       </div>
 
       <!-- Eigener AI-Provider -->
@@ -459,7 +583,11 @@ const languageOptions: SelectOption[] = [
 ];
 const apiKeys = ref<any[]>([]);
 const newApiKey = ref("");
-const telegramLinked = ref(false);
+const telegramActive = ref(false);
+const telegramBotUsername = ref("");
+const telegramToken = ref("");
+const telegramConnecting = ref(false);
+const telegramError = ref("");
 const saved = ref(false);
 
 // AI-Einstellungen
@@ -510,7 +638,10 @@ onMounted(async () => {
   aiApiKey.value = settingsStore.settings?.aiApiKey || ""; // Maskierter Wert z.B. "****5678"
   aiModel.value = settingsStore.settings?.aiModel || "";
   aiBaseUrl.value = settingsStore.settings?.aiBaseUrl || "";
+  // Telegram-Status laden
+  telegramActive.value = !!(settingsStore.settings as any)?.telegramActive;
   await loadApiKeys();
+  await loadTelegramStatus();
 
   // Hash-basiertes Scrollen + Highlight
   await nextTick();
@@ -584,6 +715,64 @@ async function deleteApiKey(id: string) {
 
 function copyKey() {
   navigator.clipboard.writeText(newApiKey.value);
+}
+
+// ── Telegram ──
+
+async function loadTelegramStatus() {
+  try {
+    const res = await fetch("/api/settings/telegram/status");
+    if (res.ok) {
+      const data = await res.json();
+      telegramActive.value = data.isActive;
+    }
+  } catch {}
+}
+
+async function connectTelegram() {
+  telegramConnecting.value = true;
+  telegramError.value = "";
+  try {
+    const res = await fetch("/api/settings/telegram/connect", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: telegramToken.value.trim() }),
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      telegramActive.value = true;
+      telegramBotUsername.value = data.botUsername || "";
+      telegramToken.value = "";
+      toast.success("Telegram-Bot verbunden!");
+    } else {
+      telegramError.value = data.error || "Verbindung fehlgeschlagen";
+    }
+  } catch {
+    telegramError.value = "Netzwerkfehler";
+  } finally {
+    telegramConnecting.value = false;
+  }
+}
+
+async function disconnectTelegram() {
+  const ok = await confirm({
+    title: t('settings.telegramDisconnect'),
+    message: t('settings.telegramDisconnectConfirm'),
+    confirmText: t('settings.telegramDisconnect'),
+    variant: 'danger',
+  });
+  if (!ok) return;
+
+  try {
+    const res = await fetch("/api/settings/telegram/disconnect", { method: "POST" });
+    if (res.ok) {
+      telegramActive.value = false;
+      telegramBotUsername.value = "";
+      toast.success("Telegram-Bot getrennt");
+    }
+  } catch {
+    toast.error(t('common.saveError'));
+  }
 }
 
 async function exportSettings() {

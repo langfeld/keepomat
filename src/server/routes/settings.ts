@@ -4,6 +4,7 @@ import * as schema from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { updateSettingsSchema } from "../../shared/validators";
 import { getUserAiConfig, testAiConnection, getDefaultModelForProvider, type AiConfig } from "../services/ai";
+import { startBotForUser, stopBotForUser, validateBotToken, isBotActive } from "../../bot";
 
 export const settingsRoutes = new Hono();
 
@@ -37,6 +38,8 @@ settingsRoutes.get("/", async (c) => {
   return c.json({
     ...settings,
     aiApiKey: maskApiKey(settings.aiApiKey),
+    telegramBotToken: maskApiKey(settings.telegramBotToken),
+    telegramActive: isBotActive(user.id),
   });
 });
 
@@ -62,6 +65,8 @@ settingsRoutes.patch("/", async (c) => {
   if (data.aiModel !== undefined) updateData.aiModel = data.aiModel;
   if (data.aiBaseUrl !== undefined) updateData.aiBaseUrl = data.aiBaseUrl;
   if (data.showAiSummary !== undefined) updateData.showAiSummary = data.showAiSummary;
+  // Telegram Bot Token
+  if (data.telegramBotToken !== undefined) updateData.telegramBotToken = data.telegramBotToken;
 
   // Upsert
   const existing = db
@@ -89,10 +94,87 @@ settingsRoutes.patch("/", async (c) => {
   return c.json({
     ...settings,
     aiApiKey: maskApiKey(settings.aiApiKey),
+    telegramBotToken: maskApiKey(settings.telegramBotToken),
+    telegramActive: isBotActive(user.id),
   });
 });
 
-// User-AI-Verbindung testen
+// Telegram-Bot Token speichern und Bot starten
+settingsRoutes.post("/telegram/connect", async (c) => {
+  const user = c.get("user" as never) as any;
+  const body = await c.req.json();
+  const token = body.token?.trim();
+
+  if (!token) {
+    return c.json({ error: "Kein Token angegeben" }, 400);
+  }
+
+  // Token validieren
+  const validation = await validateBotToken(token);
+  if (!validation.valid) {
+    return c.json({ error: `Ungültiges Token: ${validation.error}` }, 400);
+  }
+
+  // Token speichern
+  const existing = db
+    .select()
+    .from(schema.userSettings)
+    .where(eq(schema.userSettings.userId, user.id))
+    .get();
+
+  if (existing) {
+    db.update(schema.userSettings)
+      .set({ telegramBotToken: token })
+      .where(eq(schema.userSettings.userId, user.id))
+      .run();
+  } else {
+    db.insert(schema.userSettings)
+      .values({ userId: user.id, telegramBotToken: token })
+      .run();
+  }
+
+  // Bot starten
+  const result = await startBotForUser(user.id, token);
+
+  return c.json({
+    success: result.success,
+    botUsername: result.botUsername || validation.username,
+    error: result.error,
+  });
+});
+
+// Telegram-Bot trennen und stoppen
+settingsRoutes.post("/telegram/disconnect", async (c) => {
+  const user = c.get("user" as never) as any;
+
+  // Bot stoppen
+  await stopBotForUser(user.id);
+
+  // Token und Chat-ID löschen
+  db.update(schema.userSettings)
+    .set({ telegramBotToken: null, telegramChatId: null })
+    .where(eq(schema.userSettings.userId, user.id))
+    .run();
+
+  return c.json({ success: true });
+});
+
+// Telegram-Bot Status prüfen
+settingsRoutes.get("/telegram/status", async (c) => {
+  const user = c.get("user" as never) as any;
+
+  const settings = db
+    .select()
+    .from(schema.userSettings)
+    .where(eq(schema.userSettings.userId, user.id))
+    .get();
+
+  return c.json({
+    hasToken: !!settings?.telegramBotToken,
+    isActive: isBotActive(user.id),
+    chatId: settings?.telegramChatId || null,
+  });
+});
 settingsRoutes.post("/ai/test", async (c) => {
   const user = c.get("user" as never) as any;
 

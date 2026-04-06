@@ -66,6 +66,8 @@ export const updateSettingsSchema = z.object({
   aiModel: z.string().max(100).nullable().optional(),
   aiBaseUrl: z.string().url().max(500).nullable().optional(),
   showAiSummary: z.boolean().optional(),
+  // Telegram Bot
+  telegramBotToken: z.string().max(200).nullable().optional(),
 });
 
 // ── API Key ──
@@ -117,7 +119,7 @@ export const updateSystemSettingsSchema = z.object({
   ai_shared_enabled: z.enum(["true", "false"]).optional(),
   ollama_url: z.string().url().optional(),
   registration_enabled: z.enum(["true", "false"]).optional(),
-  telegram_bot_token: z.string().optional(),
+  // telegram_bot_token entfernt – jeder User hat jetzt seinen eigenen Bot
   cookie_banner_selectors: z.string().max(5000).optional(),
 });
 

@@ -122,7 +122,7 @@ export interface SystemSettings {
   ai_shared_enabled?: string;
   ollama_url?: string;
   registration_enabled?: string;
-  telegram_bot_token?: string;
+  // telegram_bot_token entfernt – jeder User hat jetzt seinen eigenen Bot
 }
 
 export interface DashboardStats {

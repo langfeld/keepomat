@@ -1,221 +1,259 @@
-import { Bot, Context } from "grammy";
+import { Bot } from "grammy";
 import { db } from "../db";
-import { telegramLinks, bookmarks, bookmarkFolders, users, tags, folders } from "../db/schema";
+import { userSettings, bookmarks, tags, folders } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { fetchMetadata } from "../server/services/metadata";
 import { analyzeBookmark } from "../server/services/ai";
 
-let bot: Bot | null = null;
+// ── Multi-Bot-Manager: Pro User ein eigener Bot ──
 
-export async function startBot(tokenOverride?: string) {
-  const token = tokenOverride || process.env.TELEGRAM_BOT_TOKEN;
-  if (!token) {
-    console.log("⚠️  TELEGRAM_BOT_TOKEN nicht gesetzt – Bot wird übersprungen");
+const activeBots = new Map<string, Bot>(); // userId → Bot-Instanz
+
+/**
+ * Startet den Bot für einen bestimmten User.
+ * Falls bereits ein Bot läuft, wird er zuerst gestoppt.
+ */
+export async function startBotForUser(userId: string, token: string): Promise<{ success: boolean; botUsername?: string; error?: string }> {
+  // Alten Bot stoppen falls vorhanden
+  await stopBotForUser(userId);
+
+  try {
+    const bot = new Bot(token);
+
+    // Bot-Info abrufen (validiert auch den Token)
+    const botInfo = await bot.api.getMe();
+
+    // /start – Begrüßung + Auto-Link
+    bot.command("start", async (ctx) => {
+      const chatId = ctx.chat.id.toString();
+
+      // Chat-ID für diesen User speichern
+      db.update(userSettings)
+        .set({ telegramChatId: chatId })
+        .where(eq(userSettings.userId, userId))
+        .run();
+
+      await ctx.reply(
+        `✅ Willkommen bei Keepomat!\n\n` +
+        `Dein Account ist jetzt verknüpft. Schicke mir einfach einen Link, um ihn als Lesezeichen zu speichern! 🔖`,
+        { parse_mode: "HTML" }
+      );
+    });
+
+    // /recent – Letzte Lesezeichen
+    bot.command("recent", async (ctx) => {
+      const recent = await db
+        .select()
+        .from(bookmarks)
+        .where(eq(bookmarks.userId, userId))
+        .orderBy(bookmarks.createdAt)
+        .limit(5);
+
+      if (recent.length === 0) {
+        await ctx.reply("📭 Du hast noch keine Lesezeichen.");
+        return;
+      }
+
+      const lines = recent.map(
+        (b, i) => `${i + 1}. <a href="${escapeHtml(b.url)}">${escapeHtml(b.title || b.url)}</a>`
+      );
+
+      await ctx.reply(
+        `📚 Deine letzten Lesezeichen:\n\n${lines.join("\n")}`,
+        { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
+      );
+    });
+
+    // /search [query] – Suche
+    bot.command("search", async (ctx) => {
+      const query = ctx.match;
+      if (!query) {
+        await ctx.reply("🔍 Gib einen Suchbegriff an: /search <Begriff>");
+        return;
+      }
+
+      const results = await db
+        .select()
+        .from(bookmarks)
+        .where(eq(bookmarks.userId, userId))
+        .limit(50);
+
+      const filtered = results.filter(
+        (b) =>
+          b.title?.toLowerCase().includes(query.toLowerCase()) ||
+          b.url.toLowerCase().includes(query.toLowerCase()) ||
+          b.description?.toLowerCase().includes(query.toLowerCase())
+      );
+
+      if (filtered.length === 0) {
+        await ctx.reply(`🔍 Keine Ergebnisse für „${escapeHtml(query)}".`);
+        return;
+      }
+
+      const lines = filtered.slice(0, 5).map(
+        (b, i) => `${i + 1}. <a href="${escapeHtml(b.url)}">${escapeHtml(b.title || b.url)}</a>`
+      );
+
+      await ctx.reply(
+        `🔍 Ergebnisse für „${escapeHtml(query)}":\n\n${lines.join("\n")}`,
+        { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
+      );
+    });
+
+    // /help – Hilfe
+    bot.command("help", async (ctx) => {
+      await ctx.reply(
+        `🤖 <b>Keepomat Bot – Befehle</b>\n\n` +
+        `/start – Bot aktivieren\n` +
+        `/recent – Letzte 5 Lesezeichen\n` +
+        `/search &lt;Begriff&gt; – Lesezeichen suchen\n` +
+        `/help – Diese Hilfe\n\n` +
+        `Schicke mir einfach einen Link, um ihn als Lesezeichen zu speichern!`,
+        { parse_mode: "HTML" }
+      );
+    });
+
+    // URL-Erkennung – Links automatisch speichern
+    bot.on("message:text", async (ctx) => {
+      const text = ctx.message.text;
+      const urls = extractUrls(text);
+
+      if (urls.length === 0) return;
+
+      // Chat-ID aktualisieren (falls noch nicht gesetzt)
+      const chatId = ctx.chat.id.toString();
+      db.update(userSettings)
+        .set({ telegramChatId: chatId })
+        .where(eq(userSettings.userId, userId))
+        .run();
+
+      for (const url of urls) {
+        try {
+          // Duplikat-Prüfung
+          const existing = await db
+            .select()
+            .from(bookmarks)
+            .where(and(eq(bookmarks.userId, userId), eq(bookmarks.url, url)))
+            .limit(1);
+
+          if (existing.length > 0) {
+            await ctx.reply(`⚠️ Bereits gespeichert: ${url}`);
+            continue;
+          }
+
+          // Metadaten holen
+          const metadata = await fetchMetadata(url);
+
+          const [inserted] = await db.insert(bookmarks).values({
+            userId,
+            url,
+            title: metadata.title || url,
+            description: metadata.description || null,
+            ogImage: metadata.ogImage || null,
+            favicon: metadata.favicon || null,
+          }).returning({ id: bookmarks.id });
+
+          await ctx.reply(
+            `✅ Gespeichert: <a href="${escapeHtml(url)}">${escapeHtml(metadata.title || url)}</a>`,
+            { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
+          );
+
+          // AI-Analyse im Hintergrund
+          analyzeBookmarkAsync(inserted!.id, url, metadata.title || "", metadata.description || "", userId);
+        } catch (err) {
+          console.error("Telegram Bookmark-Fehler:", err);
+          await ctx.reply(`❌ Fehler beim Speichern von ${url}`);
+        }
+      }
+    });
+
+    // Bot starten (Long Polling)
+    bot.start({
+      onStart: () => console.log(`🤖 Telegram-Bot gestartet für User ${userId} (@${botInfo.username})`),
+    });
+
+    activeBots.set(userId, bot);
+
+    return { success: true, botUsername: botInfo.username };
+  } catch (err: any) {
+    console.error(`❌ Bot-Start für User ${userId} fehlgeschlagen:`, err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Stoppt den Bot für einen bestimmten User.
+ */
+export async function stopBotForUser(userId: string) {
+  const bot = activeBots.get(userId);
+  if (bot) {
+    try {
+      bot.stop();
+    } catch {}
+    activeBots.delete(userId);
+    console.log(`🤖 Telegram-Bot gestoppt für User ${userId}`);
+  }
+}
+
+/**
+ * Startet Bots für alle User, die einen Token konfiguriert haben.
+ * Wird beim Server-Start aufgerufen.
+ */
+export async function startAllUserBots() {
+  const usersWithBots = db
+    .select({
+      userId: userSettings.userId,
+      telegramBotToken: userSettings.telegramBotToken,
+    })
+    .from(userSettings)
+    .all()
+    .filter((u) => u.telegramBotToken);
+
+  if (usersWithBots.length === 0) {
+    console.log("ℹ️  Keine User mit Telegram-Bot-Token gefunden");
     return;
   }
 
-  bot = new Bot(token);
+  console.log(`🤖 Starte ${usersWithBots.length} Telegram-Bot(s)...`);
 
-  // /start – Verknüpfung starten
-  bot.command("start", async (ctx) => {
-    const chatId = ctx.chat.id.toString();
-
-    // Prüfen ob bereits verknüpft
-    const existing = await db
-      .select()
-      .from(telegramLinks)
-      .where(eq(telegramLinks.telegramChatId, chatId))
-      .limit(1);
-
-    if (existing.length > 0) {
-      await ctx.reply(
-        "✅ Dein Account ist bereits verknüpft! Schicke mir einfach einen Link, um ihn als Lesezeichen zu speichern."
-      );
-      return;
-    }
-
-    // Verknüpfungscode generieren
-    const code = Math.random().toString(36).slice(2, 10).toUpperCase();
-
-    await db.insert(telegramLinks).values({
-      userId: "", // Wird beim Verknüpfen gesetzt
-      telegramChatId: chatId,
-      telegramUsername: ctx.from?.username || null,
-      isActive: false,
-    });
-
-    await ctx.reply(
-      `🔗 Willkommen bei Keepomat!\n\n` +
-      `Dein Verknüpfungscode: <code>${code}</code>\n\n` +
-      `Gib diesen Code in den Keepomat-Einstellungen unter „Telegram" ein, um deinen Account zu verknüpfen.\n\n` +
-      `Danach kannst du mir einfach Links schicken, und ich speichere sie automatisch als Lesezeichen!`,
-      { parse_mode: "HTML" }
-    );
-  });
-
-  // /recent – Letzte Lesezeichen
-  bot.command("recent", async (ctx) => {
-    const userId = await getUserId(ctx);
-    if (!userId) {
-      await ctx.reply("❌ Dein Account ist noch nicht verknüpft. Nutze /start um zu beginnen.");
-      return;
-    }
-
-    const recent = await db
-      .select()
-      .from(bookmarks)
-      .where(eq(bookmarks.userId, userId))
-      .orderBy(bookmarks.createdAt)
-      .limit(5);
-
-    if (recent.length === 0) {
-      await ctx.reply("📭 Du hast noch keine Lesezeichen.");
-      return;
-    }
-
-    const lines = recent.map(
-      (b, i) => `${i + 1}. <a href="${escapeHtml(b.url)}">${escapeHtml(b.title || b.url)}</a>`
-    );
-
-    await ctx.reply(
-      `📚 Deine letzten Lesezeichen:\n\n${lines.join("\n")}`,
-      { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
-    );
-  });
-
-  // /search [query] – Suche
-  bot.command("search", async (ctx) => {
-    const userId = await getUserId(ctx);
-    if (!userId) {
-      await ctx.reply("❌ Dein Account ist noch nicht verknüpft.");
-      return;
-    }
-
-    const query = ctx.match;
-    if (!query) {
-      await ctx.reply("🔍 Gib einen Suchbegriff an: /search <Begriff>");
-      return;
-    }
-
-    const results = await db
-      .select()
-      .from(bookmarks)
-      .where(eq(bookmarks.userId, userId))
-      .limit(10);
-
-    // Einfache Textsuche
-    const filtered = results.filter(
-      (b) =>
-        b.title?.toLowerCase().includes(query.toLowerCase()) ||
-        b.url.toLowerCase().includes(query.toLowerCase()) ||
-        b.description?.toLowerCase().includes(query.toLowerCase())
-    );
-
-    if (filtered.length === 0) {
-      await ctx.reply(`🔍 Keine Ergebnisse für „${escapeHtml(query)}".`);
-      return;
-    }
-
-    const lines = filtered.slice(0, 5).map(
-      (b, i) => `${i + 1}. <a href="${escapeHtml(b.url)}">${escapeHtml(b.title || b.url)}</a>`
-    );
-
-    await ctx.reply(
-      `🔍 Ergebnisse für „${escapeHtml(query)}":\n\n${lines.join("\n")}`,
-      { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
-    );
-  });
-
-  // /help – Hilfe
-  bot.command("help", async (ctx) => {
-    await ctx.reply(
-      `🤖 <b>Keepomat Bot – Befehle</b>\n\n` +
-      `/start – Account verknüpfen\n` +
-      `/recent – Letzte 5 Lesezeichen\n` +
-      `/search &lt;Begriff&gt; – Lesezeichen suchen\n` +
-      `/help – Diese Hilfe\n\n` +
-      `Schicke mir einfach einen Link, um ihn als Lesezeichen zu speichern!`,
-      { parse_mode: "HTML" }
-    );
-  });
-
-  // URL-Erkennung – Links automatisch speichern
-  bot.on("message:text", async (ctx) => {
-    const text = ctx.message.text;
-    const urls = extractUrls(text);
-
-    if (urls.length === 0) return;
-
-    const userId = await getUserId(ctx);
-    if (!userId) {
-      await ctx.reply("❌ Bitte verknüpfe zuerst deinen Account mit /start");
-      return;
-    }
-
-    for (const url of urls) {
-      try {
-        // Duplikat-Prüfung
-        const existing = await db
-          .select()
-          .from(bookmarks)
-          .where(and(eq(bookmarks.userId, userId), eq(bookmarks.url, url)))
-          .limit(1);
-
-        if (existing.length > 0) {
-          await ctx.reply(`⚠️ Bereits gespeichert: ${url}`);
-          continue;
-        }
-
-        // Metadaten holen
-        const metadata = await fetchMetadata(url);
-
-        const [inserted] = await db.insert(bookmarks).values({
-          userId,
-          url,
-          title: metadata.title || url,
-          description: metadata.description || null,
-          ogImage: metadata.ogImage || null,
-          favicon: metadata.favicon || null,
-        }).returning({ id: bookmarks.id });
-
-        await ctx.reply(
-          `✅ Gespeichert: <a href="${escapeHtml(url)}">${escapeHtml(metadata.title || url)}</a>`,
-          { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
-        );
-
-        // AI-Analyse im Hintergrund
-        analyzeBookmarkAsync(inserted!.id, url, metadata.title || "", metadata.description || "", userId);
-      } catch (err) {
-        console.error("Telegram Bookmark-Fehler:", err);
-        await ctx.reply(`❌ Fehler beim Speichern von ${url}`);
-      }
-    }
-  });
-
-  // Bot starten (Long Polling)
-  bot.start({
-    onStart: () => console.log("🤖 Telegram-Bot gestartet"),
-  });
+  for (const user of usersWithBots) {
+    await startBotForUser(user.userId, user.telegramBotToken!);
+  }
 }
 
-export function stopBot() {
-  bot?.stop();
+/**
+ * Prüft ob ein Bot-Token gültig ist, ohne den Bot zu starten.
+ */
+export async function validateBotToken(token: string): Promise<{ valid: boolean; username?: string; error?: string }> {
+  try {
+    const bot = new Bot(token);
+    const info = await bot.api.getMe();
+    return { valid: true, username: info.username };
+  } catch (err: any) {
+    return { valid: false, error: err.message };
+  }
 }
 
-// Hilfsfunktionen
-
-async function getUserId(ctx: Context): Promise<string | null> {
-  const chatId = ctx.chat?.id?.toString();
-  if (!chatId) return null;
-
-  const link = await db
-    .select()
-    .from(telegramLinks)
-    .where(and(eq(telegramLinks.telegramChatId, chatId), eq(telegramLinks.isActive, true)))
-    .limit(1);
-
-  return link[0]?.userId || null;
+/**
+ * Gibt zurück ob ein User einen aktiven Bot hat.
+ */
+export function isBotActive(userId: string): boolean {
+  return activeBots.has(userId);
 }
+
+/**
+ * Stoppt alle laufenden Bots (für Graceful Shutdown).
+ */
+export function stopAllBots() {
+  for (const [userId, bot] of activeBots) {
+    try {
+      bot.stop();
+    } catch {}
+  }
+  activeBots.clear();
+}
+
+// ── Hilfsfunktionen ──
 
 function extractUrls(text: string): string[] {
   const urlRegex = /https?:\/\/[^\s<>"{}|\\^`\[\]]+/gi;
@@ -238,7 +276,6 @@ async function analyzeBookmarkAsync(
   userId: string
 ) {
   try {
-    // Existierende Tags und Ordner des Users für AI-Kontext laden
     const existingTags = await db
       .select()
       .from(tags)

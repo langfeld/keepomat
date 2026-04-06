@@ -19,7 +19,7 @@ import { exportRoutes } from "./routes/export";
 import { apiKeyRoutes } from "./routes/api-keys";
 
 // Bot
-import { startBot } from "../bot";
+import { startAllUserBots } from "../bot";
 
 const app = new Hono();
 
@@ -108,29 +108,10 @@ const port = parseInt(process.env.PORT || "3000", 10);
 runMigrations();
 setupFTS();
 
-// Telegram Bot starten (wenn konfiguriert)
-const botToken =
-  process.env.TELEGRAM_BOT_TOKEN ||
-  (() => {
-    try {
-      const { systemSettings } = require("../db/schema");
-      const { eq } = require("drizzle-orm");
-      const result = db
-        .select()
-        .from(systemSettings)
-        .where(eq(systemSettings.key, "telegram_bot_token"))
-        .get();
-      return result?.value;
-    } catch {
-      return undefined;
-    }
-  })();
-
-if (botToken) {
-  startBot(botToken).catch((err: Error) =>
-    console.error("❌ Telegram Bot error:", err.message)
-  );
-}
+// Telegram Bots starten (alle User mit konfigurierten Tokens)
+startAllUserBots().catch((err: Error) =>
+  console.error("❌ Telegram Bot error:", err.message)
+);
 
 console.log(`
 ╔══════════════════════════════════════╗

@@ -134,6 +134,9 @@ export const userSettings = sqliteTable("user_settings", {
   aiModel: text("ai_model"),
   aiBaseUrl: text("ai_base_url"),
   showAiSummary: integer("show_ai_summary", { mode: "boolean" }).default(true).notNull(),
+  // User-eigener Telegram-Bot
+  telegramBotToken: text("telegram_bot_token"),
+  telegramChatId: text("telegram_chat_id"),
 });
 
 // ── API Keys (für Userscript + Bot) ──
