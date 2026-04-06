@@ -70,6 +70,7 @@ services:
     environment:
       - BETTER_AUTH_SECRET=CHANGE_ME       # openssl rand -base64 48
       - BETTER_AUTH_URL=http://localhost:8080
+      # - TRUSTED_ORIGINS=http://192.168.1.100  # optional: additional origins
       - MOONSHOT_API_KEY=                  # optional: AI features
       - AI_MODEL=kimi-k2-turbo-preview
       - TELEGRAM_BOT_TOKEN=               # optional: Telegram bot
@@ -91,6 +92,7 @@ The app will be available at `http://localhost:8080`. The first registered user 
 |----------|------------|----------|
 | `BETTER_AUTH_SECRET` | Auth secret (min. 32 chars). Generate: `openssl rand -base64 48` | **Yes** |
 | `BETTER_AUTH_URL` | Public URL of the app (important for cookies) | **Yes** |
+| `TRUSTED_ORIGINS` | Additional trusted origins, comma-separated (e.g. LAN IP, extra domains) | No |
 | `MOONSHOT_API_KEY` | API key for [Moonshot/Kimi](https://platform.moonshot.cn/) AI | No |
 | `AI_MODEL` | AI model to use | No |
 | `TELEGRAM_BOT_TOKEN` | Bot token from [@BotFather](https://t.me/BotFather) | No |
@@ -120,6 +122,16 @@ docker compose up -d
 
 All data (SQLite database, screenshots) is stored in the `./data` volume. Back up this directory to preserve your bookmarks.
 
+#### LAN / Multi-Device Access
+
+If you access Keepomat from other devices in your local network (e.g. `http://192.168.1.100:8080`), add the LAN URL to `TRUSTED_ORIGINS`:
+
+```yaml
+- TRUSTED_ORIGINS=http://192.168.1.100:8080
+```
+
+Multiple origins can be comma-separated: `http://192.168.1.100:8080,http://10.0.0.5:8080`
+
 #### Reverse proxy
 
 When running behind a reverse proxy (Nginx, Caddy, Traefik), set `BETTER_AUTH_URL` to your public URL (e.g. `https://bookmarks.example.com`). The container exposes port `3000` internally.
@@ -148,6 +160,7 @@ bun run dev
 | `DATABASE_URL` | SQLite database path | `./data/keepomat.db` |
 | `BETTER_AUTH_SECRET` | Auth secret (min. 32 chars) | — |
 | `BETTER_AUTH_URL` | Base URL | `http://localhost:3000` |
+| `TRUSTED_ORIGINS` | Additional trusted origins (comma-separated) | — |
 | `MOONSHOT_API_KEY` | Moonshot/Kimi API key | — |
 | `AI_MODEL` | AI model | `kimi-k2-turbo-preview` |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token | — |

@@ -70,6 +70,7 @@ services:
     environment:
       - BETTER_AUTH_SECRET=CHANGE_ME       # openssl rand -base64 48
       - BETTER_AUTH_URL=http://localhost:8080
+      # - TRUSTED_ORIGINS=http://192.168.1.100  # optional: weitere Origins
       - MOONSHOT_API_KEY=                  # optional: KI-Features
       - AI_MODEL=kimi-k2-turbo-preview
       - TELEGRAM_BOT_TOKEN=               # optional: Telegram-Bot
@@ -91,6 +92,7 @@ Die App ist unter `http://localhost:8080` erreichbar. Der erste registrierte Ben
 |----------|-------------|--------|
 | `BETTER_AUTH_SECRET` | Auth-Secret (min. 32 Zeichen). Generieren: `openssl rand -base64 48` | **Ja** |
 | `BETTER_AUTH_URL` | Öffentliche URL der App (wichtig für Cookies) | **Ja** |
+| `TRUSTED_ORIGINS` | Zusätzliche Trusted Origins, kommagetrennt (z.B. LAN-IP, weitere Domains) | Nein |
 | `MOONSHOT_API_KEY` | API-Schlüssel für [Moonshot/Kimi](https://platform.moonshot.cn/) KI | Nein |
 | `AI_MODEL` | Zu verwendendes KI-Modell | Nein |
 | `TELEGRAM_BOT_TOKEN` | Bot-Token von [@BotFather](https://t.me/BotFather) | Nein |
@@ -120,6 +122,16 @@ docker compose up -d
 
 Alle Daten (SQLite-Datenbank, Screenshots) werden im `./data`-Volume gespeichert. Sichere dieses Verzeichnis, um deine Lesezeichen zu erhalten.
 
+#### LAN- / Multi-Device-Zugriff
+
+Wenn du Keepomat von anderen Geräten im lokalen Netzwerk erreichst (z.B. `http://192.168.1.100:8080`), füge die LAN-URL zu `TRUSTED_ORIGINS` hinzu:
+
+```yaml
+- TRUSTED_ORIGINS=http://192.168.1.100:8080
+```
+
+Mehrere Origins können kommagetrennt angegeben werden: `http://192.168.1.100:8080,http://10.0.0.5:8080`
+
 #### Reverse Proxy
 
 Bei Betrieb hinter einem Reverse Proxy (Nginx, Caddy, Traefik) muss `BETTER_AUTH_URL` auf die öffentliche URL gesetzt werden (z.B. `https://bookmarks.example.com`). Der Container exponiert intern Port `3000`.
@@ -148,6 +160,7 @@ bun run dev
 | `DATABASE_URL` | SQLite-Datenbankpfad | `./data/keepomat.db` |
 | `BETTER_AUTH_SECRET` | Auth-Secret (min. 32 Zeichen) | — |
 | `BETTER_AUTH_URL` | Basis-URL | `http://localhost:3000` |
+| `TRUSTED_ORIGINS` | Zusätzliche Trusted Origins (kommagetrennt) | — |
 | `MOONSHOT_API_KEY` | Moonshot/Kimi API-Key | — |
 | `AI_MODEL` | KI-Modell | `kimi-k2-turbo-preview` |
 | `TELEGRAM_BOT_TOKEN` | Telegram Bot Token | — |

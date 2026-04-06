@@ -50,6 +50,9 @@ export const auth = betterAuth({
   trustedOrigins: [
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
     "http://localhost:5173", // Vite Dev Server
+    // Weitere trusted Origins aus TRUSTED_ORIGINS (kommagetrennt) laden,
+    // z.B. für LAN-Zugriff: TRUSTED_ORIGINS=http://10.1.10.107,http://192.168.1.100
+    ...(process.env.TRUSTED_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean) || []),
   ],
 });
 

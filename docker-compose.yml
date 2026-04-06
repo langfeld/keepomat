@@ -12,6 +12,8 @@ services:
       # Generate with: openssl rand -base64 48
       - BETTER_AUTH_SECRET=CHANGE_ME_USE_openssl_rand_base64_48
       - BETTER_AUTH_URL=http://localhost:8080
+      # Zusätzliche Trusted Origins (kommagetrennt), z.B. LAN-IP oder Domain:
+      # - TRUSTED_ORIGINS=http://192.168.1.100,https://bookmarks.example.com
       - MOONSHOT_API_KEY=
       - AI_MODEL=kimi-k2-turbo-preview
       - TELEGRAM_BOT_TOKEN=
