@@ -27,11 +27,13 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 60 * 5, // 5 Minuten Cookie-Cache
     },
-    cookiePrefix: "keepomat",
   },
-  // __Secure- Cookie-Präfix nur bei HTTPS verwenden.
-  // Ohne HTTPS lehnt der Browser diese Cookies ab.
-  useSecureCookies: (process.env.BETTER_AUTH_URL || "").startsWith("https://"),
+  advanced: {
+    cookiePrefix: "keepomat",
+    // __Secure- Cookie-Präfix nur bei HTTPS verwenden.
+    // Ohne HTTPS lehnt der Browser diese Cookies ab.
+    useSecureCookies: (process.env.BETTER_AUTH_URL || "").startsWith("https://"),
+  },
   user: {
     additionalFields: {
       isAdmin: {
