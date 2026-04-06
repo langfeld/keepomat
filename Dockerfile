@@ -1,10 +1,10 @@
-FROM oven/bun:1 AS base
+FROM oven/bun:1.3 AS base
 WORKDIR /app
 
-# --- Abhängigkeiten installieren ---
+# --- Install dependencies ---
 FROM base AS deps
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile --production=false
+RUN bun install --frozen-lockfile
 
 # --- Build ---
 FROM base AS build
@@ -12,16 +12,16 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN bun run build
 
-# --- Produktion ---
+# --- Production ---
 FROM base AS production
 
-# gosu für PUID/PGID-Unterstützung
+# gosu for PUID/PGID support
 RUN apt-get update && apt-get install -y --no-install-recommends gosu && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Nur Produktions-Abhängigkeiten
+# Production dependencies only
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
 
