@@ -147,7 +147,7 @@ bookmarkRoutes.get("/:id/screenshot", async (c) => {
   return new Response(file, {
     headers: {
       "Content-Type": "image/webp",
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": "public, max-age=31536000, immutable",
     },
   });
 });
@@ -167,8 +167,11 @@ bookmarkRoutes.post("/:id/screenshot", async (c) => {
     return c.json({ error: "Bookmark nicht gefunden" }, 404);
   }
 
-  captureAndSaveScreenshot(bookmark.id, bookmark.url);
-  return c.json({ success: true, message: "Screenshot wird erstellt" });
+  const filename = await captureAndSaveScreenshot(bookmark.id, bookmark.url);
+  if (filename) {
+    return c.json({ success: true, screenshot: filename });
+  }
+  return c.json({ error: "Screenshot konnte nicht erstellt werden" }, 500);
 });
 
 // Einzelnen Bookmark abrufen
@@ -408,7 +411,7 @@ bookmarkRoutes.delete("/:id", async (c) => {
 });
 
 // AI-Analyse async durchführen
-async function captureAndSaveScreenshot(bookmarkId: number, url: string) {
+async function captureAndSaveScreenshot(bookmarkId: number, url: string): Promise<string | null> {
   try {
     const filename = await captureScreenshot(url, bookmarkId);
     if (filename) {
@@ -416,9 +419,12 @@ async function captureAndSaveScreenshot(bookmarkId: number, url: string) {
         .set({ screenshot: filename, updatedAt: new Date() })
         .where(eq(schema.bookmarks.id, bookmarkId))
         .run();
+      return filename;
     }
+    return null;
   } catch (error) {
     console.error(`❌ Screenshot save failed for bookmark #${bookmarkId}:`, error);
+    return null;
   }
 }
 

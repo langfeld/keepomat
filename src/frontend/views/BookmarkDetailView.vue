@@ -149,7 +149,7 @@
             </div>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
               <img
-                :src="`/api/bookmarks/${bookmark.id}/screenshot`"
+                :src="`/api/bookmarks/${bookmark.id}/screenshot?t=${bookmark.updatedAt || ''}`"
                 :alt="bookmark.title || 'Screenshot'"
                 class="w-full"
                 loading="lazy"

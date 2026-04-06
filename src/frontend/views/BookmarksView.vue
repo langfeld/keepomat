@@ -314,6 +314,7 @@ async function retakeScreenshot(bookmark: any) {
     toast.info(t('toast.screenshotCreating'));
     await bookmarksStore.retakeScreenshot(bookmark.id);
     toast.success(t('toast.screenshotCreated'));
+    await loadBookmarks();
   } catch {
     toast.error(t('toast.screenshotFailed'));
   }

@@ -202,7 +202,7 @@ const imgError = ref(false);
 
 const screenshotUrl = computed(() => {
   if (props.bookmark.screenshot) {
-    return `/api/bookmarks/${props.bookmark.id}/screenshot`;
+    return `/api/bookmarks/${props.bookmark.id}/screenshot?t=${props.bookmark.updatedAt || ''}`;
   }
   return null;
 });
