@@ -61,6 +61,7 @@ settingsRoutes.patch("/", async (c) => {
   if (data.aiApiKey !== undefined) updateData.aiApiKey = data.aiApiKey;
   if (data.aiModel !== undefined) updateData.aiModel = data.aiModel;
   if (data.aiBaseUrl !== undefined) updateData.aiBaseUrl = data.aiBaseUrl;
+  if (data.showAiSummary !== undefined) updateData.showAiSummary = data.showAiSummary;
 
   // Upsert
   const existing = db

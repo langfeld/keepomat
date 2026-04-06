@@ -22,6 +22,13 @@
       "when": 1775427543297,
       "tag": "0002_bizarre_odin",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1775463346877,
+      "tag": "0003_stale_joystick",
+      "breakpoints": true
     }
   ]
 }

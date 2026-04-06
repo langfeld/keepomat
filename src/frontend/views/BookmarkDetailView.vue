@@ -250,6 +250,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
+import { useSettingsStore } from "../stores/settings";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
 
 const route = useRoute();
@@ -257,6 +258,7 @@ const router = useRouter();
 const { t } = useI18n();
 const { confirm } = useConfirm();
 const toast = useToast();
+const settingsStore = useSettingsStore();
 
 const bookmark = ref<any>(null);
 const loading = ref(true);

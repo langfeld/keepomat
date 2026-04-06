@@ -133,6 +133,7 @@ export const userSettings = sqliteTable("user_settings", {
   aiApiKey: text("ai_api_key"),
   aiModel: text("ai_model"),
   aiBaseUrl: text("ai_base_url"),
+  showAiSummary: integer("show_ai_summary", { mode: "boolean" }).default(true).notNull(),
 });
 
 // ── API Keys (für Extension + Bot) ──

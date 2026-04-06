@@ -65,6 +65,7 @@ export const updateSettingsSchema = z.object({
   aiApiKey: z.string().max(500).nullable().optional(),
   aiModel: z.string().max(100).nullable().optional(),
   aiBaseUrl: z.string().url().max(500).nullable().optional(),
+  showAiSummary: z.boolean().optional(),
 });
 
 // ── API Key ──
@@ -117,6 +118,7 @@ export const updateSystemSettingsSchema = z.object({
   ollama_url: z.string().url().optional(),
   registration_enabled: z.enum(["true", "false"]).optional(),
   telegram_bot_token: z.string().optional(),
+  cookie_banner_selectors: z.string().max(5000).optional(),
 });
 
 // ── Types (abgeleitet aus Schema) ──

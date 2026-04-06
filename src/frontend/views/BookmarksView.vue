@@ -34,7 +34,7 @@
         <SearchableSelect
           :model-value="sortBy"
           :options="sortOptions"
-          :placeholder="t('bookmarks.sortNewest')"
+          :placeholder="t('bookmarks.sortBy')"
           @update:model-value="sortBy = String($event)"
           trigger-class="!py-2 !text-sm"
         />
@@ -78,7 +78,7 @@
 
         <!-- AI-Zusammenfassung Toggle -->
         <button
-          @click="showAiSummary = !showAiSummary"
+          @click="toggleAiSummary()"
           :class="showAiSummary ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 border-primary-300 dark:border-primary-700' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-gray-300 dark:border-gray-700'"
           class="hover:bg-gray-50 dark:hover:bg-gray-700 p-2 border rounded-xl transition"
           :title="showAiSummary ? t('bookmarks.hideAiSummary') : t('bookmarks.showAiSummary')"
@@ -191,6 +191,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { useBookmarksStore } from "../stores/bookmarks";
+import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
@@ -202,6 +203,7 @@ import type { SelectOption } from "../components/SearchableSelect.vue";
 
 const route = useRoute();
 const bookmarksStore = useBookmarksStore();
+const settingsStore = useSettingsStore();
 const { t } = useI18n();
 const { confirm } = useConfirm();
 const toast = useToast();
@@ -223,7 +225,10 @@ const sortOptions = computed<SelectOption[]>(() => [
 ]);
 const viewMode = useLocalStorage<"list" | "grid">("viewMode", "list");
 const showScreenshots = useLocalStorage("showScreenshots", false);
-const showAiSummary = useLocalStorage("showAiSummary", true);
+const showAiSummary = computed(() => settingsStore.settings.showAiSummary);
+function toggleAiSummary() {
+  settingsStore.updateSettings({ showAiSummary: !showAiSummary.value });
+}
 const tags = ref<any[]>([]);
 const tagOptions = computed<SelectOption[]>(() =>
   tags.value.map((tag) => ({ value: String(tag.id), label: tag.name }))

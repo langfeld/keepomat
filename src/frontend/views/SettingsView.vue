@@ -70,6 +70,30 @@
               {{ settingsStore.settings?.folderMode === 'multi' ? t('settings.folderModeMultiHint') : t('settings.folderModeSingleHint') }}
             </p>
           </div>
+
+          <!-- AI-Zusammenfassung anzeigen -->
+          <div>
+            <div class="flex items-center gap-3">
+              <button
+                @click="saveSetting('showAiSummary', !settingsStore.settings?.showAiSummary)"
+                :class="[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  settingsStore.settings?.showAiSummary ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
+                ]"
+                role="switch"
+                :aria-checked="settingsStore.settings?.showAiSummary"
+              >
+                <span
+                  :class="[
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    settingsStore.settings?.showAiSummary ? 'translate-x-6' : 'translate-x-1'
+                  ]"
+                />
+              </button>
+              <label class="font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.showAiSummary') }}</label>
+            </div>
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('settings.showAiSummaryHint') }}</p>
+          </div>
         </div>
       </div>
 

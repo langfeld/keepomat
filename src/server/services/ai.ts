@@ -166,14 +166,14 @@ Aufgaben:
    - Der Ordnername muss zum HAUPTTHEMA der Website passen, nicht zu einem Nebenthema.
    - Wenn KEIN existierender Ordner gut passt, schlage einen neuen Ordnernamen vor.
    - Setze folderId NUR wenn du dir SICHER bist, dass es der richtige Ordner ist.
-3. Fasse den Inhalt in 2-3 kurzen Sätzen zusammen
+3. Fasse den Inhalt in 4-6 Sätzen zusammen (ausführlich, aber prägnant)
 
 Antworte NUR mit folgendem JSON-Format:
 {
   "tags": ["tag1", "tag2", "tag3"],
   "folderName": "Name des vorgeschlagenen Ordners",
   "folderId": null,
-  "summary": "Zusammenfassung in 2-3 Sätzen."
+  "summary": "Ausführliche Zusammenfassung in 4-6 Sätzen."
 }
 
 Wenn ein existierender Ordner passt, setze "folderId" auf die ID und "folderName" auf den Namen.

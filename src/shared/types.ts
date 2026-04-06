@@ -63,6 +63,7 @@ export interface UserSettings {
   aiApiKey: string | null;
   aiModel: string | null;
   aiBaseUrl: string | null;
+  showAiSummary: boolean;
 }
 
 export interface ApiKey {

@@ -1,0 +1,1 @@
+ALTER TABLE `user_settings` ADD `show_ai_summary` integer DEFAULT true NOT NULL;

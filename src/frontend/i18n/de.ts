@@ -65,6 +65,8 @@ export default {
   "settings.folderModeMulti": "Mehrere Ordner",
   "settings.folderModeSingleHint": "Jedes Lesezeichen gehört zu genau einem Ordner.",
   "settings.folderModeMultiHint": "Ein Lesezeichen kann in mehreren Ordnern sein.",
+  "settings.showAiSummary": "AI-Zusammenfassung anzeigen",
+  "settings.showAiSummaryHint": "Zeigt die AI-generierte Zusammenfassung bei Lesezeichen an. Die Zusammenfassung wird weiterhin für die AI-Suche generiert.",
   "settings.apiKeys": "API-Schlüssel",
   "settings.apiKeysDescription": "API-Schlüssel werden für die Browser-Erweiterung und den externen API-Zugriff benötigt. Erstelle einen Schlüssel und verwende ihn in der Erweiterung oder in eigenen Integrationen.",
   "settings.apiKeyNew": "Neuer Schlüssel",
@@ -191,6 +193,7 @@ export default {
   "bookmarks.showImages": "Vorschaubilder anzeigen",
   "bookmarks.viewList": "Listenansicht",
   "bookmarks.viewGrid": "Rasteransicht",
+  "bookmarks.sortBy": "Sortierung",
   "bookmarks.sortNewest": "Neueste zuerst",
   "bookmarks.sortOldest": "Älteste zuerst",
   "bookmarks.sortTitleAZ": "Titel A–Z",
@@ -209,6 +212,8 @@ export default {
   "bookmark.aiSummary": "AI-Zusammenfassung",
   "bookmark.screenshot": "Screenshot",
   "bookmark.retakeScreenshot": "Screenshot neu erstellen",
+  "bookmark.drag": "In Ordner ziehen",
+  "bookmark.viewDetails": "Details anzeigen",
 
   // Bookmark Detail
   "bookmarkDetail.description": "Beschreibung",
@@ -343,6 +348,11 @@ export default {
   "admin.aiThinkingHint": "Thinking aktiviert tiefes Reasoning – besser für komplexe Aufgaben. Fast ist schneller und ideal für strukturierte Ausgaben wie JSON.",
   "admin.aiTest": "Verbindung testen",
   "admin.aiTesting": "Teste...",
+  "admin.cookieBanner": "Cookie-Banner Erkennung",
+  "admin.cookieBannerHint": "Beim Screenshot-Erstellen werden Cookie-Banner automatisch erkannt und weggeklickt. Hier kannst du zusätzliche CSS-Selektoren für spezielle Seiten hinzufügen.",
+  "admin.cookieBannerSelectors": "Zusätzliche CSS-Selektoren",
+  "admin.cookieBannerSelectorsPlaceholder": "#mein-cookie-btn\n.custom-accept-button\nbutton[data-accept]",
+  "admin.cookieBannerSelectorsFormat": "Ein CSS-Selektor pro Zeile. Zeilen mit # am Anfang werden als Kommentar ignoriert.",
   "admin.saved": "Gespeichert ✓",
   "admin.deleteUserConfirm": "Benutzer \"{name}\" wirklich löschen? Alle Daten werden entfernt.",
 

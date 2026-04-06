@@ -13,6 +13,7 @@ export const useSettingsStore = defineStore("settings", () => {
     aiApiKey: null,
     aiModel: null,
     aiBaseUrl: null,
+    showAiSummary: true,
   });
   const loading = ref(false);
 

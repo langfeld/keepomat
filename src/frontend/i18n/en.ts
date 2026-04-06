@@ -65,6 +65,8 @@ export default {
   "settings.folderModeMulti": "Multiple folders",
   "settings.folderModeSingleHint": "Each bookmark belongs to exactly one folder.",
   "settings.folderModeMultiHint": "A bookmark can be in multiple folders.",
+  "settings.showAiSummary": "Show AI summary",
+  "settings.showAiSummaryHint": "Shows the AI-generated summary on bookmarks. The summary is still generated for AI search.",
   "settings.apiKeys": "API Keys",
   "settings.apiKeysDescription": "API keys are required for the browser extension and external API access. Create a key and use it in the extension or your own integrations.",
   "settings.apiKeyNew": "New key",
@@ -191,6 +193,7 @@ export default {
   "bookmarks.showImages": "Show preview images",
   "bookmarks.viewList": "List view",
   "bookmarks.viewGrid": "Grid view",
+  "bookmarks.sortBy": "Sort by",
   "bookmarks.sortNewest": "Newest first",
   "bookmarks.sortOldest": "Oldest first",
   "bookmarks.sortTitleAZ": "Title A–Z",
@@ -209,6 +212,8 @@ export default {
   "bookmark.aiSummary": "AI Summary",
   "bookmark.screenshot": "Screenshot",
   "bookmark.retakeScreenshot": "Retake screenshot",
+  "bookmark.drag": "Drag to folder",
+  "bookmark.viewDetails": "View details",
 
   // Bookmark Detail
   "bookmarkDetail.description": "Description",
@@ -341,6 +346,11 @@ export default {
   "admin.aiThinkingHint": "Thinking enables deep reasoning – better for complex tasks. Fast is quicker and ideal for structured outputs like JSON.",
   "admin.aiTest": "Test connection",
   "admin.aiTesting": "Testing...",
+  "admin.cookieBanner": "Cookie Banner Detection",
+  "admin.cookieBannerHint": "When taking screenshots, cookie banners are automatically detected and dismissed. You can add additional CSS selectors for specific sites here.",
+  "admin.cookieBannerSelectors": "Additional CSS selectors",
+  "admin.cookieBannerSelectorsPlaceholder": "#my-cookie-btn\n.custom-accept-button\nbutton[data-accept]",
+  "admin.cookieBannerSelectorsFormat": "One CSS selector per line. Lines starting with # are treated as comments.",
   "admin.saved": "Saved ✓",
   "admin.deleteUserConfirm": "Really delete user \"{name}\"? All data will be removed.",
 

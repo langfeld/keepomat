@@ -256,6 +256,27 @@
         </div>
       </div>
 
+      <!-- Cookie-Banner Selektoren -->
+      <div class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+        <h2 class="mb-4 font-semibold text-gray-900 dark:text-white text-lg">{{ t('admin.cookieBanner') }}</h2>
+
+        <div class="space-y-4">
+          <p class="text-gray-500 dark:text-gray-400 text-sm">{{ t('admin.cookieBannerHint') }}</p>
+
+          <div>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.cookieBannerSelectors') }}</label>
+            <textarea
+              v-model="cookieBannerSelectors"
+              rows="6"
+              :placeholder="t('admin.cookieBannerSelectorsPlaceholder')"
+              @blur="updateSystemSetting('cookie_banner_selectors', cookieBannerSelectors)"
+              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full font-mono text-gray-900 dark:text-white text-sm"
+            />
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('admin.cookieBannerSelectorsFormat') }}</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Gespeichert-Meldung -->
       <div v-if="saved" class="right-6 bottom-6 z-50 fixed bg-green-600 shadow-lg px-4 py-2.5 rounded-xl font-medium text-white text-sm animate-slide-up">
         {{ t('admin.saved') }}
@@ -295,6 +316,7 @@ const aiModel = ref("");
 const aiThinkingEnabled = ref(false);
 const aiTesting = ref(false);
 const aiTestResult = ref<{ success: boolean; message: string; duration: number } | null>(null);
+const cookieBannerSelectors = ref("");
 
 function getInitials(name: string) {
   return name
@@ -329,6 +351,7 @@ async function loadData() {
       aiApiKey.value = data.moonshot_api_key || "";
       aiModel.value = data.ai_model || "";
       aiThinkingEnabled.value = data.ai_thinking_enabled === "true";
+      cookieBannerSelectors.value = data.cookie_banner_selectors || "";
     }
   } catch (e) {
     console.error("Admin-Daten laden fehlgeschlagen:", e);
