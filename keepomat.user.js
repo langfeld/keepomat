@@ -541,7 +541,7 @@
     overlayEl.innerHTML = `
       <div id="keepomat-panel">
         <div class="km-header">
-          <h2>🔖 Keepomat Setup</h2>
+          <h2><svg viewBox="0 0 32 32" fill="none" style="width:22px;height:22px;flex-shrink:0"><rect width="32" height="32" rx="8" fill="#3b82f6"/><path d="M8 8h6v2H10v12h4v2H8V8zm10 0h6v16h-6v-2h4V10h-4V8z" fill="white"/><circle cx="16" cy="16" r="3" fill="#fbbf24"/></svg> Keepomat Setup</h2>
           <button class="km-close" id="km-close">&times;</button>
         </div>
         <div class="km-body">
@@ -614,7 +614,7 @@
     overlayEl.innerHTML = `
       <div id="keepomat-panel">
         <div class="km-header">
-          <h2>🔖 Lesezeichen speichern</h2>
+          <h2><svg viewBox="0 0 32 32" fill="none" style="width:22px;height:22px;flex-shrink:0"><rect width="32" height="32" rx="8" fill="#3b82f6"/><path d="M8 8h6v2H10v12h4v2H8V8zm10 0h6v16h-6v-2h4V10h-4V8z" fill="white"/><circle cx="16" cy="16" r="3" fill="#fbbf24"/></svg> Lesezeichen speichern</h2>
           <button class="km-close" id="km-close">&times;</button>
         </div>
         <div class="km-body">
