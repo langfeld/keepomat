@@ -83,6 +83,7 @@
             :folders="foldersStore.tree"
             :active-id="foldersStore.activeFolderId"
             @select="handleFolderSelect"
+            @delete-folder="handleDeleteFolder"
             @drop-bookmark="handleDropBookmark"
           />
           <p v-else class="px-3 text-gray-400 dark:text-gray-500 text-sm">{{ t('folders.empty') }}</p>
@@ -196,6 +197,7 @@ import { useSettingsStore } from "../stores/settings";
 import { useBookmarksStore } from "../stores/bookmarks";
 import { useI18n } from "../composables/useI18n";
 import { useToast } from "../composables/useToast";
+import { useConfirm } from "../composables/useConfirm";
 import FolderTree from "../components/FolderTree.vue";
 import SearchBar from "../components/SearchBar.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
@@ -211,6 +213,7 @@ const foldersStore = useFoldersStore();
 const settingsStore = useSettingsStore();
 const bookmarksStore = useBookmarksStore();
 const toast = useToast();
+const { confirm } = useConfirm();
 
 const sidebarOpen = ref(false);
 const showAddBookmark = ref(false);
@@ -254,6 +257,28 @@ async function handleDropBookmark(data: { bookmarkId: number; folderId: number; 
     }
   } catch {
     toast.error(t('common.saveError'));
+  }
+}
+
+async function handleDeleteFolder(folder: { id: number; name: string }) {
+  const ok = await confirm({
+    title: t('common.delete'),
+    message: t('folders.deleteConfirm', { name: folder.name }),
+    confirmText: t('common.delete'),
+    cancelText: t('common.cancel'),
+    variant: 'danger',
+  });
+  if (!ok) return;
+
+  try {
+    await foldersStore.deleteFolder(folder.id);
+    toast.success(t('toast.folderDeleted'));
+    // Wenn der gelöschte Ordner gerade aktiv war, zur Startseite navigieren
+    if (foldersStore.activeFolderId === null && route.path.startsWith('/folders/')) {
+      router.push('/bookmarks');
+    }
+  } catch (e: any) {
+    toast.error(e.message || t('toast.deleteFailed'));
   }
 }
 

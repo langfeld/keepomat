@@ -237,15 +237,12 @@
       flex-shrink: 0;
     }
     .km-select-dropdown {
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: calc(100% + 4px);
+      position: fixed;
       background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 10px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      z-index: 10;
+      z-index: 2147483647;
       overflow: hidden;
     }
     .km-select-search {
@@ -293,6 +290,35 @@
       width: 14px;
       height: 14px;
       flex-shrink: 0;
+    }
+    .km-select-option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .km-select-option-row .km-folder-delete {
+      display: none;
+      background: none;
+      border: none;
+      padding: 2px;
+      cursor: pointer;
+      color: #9ca3af;
+      border-radius: 4px;
+      line-height: 1;
+      flex-shrink: 0;
+      transition: color 0.1s, background 0.1s;
+    }
+    .km-select-option:hover .km-folder-delete {
+      display: flex;
+    }
+    .km-select-option-row .km-folder-delete:hover {
+      color: #dc2626;
+      background: #fef2f2;
+    }
+    .km-select-option-row .km-folder-delete svg {
+      width: 13px;
+      height: 13px;
     }
     .km-select-no-results {
       padding: 8px 10px;
@@ -667,6 +693,7 @@
           dropdownEl.remove();
           dropdownEl = null;
         }
+        document.removeEventListener("mousedown", handleOutsideClick);
       }
 
       function renderOptions() {
@@ -682,7 +709,7 @@
           const label = (f.icon ? f.icon + " " : "") + f.name;
           const isSelected = String(f.id) === String(selectedFolderId);
           const isHighlighted = highlightIdx === i;
-          html += `<div class="km-select-option${isSelected ? ' km-selected' : ''}${isHighlighted ? ' km-highlighted' : ''}" data-value="${f.id}">${label}</div>`;
+          html += `<div class="km-select-option${isSelected ? ' km-selected' : ''}${isHighlighted ? ' km-highlighted' : ''}" data-value="${f.id}"><div class="km-select-option-row"><span>${label}</span><button type="button" class="km-folder-delete" data-delete-id="${f.id}" title="Ordner löschen"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></div></div>`;
         });
 
         // "Create new" option when search has no results
@@ -695,9 +722,11 @@
 
         optionsContainer.innerHTML = html;
 
-        // Click listeners
+        // Click listeners for select
         optionsContainer.querySelectorAll(".km-select-option").forEach((el) => {
-          el.addEventListener("click", () => {
+          el.addEventListener("click", (ev) => {
+            // Ignore clicks on delete button
+            if (ev.target.closest(".km-folder-delete")) return;
             if (el.dataset.action === "create") {
               createFolderInline(searchValue.trim());
               return;
@@ -705,6 +734,17 @@
             selectedFolderId = el.dataset.value;
             updateTrigger();
             closeDropdown();
+          });
+        });
+
+        // Click listeners for delete buttons
+        optionsContainer.querySelectorAll(".km-folder-delete").forEach((btn) => {
+          btn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            const folderId = btn.dataset.deleteId;
+            if (folderId && confirm("Ordner wirklich löschen?")) {
+              deleteFolderInline(folderId);
+            }
           });
         });
       }
@@ -726,6 +766,25 @@
         }
       }
 
+      async function deleteFolderInline(folderId) {
+        try {
+          await apiRequest("DELETE", "/api/folders/" + folderId);
+          const idx = folderList.findIndex((f) => String(f.id) === String(folderId));
+          if (idx !== -1) folderList.splice(idx, 1);
+          folders = folderList;
+          if (String(selectedFolderId) === String(folderId)) {
+            selectedFolderId = "";
+            updateTrigger();
+          }
+          renderOptions();
+        } catch (err) {
+          const statusArea = overlayEl.querySelector("#km-status-area");
+          if (statusArea) {
+            statusArea.innerHTML = `<div class="km-status km-status-error">Löschen fehlgeschlagen: ${err.message}</div>`;
+          }
+        }
+      }
+
       function openDropdown() {
         if (dropdownEl) { closeDropdown(); return; }
         searchValue = "";
@@ -737,7 +796,13 @@
           <input type="text" class="km-select-search" placeholder="Suchen oder erstellen…" />
           <div class="km-select-options"></div>
         `;
-        wrapper.appendChild(dropdownEl);
+        document.body.appendChild(dropdownEl);
+
+        // Position fixed relative to trigger
+        const triggerRect = trigger.getBoundingClientRect();
+        dropdownEl.style.left = triggerRect.left + "px";
+        dropdownEl.style.width = triggerRect.width + "px";
+        dropdownEl.style.top = (triggerRect.bottom + 4) + "px";
 
         const searchInput = dropdownEl.querySelector(".km-select-search");
         searchInput.focus();
@@ -787,9 +852,11 @@
       }
 
       function handleOutsideClick(e) {
-        if (wrapper && !wrapper.contains(e.target)) {
+        if (
+          wrapper && !wrapper.contains(e.target) &&
+          dropdownEl && !dropdownEl.contains(e.target)
+        ) {
           closeDropdown();
-          document.removeEventListener("mousedown", handleOutsideClick);
         }
       }
 

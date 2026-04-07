@@ -281,6 +281,7 @@ export default {
   // Folders
   "folders.newFolder": "Neuer Ordner",
   "folders.empty": "Keine Ordner",
+  "folders.deleteConfirm": "Ordner \"{name}\" wirklich löschen?",
 
   // New Folder
   "newFolder.title": "Neuer Ordner",
@@ -387,4 +388,5 @@ export default {
   "toast.updateFailed": "Aktualisierung fehlgeschlagen",
   "toast.deleteFailed": "Löschen fehlgeschlagen",
   "toast.folderCreated": "Ordner erstellt",
+  "toast.folderDeleted": "Ordner gelöscht",
 } as const;
