@@ -361,6 +361,7 @@ export default {
   // Common (Searchable Select)
   "common.search": "Search...",
   "common.noResults": "No results",
+  "common.createNew": "Create \"{name}\"",
 
   // Dashboard Quick Start
   "dashboard.quickStart": "Quick Start",
@@ -383,4 +384,5 @@ export default {
   "toast.userDeleted": "User deleted",
   "toast.updateFailed": "Update failed",
   "toast.deleteFailed": "Delete failed",
+  "toast.folderCreated": "Folder created",
 } as const;

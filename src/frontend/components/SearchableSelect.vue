@@ -72,8 +72,26 @@
             <span>{{ option.label }}</span>
           </li>
 
+          <!-- Neu erstellen -->
+          <li
+            v-if="allowCreate && search.trim() && !filteredOptions.length"
+            @click="handleCreate"
+            :class="[
+              'px-3 py-2 rounded-lg text-sm cursor-pointer transition flex items-center gap-2',
+              highlightIndex === 0
+                ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300'
+                : 'text-primary-600 dark:text-primary-400 hover:bg-gray-100 dark:hover:bg-gray-700',
+            ]"
+            role="option"
+          >
+            <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            {{ t('common.createNew', { name: search.trim() }) }}
+          </li>
+
           <!-- Keine Ergebnisse -->
-          <li v-if="!filteredOptions.length" class="px-3 py-2 text-gray-400 dark:text-gray-500 text-sm">
+          <li v-if="!allowCreate && !filteredOptions.length" class="px-3 py-2 text-gray-400 dark:text-gray-500 text-sm">
             {{ t('common.noResults') }}
           </li>
         </ul>
@@ -99,16 +117,19 @@ const props = withDefaults(
     placeholder?: string;
     searchPlaceholder?: string;
     triggerClass?: string;
+    allowCreate?: boolean;
   }>(),
   {
     placeholder: "",
     searchPlaceholder: "",
     triggerClass: "",
+    allowCreate: false,
   }
 );
 
 const emit = defineEmits<{
   (e: "update:modelValue", value: string | number): void;
+  (e: "create", name: string): void;
 }>();
 
 const { t } = useI18n();
@@ -184,8 +205,21 @@ function selectHighlighted() {
     select("");
     return;
   }
+  // If allowCreate is active and no options match, Enter triggers create
+  if (props.allowCreate && search.value.trim() && !filteredOptions.value.length) {
+    handleCreate();
+    return;
+  }
   const opt = filteredOptions.value[highlightIndex.value];
   if (opt) select(opt.value);
+}
+
+function handleCreate() {
+  const name = search.value.trim();
+  if (name) {
+    emit("create", name);
+    close();
+  }
 }
 
 function moveHighlight(delta: number) {

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keepomat – Bookmark Saver
 // @namespace    keepomat
-// @version      1.0.0
+// @version      1.1.0
 // @description  Save bookmarks to your Keepomat instance with one click or Alt+K
 // @author       Keepomat
 // @match        *://*/*
@@ -202,6 +202,105 @@
       font-size: 11px;
       color: #9ca3af;
       margin-top: 2px;
+    }
+
+    /* Searchable Folder Select */
+    .km-select-wrapper {
+      position: relative;
+    }
+    .km-select-trigger {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      font-size: 13px;
+      color: #111827;
+      background: #f9fafb;
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      box-sizing: border-box;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+    }
+    .km-select-trigger:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+    }
+    .km-select-trigger .km-chevron {
+      width: 14px;
+      height: 14px;
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+    .km-select-dropdown {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: calc(100% + 4px);
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      z-index: 10;
+      overflow: hidden;
+    }
+    .km-select-search {
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 13px;
+      color: #111827;
+      background: #f9fafb;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .km-select-search:focus {
+      background: #fff;
+    }
+    .km-select-options {
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .km-select-option {
+      padding: 7px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: #111827;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .km-select-option:hover, .km-select-option.km-highlighted {
+      background: #eef2ff;
+      color: #4338ca;
+    }
+    .km-select-option.km-selected {
+      font-weight: 500;
+      background: #eef2ff80;
+    }
+    .km-select-option.km-create {
+      color: #6366f1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .km-select-option.km-create svg {
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
+    .km-select-no-results {
+      padding: 8px 10px;
+      font-size: 12px;
+      color: #9ca3af;
+    }
+    .km-select-placeholder {
+      color: #9ca3af;
     }
 
     /* FAB Button */
@@ -507,9 +606,12 @@
           </div>
           <div class="km-field">
             <label>Ordner</label>
-            <select id="km-folder">
-              <option value="">Kein Ordner</option>
-            </select>
+            <div class="km-select-wrapper" id="km-folder-wrapper">
+              <button type="button" class="km-select-trigger" id="km-folder-trigger">
+                <span class="km-select-placeholder">Kein Ordner</span>
+                <svg class="km-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+            </div>
           </div>
         </div>
         <div id="km-status-area"></div>
@@ -530,17 +632,175 @@
       if (e.target === overlayEl) closePanel();
     });
 
-    // Ordner laden
+    // Ordner laden & Searchable Select aufbauen
+    let selectedFolderId = "";
+
+    function initFolderSelect(folderList) {
+      const wrapper = overlayEl.querySelector("#km-folder-wrapper");
+      const trigger = overlayEl.querySelector("#km-folder-trigger");
+      let dropdownEl = null;
+      let searchValue = "";
+      let highlightIdx = -1;
+
+      function getFiltered() {
+        if (!searchValue) return folderList;
+        const q = searchValue.toLowerCase();
+        return folderList.filter((f) => f.name.toLowerCase().includes(q));
+      }
+
+      function getLabel() {
+        if (!selectedFolderId) return null;
+        const f = folderList.find((f) => String(f.id) === String(selectedFolderId));
+        return f ? (f.icon ? f.icon + " " : "") + f.name : null;
+      }
+
+      function updateTrigger() {
+        const label = getLabel();
+        trigger.innerHTML = label
+          ? `<span>${label}</span>`
+          : `<span class="km-select-placeholder">Kein Ordner</span>`;
+        trigger.innerHTML += '<svg class="km-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+      }
+
+      function closeDropdown() {
+        if (dropdownEl) {
+          dropdownEl.remove();
+          dropdownEl = null;
+        }
+      }
+
+      function renderOptions() {
+        if (!dropdownEl) return;
+        const optionsContainer = dropdownEl.querySelector(".km-select-options");
+        const filtered = getFiltered();
+        let html = '';
+
+        // "Kein Ordner" option
+        html += `<div class="km-select-option${!selectedFolderId ? ' km-selected' : ''}${highlightIdx === -1 ? ' km-highlighted' : ''}" data-value="">Kein Ordner</div>`;
+
+        filtered.forEach((f, i) => {
+          const label = (f.icon ? f.icon + " " : "") + f.name;
+          const isSelected = String(f.id) === String(selectedFolderId);
+          const isHighlighted = highlightIdx === i;
+          html += `<div class="km-select-option${isSelected ? ' km-selected' : ''}${isHighlighted ? ' km-highlighted' : ''}" data-value="${f.id}">${label}</div>`;
+        });
+
+        // "Create new" option when search has no results
+        if (searchValue.trim() && filtered.length === 0) {
+          html += `<div class="km-select-option km-create" data-action="create">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            „${searchValue.trim()}" erstellen
+          </div>`;
+        }
+
+        optionsContainer.innerHTML = html;
+
+        // Click listeners
+        optionsContainer.querySelectorAll(".km-select-option").forEach((el) => {
+          el.addEventListener("click", () => {
+            if (el.dataset.action === "create") {
+              createFolderInline(searchValue.trim());
+              return;
+            }
+            selectedFolderId = el.dataset.value;
+            updateTrigger();
+            closeDropdown();
+          });
+        });
+      }
+
+      async function createFolderInline(name) {
+        try {
+          const result = await apiRequest("POST", "/api/folders", { name });
+          const newFolder = { id: result.id, name: result.name, icon: result.icon || "" };
+          folderList.push(newFolder);
+          folders = folderList;
+          selectedFolderId = String(newFolder.id);
+          updateTrigger();
+          closeDropdown();
+        } catch (err) {
+          const statusArea = overlayEl.querySelector("#km-status-area");
+          if (statusArea) {
+            statusArea.innerHTML = `<div class="km-status km-status-error">Ordner-Erstellung fehlgeschlagen: ${err.message}</div>`;
+          }
+        }
+      }
+
+      function openDropdown() {
+        if (dropdownEl) { closeDropdown(); return; }
+        searchValue = "";
+        highlightIdx = -1;
+
+        dropdownEl = document.createElement("div");
+        dropdownEl.className = "km-select-dropdown";
+        dropdownEl.innerHTML = `
+          <input type="text" class="km-select-search" placeholder="Suchen oder erstellen…" />
+          <div class="km-select-options"></div>
+        `;
+        wrapper.appendChild(dropdownEl);
+
+        const searchInput = dropdownEl.querySelector(".km-select-search");
+        searchInput.focus();
+
+        searchInput.addEventListener("input", () => {
+          searchValue = searchInput.value;
+          highlightIdx = -1;
+          renderOptions();
+        });
+
+        searchInput.addEventListener("keydown", (e) => {
+          const filtered = getFiltered();
+          const maxIdx = filtered.length - 1;
+          if (e.key === "ArrowDown") {
+            e.preventDefault();
+            highlightIdx = Math.min(maxIdx, highlightIdx + 1);
+            renderOptions();
+          } else if (e.key === "ArrowUp") {
+            e.preventDefault();
+            highlightIdx = Math.max(-1, highlightIdx - 1);
+            renderOptions();
+          } else if (e.key === "Enter") {
+            e.preventDefault();
+            if (searchValue.trim() && filtered.length === 0) {
+              createFolderInline(searchValue.trim());
+            } else if (highlightIdx === -1) {
+              selectedFolderId = "";
+              updateTrigger();
+              closeDropdown();
+            } else if (filtered[highlightIdx]) {
+              selectedFolderId = String(filtered[highlightIdx].id);
+              updateTrigger();
+              closeDropdown();
+            }
+          } else if (e.key === "Escape") {
+            e.preventDefault();
+            closeDropdown();
+          }
+        });
+
+        renderOptions();
+
+        // Close on outside click
+        setTimeout(() => {
+          document.addEventListener("mousedown", handleOutsideClick);
+        }, 0);
+      }
+
+      function handleOutsideClick(e) {
+        if (wrapper && !wrapper.contains(e.target)) {
+          closeDropdown();
+          document.removeEventListener("mousedown", handleOutsideClick);
+        }
+      }
+
+      trigger.addEventListener("click", openDropdown);
+      updateTrigger();
+    }
+
     try {
       folders = await apiRequest("GET", "/api/folders");
-      const select = overlayEl.querySelector("#km-folder");
-      if (select && Array.isArray(folders)) {
-        folders.forEach((f) => {
-          const opt = document.createElement("option");
-          opt.value = f.id;
-          opt.textContent = (f.icon ? f.icon + " " : "") + f.name;
-          select.appendChild(opt);
-        });
+      if (Array.isArray(folders)) {
+        initFolderSelect(folders);
       }
     } catch {
       // Ordner konnten nicht geladen werden – kein Problem
@@ -554,7 +814,7 @@
         .split(",")
         .map((t) => t.trim())
         .filter(Boolean);
-      const folderId = overlayEl.querySelector("#km-folder").value;
+      const folderId = selectedFolderId;
       const statusArea = overlayEl.querySelector("#km-status-area");
 
       if (!url) {

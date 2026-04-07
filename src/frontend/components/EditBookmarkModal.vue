@@ -72,7 +72,9 @@
                 :model-value="''"
                 :options="availableFolderOptions"
                 :placeholder="t('addBookmark.addFolder')"
+                :allow-create="true"
                 @update:model-value="addFolderById"
+                @create="handleCreateFolderMulti"
               />
             </div>
 
@@ -82,7 +84,9 @@
               :model-value="selectedFolderId"
               :options="allFolderOptions"
               :placeholder="t('common.noFolder')"
+              :allow-create="true"
               @update:model-value="selectedFolderId = String($event)"
+              @create="handleCreateFolderSingle"
             />
           </div>
 
@@ -134,6 +138,7 @@ import { ref, computed, onMounted } from "vue";
 import { useFoldersStore } from "../stores/folders";
 import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
+import { useToast } from "../composables/useToast";
 import SearchableSelect from "./SearchableSelect.vue";
 import type { SelectOption } from "./SearchableSelect.vue";
 
@@ -142,6 +147,7 @@ const emit = defineEmits(["close", "saved"]);
 const foldersStore = useFoldersStore();
 const settingsStore = useSettingsStore();
 const { t } = useI18n();
+const toast = useToast();
 
 const isMultiFolder = computed(() => settingsStore.settings.folderMode === "multi");
 
@@ -223,6 +229,34 @@ function addFolder(e: Event) {
 
 function removeFolder(id: number) {
   selectedFolderIds.value = selectedFolderIds.value.filter((fid) => fid !== id);
+}
+
+async function handleCreateFolderMulti(name: string) {
+  try {
+    const res = await foldersStore.createFolder(name);
+    flatFolders.value = flattenFolders(foldersStore.tree);
+    const newId = res?.id || flatFolders.value.find((f) => f.name === name)?.id;
+    if (newId && !selectedFolderIds.value.includes(newId)) {
+      selectedFolderIds.value.push(newId);
+    }
+    toast.success(t('toast.folderCreated'));
+  } catch (e: any) {
+    toast.error(e.message || t('newFolder.createError'));
+  }
+}
+
+async function handleCreateFolderSingle(name: string) {
+  try {
+    const res = await foldersStore.createFolder(name);
+    flatFolders.value = flattenFolders(foldersStore.tree);
+    const newId = res?.id || flatFolders.value.find((f) => f.name === name)?.id;
+    if (newId) {
+      selectedFolderId.value = String(newId);
+    }
+    toast.success(t('toast.folderCreated'));
+  } catch (e: any) {
+    toast.error(e.message || t('newFolder.createError'));
+  }
 }
 
 onMounted(() => {
