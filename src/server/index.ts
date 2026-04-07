@@ -39,8 +39,11 @@ app.use("*", secureHeaders({
   } : {}),
 }));
 
-// CORS – localhost:5173 nur im Development-Modus
+// CORS – TRUSTED_ORIGINS + localhost:5173 im Development-Modus
 const corsOrigins = [process.env.BETTER_AUTH_URL || "http://localhost:3000"];
+if (process.env.TRUSTED_ORIGINS) {
+  corsOrigins.push(...process.env.TRUSTED_ORIGINS.split(",").map(s => s.trim()).filter(Boolean));
+}
 if (process.env.NODE_ENV !== "production") {
   corsOrigins.push("http://localhost:5173");
 }
