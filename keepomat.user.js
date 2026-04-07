@@ -896,7 +896,7 @@
       try {
         const body = { url, title };
         if (tags.length) body.tags = tags;
-        if (folderId) body.folderIds = [folderId];
+        if (folderId) body.folderIds = [Number(folderId)];
 
         await apiRequest("POST", "/api/bookmarks", body);
         statusArea.innerHTML = '<div class="km-status km-status-success">Lesezeichen gespeichert! ✓</div>';
