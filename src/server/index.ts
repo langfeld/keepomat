@@ -132,7 +132,17 @@ if (process.env.NODE_ENV === "production") {
   app.use("/*", serveStatic({ root: frontendPath }));
 
   // SPA-Fallback: Alle nicht-API Routen → index.html
-  app.get("*", serveStatic({ path: resolve(frontendPath, "index.html") }));
+  app.use("*", async (c, next) => {
+    await next();
+    // Wenn keine statische Datei gefunden wurde und es kein API-Request ist → index.html
+    if (c.res.status === 404 && !c.req.path.startsWith("/api")) {
+      const indexPath = resolve(frontendPath, "index.html");
+      const file = Bun.file(indexPath);
+      if (await file.exists()) {
+        return c.html(await file.text());
+      }
+    }
+  });
 }
 
 // ── Server starten ──
