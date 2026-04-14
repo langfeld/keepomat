@@ -14,6 +14,7 @@ export const useSettingsStore = defineStore("settings", () => {
     aiModel: null,
     aiBaseUrl: null,
     showAiSummary: true,
+    aiCreateFolders: true,
   });
   const loading = ref(false);
 

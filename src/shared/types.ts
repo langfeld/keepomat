@@ -64,6 +64,7 @@ export interface UserSettings {
   aiModel: string | null;
   aiBaseUrl: string | null;
   showAiSummary: boolean;
+  aiCreateFolders: boolean;
 }
 
 export interface ApiKey {

@@ -67,6 +67,8 @@ export default {
   "settings.folderModeMultiHint": "Ein Lesezeichen kann in mehreren Ordnern sein.",
   "settings.showAiSummary": "AI-Zusammenfassung anzeigen",
   "settings.showAiSummaryHint": "Zeigt die AI-generierte Zusammenfassung bei Lesezeichen an. Die Zusammenfassung wird weiterhin für die AI-Suche generiert.",
+  "settings.aiCreateFolders": "AI darf Ordner erstellen",
+  "settings.aiCreateFoldersHint": "Wenn aktiviert, erstellt die AI automatisch neue Ordner (mit 🤖-Icon), wenn kein passender Ordner existiert. Deaktivieren, um nur in vorhandene Ordner einzusortieren.",
   "settings.apiKeys": "API-Schlüssel",
   "settings.apiKeysDescription": "API-Schlüssel werden für das Userscript, den Telegram-Bot und den externen API-Zugriff benötigt. Erstelle einen Schlüssel und verwende ihn im Userscript oder in eigenen Integrationen.",
   "settings.apiKeyNew": "Neuer Schlüssel",
@@ -282,7 +284,13 @@ export default {
   "folders.newFolder": "Neuer Ordner",
   "folders.empty": "Keine Ordner",
   "folders.deleteConfirm": "Ordner \"{name}\" wirklich löschen?",
-
+  "folders.aiDropLabel": "AI-Ordner erstellen",
+  "folders.aiDropCreating": "AI denkt nach…",
+  "folders.aiDropSuccess": "Ordner \"{folder}\" per AI erstellt",
+  "folders.aiDropError": "AI-Ordner konnte nicht erstellt werden",  "folders.aiSortLabel": "AI einsortieren",
+  "folders.aiSortWorking": "AI sortiert ein\u2026",
+  "folders.aiSortSuccess": "In \"{folder}\" einsortiert",
+  "folders.aiSortError": "AI konnte keinen passenden Ordner finden",
   // New Folder
   "newFolder.title": "Neuer Ordner",
   "newFolder.name": "Name *",
@@ -294,6 +302,14 @@ export default {
   "newFolder.creating": "Erstellen...",
   "newFolder.create": "Erstellen",
   "newFolder.createError": "Fehler beim Erstellen",
+
+  // Edit Folder
+  "editFolder.title": "Ordner bearbeiten",
+  "editFolder.name": "Name *",
+  "editFolder.parent": "Überordner",
+  "editFolder.icon": "Icon (Emoji)",
+  "editFolder.removeIcon": "Icon entfernen",
+  "editFolder.saveError": "Fehler beim Speichern",
 
   // Search
   "search.title": "Suche",
@@ -389,4 +405,5 @@ export default {
   "toast.deleteFailed": "Löschen fehlgeschlagen",
   "toast.folderCreated": "Ordner erstellt",
   "toast.folderDeleted": "Ordner gelöscht",
+  "toast.folderSaved": "Ordner gespeichert",
 } as const;

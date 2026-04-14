@@ -71,7 +71,7 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
 
   // Session laden (wenn noch nicht geladen)
@@ -81,20 +81,18 @@ router.beforeEach(async (to, from, next) => {
 
   // Authentifizierung prüfen
   if (to.meta.auth && !authStore.isAuthenticated) {
-    return next({ name: "login", query: { redirect: to.fullPath } });
+    return { name: "login", query: { redirect: to.fullPath } };
   }
 
   // Gast-Seiten (Login/Register) — wenn eingeloggt → Dashboard
   if (to.meta.guest && authStore.isAuthenticated) {
-    return next({ name: "dashboard" });
+    return { name: "dashboard" };
   }
 
   // Admin-Check
   if (to.meta.admin && !authStore.isAdmin) {
-    return next({ name: "dashboard" });
+    return { name: "dashboard" };
   }
-
-  next();
 });
 
 export { router };

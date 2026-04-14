@@ -418,6 +418,212 @@ bookmarkRoutes.delete("/:id", async (c) => {
   return c.json({ success: true });
 });
 
+// AI-Ordner für bestehendes Bookmark erstellen
+bookmarkRoutes.post("/:id/ai-folder", async (c) => {
+  const user = c.get("user" as never) as any;
+  const id = parseInt(c.req.param("id"));
+
+  const bookmark = db
+    .select()
+    .from(schema.bookmarks)
+    .where(and(eq(schema.bookmarks.id, id), eq(schema.bookmarks.userId, user.id)))
+    .get();
+
+  if (!bookmark) {
+    return c.json({ error: "Bookmark nicht gefunden" }, 404);
+  }
+
+  if (!isAiConfiguredForUser(user.id)) {
+    return c.json({ error: "AI nicht konfiguriert" }, 400);
+  }
+
+  const settings = db
+    .select()
+    .from(schema.userSettings)
+    .where(eq(schema.userSettings.userId, user.id))
+    .get();
+
+  const language = settings?.language || "de";
+
+  const existingTags = db
+    .select()
+    .from(schema.tags)
+    .where(eq(schema.tags.userId, user.id))
+    .all();
+
+  const existingFolders = db
+    .select()
+    .from(schema.folders)
+    .where(eq(schema.folders.userId, user.id))
+    .all();
+
+  // Schnelle AI-Config ohne Thinking für interaktive Nutzung
+  const aiConfig = { ...getEffectiveAiConfig(user.id), thinkingEnabled: false };
+
+  let suggestion;
+  try {
+    suggestion = await analyzeBookmark(
+      bookmark.url,
+      bookmark.title,
+      bookmark.description,
+      existingTags,
+      existingFolders,
+      language,
+      aiConfig
+    );
+  } catch (error) {
+    console.error(`❌ AI folder analysis failed for bookmark #${id}:`, error);
+    return c.json({ error: "AI-Analyse fehlgeschlagen" }, 500);
+  }
+
+  if (!suggestion) {
+    return c.json({ error: "AI-Analyse lieferte kein Ergebnis" }, 422);
+  }
+
+  // Prüfen ob die AI einen existierenden Ordner vorgeschlagen hat
+  let targetFolder = null;
+
+  if (suggestion.folderId) {
+    targetFolder = db
+      .select()
+      .from(schema.folders)
+      .where(and(eq(schema.folders.id, suggestion.folderId), eq(schema.folders.userId, user.id)))
+      .get() || null;
+  }
+
+  // Wenn kein existierender Ordner gefunden, neuen erstellen
+  if (!targetFolder && suggestion.folderName) {
+    targetFolder = db
+      .insert(schema.folders)
+      .values({ name: suggestion.folderName, icon: "🤖", userId: user.id })
+      .returning()
+      .get();
+  }
+
+  if (!targetFolder) {
+    return c.json({ error: "AI konnte keinen passenden Ordner bestimmen" }, 422);
+  }
+
+  // Bookmark dem Ordner zuweisen (bestehende Zuweisungen im single-Modus entfernen)
+  const folderMode = settings?.folderMode || "single";
+  if (folderMode === "single") {
+    db.delete(schema.bookmarkFolders)
+      .where(eq(schema.bookmarkFolders.bookmarkId, id))
+      .run();
+  }
+
+  db.insert(schema.bookmarkFolders)
+    .values({ bookmarkId: id, folderId: targetFolder.id })
+    .onConflictDoNothing()
+    .run();
+
+  return c.json({ folder: targetFolder });
+});
+
+// AI-Einsortierung in bestehenden Ordner (ohne neuen Ordner zu erstellen)
+bookmarkRoutes.post("/:id/ai-sort", async (c) => {
+  const user = c.get("user" as never) as any;
+  const id = parseInt(c.req.param("id"));
+
+  const bookmark = db
+    .select()
+    .from(schema.bookmarks)
+    .where(and(eq(schema.bookmarks.id, id), eq(schema.bookmarks.userId, user.id)))
+    .get();
+
+  if (!bookmark) {
+    return c.json({ error: "Bookmark nicht gefunden" }, 404);
+  }
+
+  if (!isAiConfiguredForUser(user.id)) {
+    return c.json({ error: "AI nicht konfiguriert" }, 400);
+  }
+
+  const settings = db
+    .select()
+    .from(schema.userSettings)
+    .where(eq(schema.userSettings.userId, user.id))
+    .get();
+
+  const language = settings?.language || "de";
+
+  const existingTags = db
+    .select()
+    .from(schema.tags)
+    .where(eq(schema.tags.userId, user.id))
+    .all();
+
+  const existingFolders = db
+    .select()
+    .from(schema.folders)
+    .where(eq(schema.folders.userId, user.id))
+    .all();
+
+  if (existingFolders.length === 0) {
+    return c.json({ error: "Keine Ordner vorhanden" }, 422);
+  }
+
+  const aiConfig = { ...getEffectiveAiConfig(user.id), thinkingEnabled: false };
+
+  let suggestion;
+  try {
+    suggestion = await analyzeBookmark(
+      bookmark.url,
+      bookmark.title,
+      bookmark.description,
+      existingTags,
+      existingFolders,
+      language,
+      aiConfig
+    );
+  } catch (error) {
+    console.error(`\u274C AI sort analysis failed for bookmark #${id}:`, error);
+    return c.json({ error: "AI-Analyse fehlgeschlagen" }, 500);
+  }
+
+  if (!suggestion) {
+    return c.json({ error: "AI-Analyse lieferte kein Ergebnis" }, 422);
+  }
+
+  // Nur existierende Ordner zuweisen, keinen neuen erstellen
+  let targetFolder = null;
+
+  if (suggestion.folderId) {
+    targetFolder = db
+      .select()
+      .from(schema.folders)
+      .where(and(eq(schema.folders.id, suggestion.folderId), eq(schema.folders.userId, user.id)))
+      .get() || null;
+  }
+
+  // Fallback: Ordner per Name suchen
+  if (!targetFolder && suggestion.folderName) {
+    targetFolder = db
+      .select()
+      .from(schema.folders)
+      .where(and(eq(schema.folders.name, suggestion.folderName), eq(schema.folders.userId, user.id)))
+      .get() || null;
+  }
+
+  if (!targetFolder) {
+    return c.json({ error: "Kein passender Ordner gefunden" }, 422);
+  }
+
+  const folderMode = settings?.folderMode || "single";
+  if (folderMode === "single") {
+    db.delete(schema.bookmarkFolders)
+      .where(eq(schema.bookmarkFolders.bookmarkId, id))
+      .run();
+  }
+
+  db.insert(schema.bookmarkFolders)
+    .values({ bookmarkId: id, folderId: targetFolder.id })
+    .onConflictDoNothing()
+    .run();
+
+  return c.json({ folder: targetFolder });
+});
+
 // AI-Analyse async durchführen
 async function captureAndSaveScreenshot(bookmarkId: number, url: string): Promise<string | null> {
   try {
@@ -500,6 +706,7 @@ async function analyzeAndUpdateBookmark(
 
     // Folder vorschlagen
     const folderMode = settings?.folderMode || "single";
+    const aiCreateFolders = settings?.aiCreateFolders !== false; // default: true
     const hasFolder = db
       .select()
       .from(schema.bookmarkFolders)
@@ -511,15 +718,38 @@ async function analyzeAndUpdateBookmark(
     const shouldAssignFolder = folderMode === "multi" || !hasFolder;
 
     if (shouldAssignFolder && suggestion.folderId) {
-      db.insert(schema.bookmarkFolders)
-        .values({ bookmarkId, folderId: suggestion.folderId })
-        .onConflictDoNothing()
-        .run();
-    } else if (shouldAssignFolder && suggestion.folderName) {
-      // Neuen Ordner erstellen, wenn vorgeschlagen
+      // Prüfen ob der vorgeschlagene Ordner tatsächlich existiert
+      const folderExists = db
+        .select({ id: schema.folders.id })
+        .from(schema.folders)
+        .where(and(eq(schema.folders.id, suggestion.folderId), eq(schema.folders.userId, userId)))
+        .get();
+
+      if (folderExists) {
+        db.insert(schema.bookmarkFolders)
+          .values({ bookmarkId, folderId: suggestion.folderId })
+          .onConflictDoNothing()
+          .run();
+      } else if (suggestion.folderName && aiCreateFolders) {
+        // AI hat eine ungültige folderId vorgeschlagen, aber einen Ordnernamen – neuen Ordner erstellen
+        const newFolder = db
+          .insert(schema.folders)
+          .values({ name: suggestion.folderName, icon: "🤖", userId })
+          .returning()
+          .get();
+
+        if (newFolder) {
+          db.insert(schema.bookmarkFolders)
+            .values({ bookmarkId, folderId: newFolder.id })
+            .onConflictDoNothing()
+            .run();
+        }
+      }
+    } else if (shouldAssignFolder && suggestion.folderName && aiCreateFolders) {
+      // Neuen Ordner erstellen, wenn vorgeschlagen und erlaubt
       const newFolder = db
         .insert(schema.folders)
-        .values({ name: suggestion.folderName, userId })
+        .values({ name: suggestion.folderName, icon: "🤖", userId })
         .returning()
         .get();
 

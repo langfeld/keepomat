@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keepomat – Bookmark Saver
 // @namespace    keepomat
-// @version      1.1.0
+// @version      1.2.0
 // @description  Save bookmarks to your Keepomat instance with one click or Alt+K
 // @author       Keepomat
 // @match        *://*/*
@@ -23,6 +23,7 @@
   const CONFIG_KEYS = {
     serverUrl: "keepomat_server_url",
     apiKey: "keepomat_api_key",
+    autoDock: "keepomat_auto_dock",
   };
 
   function getConfig() {
@@ -366,6 +367,37 @@
       transform: scale(1.12);
     }
 
+    /* Docked – FAB minimiert am Rand */
+    #keepomat-fab.km-docked {
+      transform: translate(var(--dock-x, 0%), var(--dock-y, 0%));
+      opacity: 0.25;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  opacity 0.3s ease,
+                  box-shadow 0.3s ease;
+    }
+    #keepomat-fab.km-docked:hover {
+      transform: translate(0%, 0%) scale(1.08);
+      opacity: 1;
+      box-shadow: 0 4px 14px rgba(59,130,246,0.5);
+    }
+
+    /* Setup checkbox */
+    .km-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: #374151;
+    }
+    .km-checkbox-label input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: #6366f1;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
     /* Setup-Modus */
     .km-setup-info {
       background: #eff6ff;
@@ -414,9 +446,11 @@
     };
   }
 
-  function saveFabPosition(x, y) {
+  function saveFabPosition(x, y, dockedEdges) {
     const size = 40;
-    GM_setValue(FAB_POS_KEY, JSON.stringify(absoluteToAnchored(x, y, size)));
+    const pos = absoluteToAnchored(x, y, size);
+    if (dockedEdges && dockedEdges.length > 0) pos.dockedEdges = dockedEdges;
+    GM_setValue(FAB_POS_KEY, JSON.stringify(pos));
   }
 
   function clampPosition(x, y, size) {
@@ -428,6 +462,53 @@
     };
   }
 
+  // ── Edge Docking ──
+  const DOCK_THRESHOLD = 5;
+
+  function detectDockedEdges(x, y, size) {
+    const edges = [];
+    if (x <= DOCK_THRESHOLD) edges.push("left");
+    if (x >= window.innerWidth - size - DOCK_THRESHOLD) edges.push("right");
+    if (y <= DOCK_THRESHOLD) edges.push("top");
+    if (y >= window.innerHeight - size - DOCK_THRESHOLD) edges.push("bottom");
+    return edges;
+  }
+
+  function setDockCSS(fab, edges) {
+    let dockX = "0%", dockY = "0%";
+    if (edges.includes("left")) dockX = "-72%";
+    if (edges.includes("right")) dockX = "72%";
+    if (edges.includes("top")) dockY = "-72%";
+    if (edges.includes("bottom")) dockY = "72%";
+    fab.style.setProperty("--dock-x", dockX);
+    fab.style.setProperty("--dock-y", dockY);
+  }
+
+  function applyDocking(fab, edges, animate) {
+    fab.classList.remove("km-docked");
+    if (!edges || edges.length === 0) {
+      fab.style.removeProperty("--dock-x");
+      fab.style.removeProperty("--dock-y");
+      return;
+    }
+    setDockCSS(fab, edges);
+    if (animate) {
+      requestAnimationFrame(() => fab.classList.add("km-docked"));
+    } else {
+      fab.classList.add("km-docked");
+    }
+  }
+
+  function removeDocking(fab) {
+    if (!fab.classList.contains("km-docked")) return;
+    fab.style.transition = "none";
+    fab.classList.remove("km-docked");
+    fab.style.removeProperty("--dock-x");
+    fab.style.removeProperty("--dock-y");
+    fab.offsetHeight; // force reflow
+    fab.style.transition = "";
+  }
+
   function applyFabPosition(fab) {
     const pos = getFabPosition();
     const size = 40;
@@ -437,6 +518,12 @@
       const clamped = clampPosition(x, y, size);
       fab.style.left = clamped.x + "px";
       fab.style.top = clamped.y + "px";
+      // Restore docked state (without animation on page load)
+      if (pos.dockedEdges && pos.dockedEdges.length > 0) {
+        applyDocking(fab, pos.dockedEdges, false);
+      } else {
+        fab.classList.remove("km-docked");
+      }
     } else {
       fab.style.left = (window.innerWidth - size - 20) + "px";
       fab.style.top = (window.innerHeight - size - 20) + "px";
@@ -460,6 +547,7 @@
 
     function onPointerDown(e) {
       if (e.button !== 0) return;
+      removeDocking(fab);
       isDragging = false;
       wasDragged = false;
       startX = e.clientX;
@@ -493,7 +581,14 @@
       fab.classList.remove("km-dragging");
 
       if (isDragging) {
-        saveFabPosition(fab.offsetLeft, fab.offsetTop);
+        const x = fab.offsetLeft;
+        const y = fab.offsetTop;
+        const autoDock = GM_getValue(CONFIG_KEYS.autoDock, true);
+        const edges = autoDock ? detectDockedEdges(x, y, 40) : [];
+        saveFabPosition(x, y, edges);
+        if (edges.length > 0) {
+          applyDocking(fab, edges, true);
+        }
         isDragging = false;
       }
     }
@@ -557,6 +652,13 @@
             <label>API-Schlüssel</label>
             <input type="text" id="km-apikey" placeholder="km_..." value="${config.apiKey}" />
           </div>
+          <div class="km-field" style="margin-top:16px;padding-top:12px;border-top:1px solid #e5e7eb">
+            <label class="km-checkbox-label">
+              <input type="checkbox" id="km-autodock" ${GM_getValue(CONFIG_KEYS.autoDock, true) ? "checked" : ""} />
+              Icon am Rand minimieren
+            </label>
+            <div class="km-hint">Beim Ziehen an den Bildschirmrand wird das Icon animiert minimiert</div>
+          </div>
         </div>
         <div id="km-status-area"></div>
         <div class="km-footer">
@@ -573,6 +675,18 @@
     overlayEl.querySelector("#km-cancel").addEventListener("click", closePanel);
     overlayEl.addEventListener("click", (e) => {
       if (e.target === overlayEl) closePanel();
+    });
+
+    overlayEl.querySelector("#km-autodock").addEventListener("change", (e) => {
+      GM_setValue(CONFIG_KEYS.autoDock, e.target.checked);
+      // Beim Deaktivieren: FAB sofort undocken
+      if (!e.target.checked) {
+        const fab = document.getElementById("keepomat-fab");
+        if (fab && fab.classList.contains("km-docked")) {
+          removeDocking(fab);
+          saveFabPosition(fab.offsetLeft, fab.offsetTop);
+        }
+      }
     });
 
     overlayEl.querySelector("#km-connect").addEventListener("click", async () => {

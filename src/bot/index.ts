@@ -167,9 +167,28 @@ export async function startBotForUser(userId: string, token: string): Promise<{ 
       }
     });
 
-    // Bot starten (Long Polling)
+    // Bot starten (Long Polling) – mit Error-Handler für 409 Conflict
+    bot.catch((err) => {
+      const e = err.error;
+      // 409 = gleicher Token wird von einer anderen Instanz gepollt (z.B. Production)
+      if (e && typeof e === "object" && "error_code" in e && (e as any).error_code === 409) {
+        console.warn(`⚠️  Telegram-Bot für User ${userId}: Token wird bereits von einer anderen Instanz verwendet – Bot wird übersprungen.`);
+        stopBotForUser(userId);
+        return;
+      }
+      console.error(`❌ Telegram-Bot-Fehler für User ${userId}:`, e);
+    });
+
     bot.start({
       onStart: () => console.log(`🤖 Telegram-Bot gestartet für User ${userId} (@${botInfo.username})`),
+    }).catch((err: any) => {
+      // 409 Conflict: Token wird von einer anderen Bot-Instanz gepollt
+      if (err?.error_code === 409 || err?.message?.includes("409") || err?.message?.includes("Conflict")) {
+        console.warn(`⚠️  Telegram-Bot für User ${userId}: Konflikt – eine andere Instanz nutzt diesen Token bereits. Bot wird deaktiviert.`);
+      } else {
+        console.error(`❌ Telegram-Bot für User ${userId} unerwartet gestoppt:`, err?.message || err);
+      }
+      activeBots.delete(userId);
     });
 
     activeBots.set(userId, bot);
@@ -217,7 +236,11 @@ export async function startAllUserBots() {
   console.log(`🤖 Starte ${usersWithBots.length} Telegram-Bot(s)...`);
 
   for (const user of usersWithBots) {
-    await startBotForUser(user.userId, user.telegramBotToken!);
+    try {
+      await startBotForUser(user.userId, user.telegramBotToken!);
+    } catch (err: any) {
+      console.warn(`⚠️  Bot-Start für User ${user.userId} übersprungen: ${err?.message || err}`);
+    }
   }
 }
 

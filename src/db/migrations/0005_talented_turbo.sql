@@ -1,0 +1,1 @@
+ALTER TABLE `user_settings` ADD `ai_create_folders` integer DEFAULT true NOT NULL;

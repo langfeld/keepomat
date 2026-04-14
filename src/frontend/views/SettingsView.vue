@@ -94,6 +94,30 @@
             </div>
             <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('settings.showAiSummaryHint') }}</p>
           </div>
+
+          <!-- AI-Ordnererstellung -->
+          <div>
+            <div class="flex items-center gap-3">
+              <button
+                @click="saveSetting('aiCreateFolders', !settingsStore.settings?.aiCreateFolders)"
+                :class="[
+                  'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
+                  settingsStore.settings?.aiCreateFolders ? 'bg-primary-500' : 'bg-gray-300 dark:bg-gray-600'
+                ]"
+                role="switch"
+                :aria-checked="settingsStore.settings?.aiCreateFolders"
+              >
+                <span
+                  :class="[
+                    'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                    settingsStore.settings?.aiCreateFolders ? 'translate-x-6' : 'translate-x-1'
+                  ]"
+                />
+              </button>
+              <label class="font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('settings.aiCreateFolders') }}</label>
+            </div>
+            <p class="mt-1 text-gray-400 dark:text-gray-500 text-xs">{{ t('settings.aiCreateFoldersHint') }}</p>
+          </div>
         </div>
       </div>
 

@@ -8,6 +8,7 @@
       :depth="0"
       @select="$emit('select', $event)"
       @delete-folder="$emit('delete-folder', $event)"
+      @edit-folder="$emit('edit-folder', $event)"
       @drop-bookmark="$emit('drop-bookmark', $event)"
     />
   </div>
@@ -21,5 +22,5 @@ defineProps<{
   activeId: number | null;
 }>();
 
-defineEmits(["select", "delete-folder", "drop-bookmark"]);
+defineEmits(["select", "delete-folder", "edit-folder", "drop-bookmark"]);
 </script>

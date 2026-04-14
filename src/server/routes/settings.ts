@@ -65,6 +65,7 @@ settingsRoutes.patch("/", async (c) => {
   if (data.aiModel !== undefined) updateData.aiModel = data.aiModel;
   if (data.aiBaseUrl !== undefined) updateData.aiBaseUrl = data.aiBaseUrl;
   if (data.showAiSummary !== undefined) updateData.showAiSummary = data.showAiSummary;
+  if (data.aiCreateFolders !== undefined) updateData.aiCreateFolders = data.aiCreateFolders;
   // Telegram Bot Token
   if (data.telegramBotToken !== undefined) updateData.telegramBotToken = data.telegramBotToken;
 

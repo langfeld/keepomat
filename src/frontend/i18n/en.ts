@@ -67,6 +67,8 @@ export default {
   "settings.folderModeMultiHint": "A bookmark can be in multiple folders.",
   "settings.showAiSummary": "Show AI summary",
   "settings.showAiSummaryHint": "Shows the AI-generated summary on bookmarks. The summary is still generated for AI search.",
+  "settings.aiCreateFolders": "Allow AI to create folders",
+  "settings.aiCreateFoldersHint": "When enabled, the AI automatically creates new folders (with 🤖 icon) when no matching folder exists. Disable to only sort into existing folders.",
   "settings.apiKeys": "API Keys",
   "settings.apiKeysDescription": "API keys are required for the userscript, the Telegram bot and external API access. Create a key and use it in the userscript or your own integrations.",
   "settings.apiKeyNew": "New key",
@@ -280,7 +282,13 @@ export default {
   "folders.newFolder": "New folder",
   "folders.empty": "No folders",
   "folders.deleteConfirm": "Really delete folder \"{name}\"?",
-
+  "folders.aiDropLabel": "Create AI folder",
+  "folders.aiDropCreating": "AI is thinking…",
+  "folders.aiDropSuccess": "AI created folder \"{folder}\"",
+  "folders.aiDropError": "Could not create AI folder",  "folders.aiSortLabel": "AI sort into folder",
+  "folders.aiSortWorking": "AI is sorting\u2026",
+  "folders.aiSortSuccess": "Sorted into \"{folder}\"",
+  "folders.aiSortError": "AI could not find a matching folder",
   // New Folder
   "newFolder.title": "New folder",
   "newFolder.name": "Name *",
@@ -292,6 +300,14 @@ export default {
   "newFolder.creating": "Creating...",
   "newFolder.create": "Create",
   "newFolder.createError": "Failed to create",
+
+  // Edit Folder
+  "editFolder.title": "Edit folder",
+  "editFolder.name": "Name *",
+  "editFolder.parent": "Parent folder",
+  "editFolder.icon": "Icon (Emoji)",
+  "editFolder.removeIcon": "Remove icon",
+  "editFolder.saveError": "Failed to save",
 
   // Search
   "search.title": "Search",
@@ -387,4 +403,5 @@ export default {
   "toast.deleteFailed": "Delete failed",
   "toast.folderCreated": "Folder created",
   "toast.folderDeleted": "Folder deleted",
+  "toast.folderSaved": "Folder saved",
 } as const;

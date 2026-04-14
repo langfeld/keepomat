@@ -78,12 +78,77 @@
             </button>
           </div>
 
+          <!-- AI Drop Target (beim Draggen oder während AI arbeitet sichtbar) -->
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out"
+            enter-from-class="opacity-0 -translate-y-2 max-h-0"
+            enter-to-class="opacity-100 translate-y-0 max-h-16"
+            leave-active-class="transition-all duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0 max-h-16"
+            leave-to-class="opacity-0 -translate-y-2 max-h-0"
+          >
+            <div
+              v-if="isDraggingBookmark || aiCreatingFolder"
+              @dragover.prevent="onAiDropOver"
+              @dragleave="onAiDropLeave"
+              @drop.prevent="onAiDrop"
+              :class="[
+                'flex items-center gap-2 mx-1 mb-1 px-3 py-2 rounded-lg text-sm border-2 border-dashed transition-all overflow-hidden',
+                aiCreatingFolder
+                  ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 text-amber-700 dark:text-amber-300 animate-pulse cursor-wait'
+                  : aiDropOver
+                    ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 text-amber-700 dark:text-amber-300 scale-[1.02]'
+                    : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 cursor-pointer'
+              ]"
+            >
+              <span :class="['text-base shrink-0', aiCreatingFolder ? 'animate-bounce' : '']">🤖</span>
+              <span class="truncate font-medium">{{ aiCreatingFolder ? t('folders.aiDropCreating') : t('folders.aiDropLabel') }}</span>
+              <svg v-if="aiCreatingFolder" class="w-4 h-4 animate-spin shrink-0 ml-auto text-amber-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </div>
+          </Transition>
+
+          <!-- AI Sort Drop Target (in bestehenden Ordner einsortieren) -->
+          <Transition
+            enter-active-class="transition-all duration-200 ease-out delay-75"
+            enter-from-class="opacity-0 -translate-y-2 max-h-0"
+            enter-to-class="opacity-100 translate-y-0 max-h-16"
+            leave-active-class="transition-all duration-150 ease-in"
+            leave-from-class="opacity-100 translate-y-0 max-h-16"
+            leave-to-class="opacity-0 -translate-y-2 max-h-0"
+          >
+            <div
+              v-if="(isDraggingBookmark || aiSorting) && foldersStore.tree.length"
+              @dragover.prevent="onAiSortOver"
+              @dragleave="onAiSortLeave"
+              @drop.prevent="onAiSortDrop"
+              :class="[
+                'flex items-center gap-2 mx-1 mb-1 px-3 py-2 rounded-lg text-sm border-2 border-dashed transition-all overflow-hidden',
+                aiSorting
+                  ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-500 text-primary-700 dark:text-primary-300 animate-pulse cursor-wait'
+                  : aiSortOver
+                    ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-500 text-primary-700 dark:text-primary-300 scale-[1.02]'
+                    : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 cursor-pointer'
+              ]"
+            >
+              <span :class="['text-base shrink-0', aiSorting ? 'animate-bounce' : '']">📂</span>
+              <span class="truncate font-medium">{{ aiSorting ? t('folders.aiSortWorking') : t('folders.aiSortLabel') }}</span>
+              <svg v-if="aiSorting" class="w-4 h-4 animate-spin shrink-0 ml-auto text-primary-500" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </div>
+          </Transition>
+
           <FolderTree
             v-if="foldersStore.tree.length"
             :folders="foldersStore.tree"
             :active-id="foldersStore.activeFolderId"
             @select="handleFolderSelect"
             @delete-folder="handleDeleteFolder"
+            @edit-folder="handleEditFolder"
             @drop-bookmark="handleDropBookmark"
           />
           <p v-else class="px-3 text-gray-400 dark:text-gray-500 text-sm">{{ t('folders.empty') }}</p>
@@ -185,11 +250,12 @@
     <!-- Modals -->
     <AddBookmarkModal v-if="showAddBookmark" @close="showAddBookmark = false" />
     <NewFolderModal v-if="showNewFolder" @close="showNewFolder = false" />
+    <EditFolderModal v-if="editingFolder" :folder="editingFolder" @close="editingFolder = null" @saved="handleFolderSaved" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useFoldersStore } from "../stores/folders";
@@ -203,6 +269,7 @@ import SearchBar from "../components/SearchBar.vue";
 import ThemeToggle from "../components/ThemeToggle.vue";
 import AddBookmarkModal from "../components/AddBookmarkModal.vue";
 import NewFolderModal from "../components/NewFolderModal.vue";
+import EditFolderModal from "../components/EditFolderModal.vue";
 
 const { t } = useI18n();
 
@@ -218,6 +285,13 @@ const { confirm } = useConfirm();
 const sidebarOpen = ref(false);
 const showAddBookmark = ref(false);
 const showNewFolder = ref(false);
+const editingFolder = ref<any>(null);
+const isDraggingBookmark = ref(false);
+const aiDropOver = ref(false);
+const aiCreatingFolder = ref(false);
+const aiSortOver = ref(false);
+const aiSorting = ref(false);
+let dragEnterCount = 0;
 
 const userInitials = computed(() => {
   const name = authStore.user?.name || "";
@@ -282,8 +356,129 @@ async function handleDeleteFolder(folder: { id: number; name: string }) {
   }
 }
 
+function handleEditFolder(folder: any) {
+  editingFolder.value = folder;
+}
+
+function handleFolderSaved() {
+  editingFolder.value = null;
+  toast.success(t('toast.folderSaved'));
+}
+
 function handleQuickSearch(query: string) {
   router.push({ path: "/search", query: { q: query } });
+}
+
+// Global Drag-Erkennung: zeigt AI-Drop-Target nur beim Bookmark-Draggen
+function onGlobalDragEnter(e: DragEvent) {
+  if (e.dataTransfer?.types.includes("application/x-bookmark-id")) {
+    dragEnterCount++;
+    isDraggingBookmark.value = true;
+  }
+}
+
+function onGlobalDragLeave() {
+  dragEnterCount--;
+  if (dragEnterCount <= 0) {
+    dragEnterCount = 0;
+    isDraggingBookmark.value = false;
+    aiDropOver.value = false;
+  }
+}
+
+function onGlobalDrop() {
+  dragEnterCount = 0;
+  isDraggingBookmark.value = false;
+  aiDropOver.value = false;
+  aiSortOver.value = false;
+}
+
+function onGlobalDragEnd() {
+  dragEnterCount = 0;
+  isDraggingBookmark.value = false;
+  aiDropOver.value = false;
+  aiSortOver.value = false;
+}
+
+// AI Drop-Target Handlers
+function onAiDropOver(event: DragEvent) {
+  if (event.dataTransfer?.types.includes("application/x-bookmark-id")) {
+    aiDropOver.value = true;
+    event.dataTransfer.dropEffect = "move";
+  }
+}
+
+function onAiDropLeave() {
+  aiDropOver.value = false;
+}
+
+async function onAiDrop(event: DragEvent) {
+  aiDropOver.value = false;
+  const bookmarkId = event.dataTransfer?.getData("application/x-bookmark-id");
+  if (!bookmarkId || aiCreatingFolder.value) return;
+
+  aiCreatingFolder.value = true;
+  try {
+    const res = await fetch(`/api/bookmarks/${bookmarkId}/ai-folder`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.ok) {
+      const { folder } = await res.json();
+      await foldersStore.fetchTree();
+      toast.success(t('folders.aiDropSuccess', { folder: folder.name }));
+      if (route.path === "/bookmarks" || route.path.startsWith("/folders/")) {
+        await bookmarksStore.fetchBookmarks();
+      }
+    } else {
+      const err = await res.json().catch(() => null);
+      toast.error(err?.error || t('folders.aiDropError'));
+    }
+  } catch {
+    toast.error(t('folders.aiDropError'));
+  } finally {
+    aiCreatingFolder.value = false;
+  }
+}
+
+// AI Sort Drop-Target Handlers
+function onAiSortOver(event: DragEvent) {
+  if (event.dataTransfer?.types.includes("application/x-bookmark-id")) {
+    aiSortOver.value = true;
+    event.dataTransfer.dropEffect = "move";
+  }
+}
+
+function onAiSortLeave() {
+  aiSortOver.value = false;
+}
+
+async function onAiSortDrop(event: DragEvent) {
+  aiSortOver.value = false;
+  const bookmarkId = event.dataTransfer?.getData("application/x-bookmark-id");
+  if (!bookmarkId || aiSorting.value) return;
+
+  aiSorting.value = true;
+  try {
+    const res = await fetch(`/api/bookmarks/${bookmarkId}/ai-sort`, {
+      method: "POST",
+      credentials: "include",
+    });
+    if (res.ok) {
+      const { folder } = await res.json();
+      toast.success(t('folders.aiSortSuccess', { folder: folder.name }));
+      if (route.path === "/bookmarks" || route.path.startsWith("/folders/")) {
+        await bookmarksStore.fetchBookmarks();
+      }
+    } else {
+      const err = await res.json().catch(() => null);
+      toast.error(err?.error || t('folders.aiSortError'));
+    }
+  } catch {
+    toast.error(t('folders.aiSortError'));
+  } finally {
+    aiSorting.value = false;
+  }
 }
 
 async function handleQuickAdd(url: string) {
@@ -305,9 +500,21 @@ async function handleLogout() {
 }
 
 onMounted(async () => {
+  document.addEventListener("dragenter", onGlobalDragEnter);
+  document.addEventListener("dragleave", onGlobalDragLeave);
+  document.addEventListener("drop", onGlobalDrop);
+  document.addEventListener("dragend", onGlobalDragEnd);
+
   await Promise.all([
     foldersStore.fetchTree(),
     settingsStore.fetchSettings(),
   ]);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("dragenter", onGlobalDragEnter);
+  document.removeEventListener("dragleave", onGlobalDragLeave);
+  document.removeEventListener("drop", onGlobalDrop);
+  document.removeEventListener("dragend", onGlobalDragEnd);
 });
 </script>

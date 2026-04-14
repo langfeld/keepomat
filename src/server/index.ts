@@ -160,4 +160,5 @@ console.log(`
 export default {
   port,
   fetch: app.fetch,
+  idleTimeout: 120, // 120s für langlebige AI-Anfragen (Standard: 10s)
 };

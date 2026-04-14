@@ -66,6 +66,7 @@ export const updateSettingsSchema = z.object({
   aiModel: z.string().max(100).nullable().optional(),
   aiBaseUrl: z.string().url().max(500).nullable().optional(),
   showAiSummary: z.boolean().optional(),
+  aiCreateFolders: z.boolean().optional(),
   // Telegram Bot
   telegramBotToken: z.string().max(200).nullable().optional(),
 });
