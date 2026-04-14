@@ -33,8 +33,8 @@ export const createFolderSchema = z.object({
 export const updateFolderSchema = z.object({
   name: z.string().min(1).max(100).optional(),
   parentId: z.number().int().positive().nullable().optional(),
-  icon: z.string().max(10).optional(),
-  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).optional(),
+  icon: z.string().max(10).nullable().optional(),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/).nullable().optional(),
   position: z.number().int().min(0).optional(),
 });
 
