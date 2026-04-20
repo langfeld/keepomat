@@ -9,6 +9,7 @@ export const createBookmarkSchema = z.object({
   folderIds: z.array(z.number().int().positive()).optional(),
   tags: z.array(z.string().min(1).max(50)).optional(),
   skipAi: z.boolean().optional(),
+  aiCreateFolders: z.boolean().optional(),
 });
 
 export const updateBookmarkSchema = z.object({

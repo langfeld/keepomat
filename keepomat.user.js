@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keepomat – Bookmark Saver
 // @namespace    keepomat
-// @version      1.2.0
+// @version      1.3.0
 // @description  Save bookmarks to your Keepomat instance with one click or Alt+K
 // @author       Keepomat
 // @match        *://*/*
@@ -328,6 +328,41 @@
     }
     .km-select-placeholder {
       color: #9ca3af;
+    }
+
+    /* Folder mode segmented control */
+    .km-folder-mode {
+      display: flex;
+      gap: 0;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .km-folder-mode label {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      padding: 6px 4px;
+      cursor: pointer;
+      color: #6b7280;
+      background: #f9fafb;
+      transition: background 0.15s, color 0.15s;
+      border-right: 1px solid #d1d5db;
+      user-select: none;
+      display: block;
+      margin: 0;
+      font-weight: 400;
+    }
+    .km-folder-mode label:last-child { border-right: none; }
+    .km-folder-mode input { display: none; }
+    .km-folder-mode input:checked + span {
+      color: #4338ca;
+      font-weight: 500;
+    }
+    .km-folder-mode label:has(input:checked) {
+      background: #eef2ff;
+      color: #4338ca;
     }
 
     /* FAB Button */
@@ -746,6 +781,11 @@
           </div>
           <div class="km-field">
             <label>Ordner</label>
+            <div class="km-folder-mode" id="km-folder-mode">
+              <label><input type="radio" name="km-fm" value="manual" checked /><span>Manuell</span></label>
+              <label><input type="radio" name="km-fm" value="ai-sort" /><span>AI Einsortieren</span></label>
+              <label><input type="radio" name="km-fm" value="ai-create" /><span>AI Ordner</span></label>
+            </div>
             <div class="km-select-wrapper" id="km-folder-wrapper">
               <button type="button" class="km-select-trigger" id="km-folder-trigger">
                 <span class="km-select-placeholder">Kein Ordner</span>
@@ -770,6 +810,16 @@
     overlayEl.querySelector("#km-cancel").addEventListener("click", closePanel);
     overlayEl.addEventListener("click", (e) => {
       if (e.target === overlayEl) closePanel();
+    });
+
+    // Folder mode toggle
+    let folderMode = "manual";
+    const folderWrapper = overlayEl.querySelector("#km-folder-wrapper");
+    overlayEl.querySelectorAll('input[name="km-fm"]').forEach((radio) => {
+      radio.addEventListener("change", (e) => {
+        folderMode = e.target.value;
+        folderWrapper.style.display = folderMode === "manual" ? "" : "none";
+      });
     });
 
     // Ordner laden & Searchable Select aufbauen
@@ -1010,7 +1060,14 @@
       try {
         const body = { url, title };
         if (tags.length) body.tags = tags;
-        if (folderId) body.folderIds = [Number(folderId)];
+
+        if (folderMode === "manual") {
+          if (folderId) body.folderIds = [Number(folderId)];
+        } else if (folderMode === "ai-sort") {
+          body.aiCreateFolders = false;
+        } else if (folderMode === "ai-create") {
+          body.aiCreateFolders = true;
+        }
 
         await apiRequest("POST", "/api/bookmarks", body);
         statusArea.innerHTML = '<div class="km-status km-status-success">Lesezeichen gespeichert! ✓</div>';

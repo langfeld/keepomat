@@ -302,7 +302,7 @@ bookmarkRoutes.post("/", async (c) => {
 
   // AI-Analyse (async, nicht blockierend)
   if (!data.skipAi && isAiConfiguredForUser(user.id)) {
-    analyzeAndUpdateBookmark(bookmark.id, user.id, data.url, bookmark.title, bookmark.description);
+    analyzeAndUpdateBookmark(bookmark.id, user.id, data.url, bookmark.title, bookmark.description, data.aiCreateFolders);
   }
 
   // Screenshot (async, nicht blockierend)
@@ -642,13 +642,15 @@ async function captureAndSaveScreenshot(bookmarkId: number, url: string): Promis
   }
 }
 
-async function analyzeAndUpdateBookmark(
+export async function analyzeAndUpdateBookmark(
   bookmarkId: number,
   userId: string,
   url: string,
   title: string | null,
-  description: string | null
-) {
+  description: string | null,
+  aiCreateFoldersOverride?: boolean
+): Promise<{ folderNames: string[] }> {
+  const result = { folderNames: [] as string[] };
   try {
     const existingTags = db
       .select()
@@ -672,7 +674,7 @@ async function analyzeAndUpdateBookmark(
 
     const suggestion = await analyzeBookmark(url, title, description, existingTags, existingFolders, language, getEffectiveAiConfig(userId));
 
-    if (!suggestion) return;
+    if (!suggestion) return result;
 
     // AI-Summary speichern
     if (suggestion.summary) {
@@ -706,7 +708,9 @@ async function analyzeAndUpdateBookmark(
 
     // Folder vorschlagen
     const folderMode = settings?.folderMode || "single";
-    const aiCreateFolders = settings?.aiCreateFolders !== false; // default: true
+    const aiCreateFolders = aiCreateFoldersOverride !== undefined
+      ? aiCreateFoldersOverride
+      : settings?.aiCreateFolders !== false; // default: true
     const hasFolder = db
       .select()
       .from(schema.bookmarkFolders)
@@ -720,7 +724,7 @@ async function analyzeAndUpdateBookmark(
     if (shouldAssignFolder && suggestion.folderId) {
       // Prüfen ob der vorgeschlagene Ordner tatsächlich existiert
       const folderExists = db
-        .select({ id: schema.folders.id })
+        .select({ id: schema.folders.id, name: schema.folders.name })
         .from(schema.folders)
         .where(and(eq(schema.folders.id, suggestion.folderId), eq(schema.folders.userId, userId)))
         .get();
@@ -730,6 +734,7 @@ async function analyzeAndUpdateBookmark(
           .values({ bookmarkId, folderId: suggestion.folderId })
           .onConflictDoNothing()
           .run();
+        result.folderNames.push(folderExists.name);
       } else if (suggestion.folderName && aiCreateFolders) {
         // AI hat eine ungültige folderId vorgeschlagen, aber einen Ordnernamen – neuen Ordner erstellen
         const newFolder = db
@@ -743,6 +748,7 @@ async function analyzeAndUpdateBookmark(
             .values({ bookmarkId, folderId: newFolder.id })
             .onConflictDoNothing()
             .run();
+          result.folderNames.push(newFolder.name);
         }
       }
     } else if (shouldAssignFolder && suggestion.folderName && aiCreateFolders) {
@@ -758,6 +764,7 @@ async function analyzeAndUpdateBookmark(
           .values({ bookmarkId, folderId: newFolder.id })
           .onConflictDoNothing()
           .run();
+        result.folderNames.push(newFolder.name);
       }
     }
 
@@ -765,4 +772,5 @@ async function analyzeAndUpdateBookmark(
   } catch (error) {
     console.error(`❌ AI analysis failed for bookmark #${bookmarkId}:`, error);
   }
+  return result;
 }

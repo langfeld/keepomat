@@ -1,9 +1,10 @@
 import { Bot } from "grammy";
 import { db } from "../db";
-import { userSettings, bookmarks, tags, folders } from "../db/schema";
+import { userSettings, bookmarks } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { fetchMetadata } from "../server/services/metadata";
-import { analyzeBookmark } from "../server/services/ai";
+import { isAiConfiguredForUser } from "../server/services/ai";
+import { analyzeAndUpdateBookmark } from "../server/routes/bookmarks";
 
 // ── Multi-Bot-Manager: Pro User ein eigener Bot ──
 
@@ -153,13 +154,27 @@ export async function startBotForUser(userId: string, token: string): Promise<{ 
             favicon: metadata.favicon || null,
           }).returning({ id: bookmarks.id });
 
-          await ctx.reply(
+          const sentMsg = await ctx.reply(
             `✅ Gespeichert: <a href="${escapeHtml(url)}">${escapeHtml(metadata.title || url)}</a>`,
             { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
           );
 
-          // AI-Analyse im Hintergrund
-          analyzeBookmarkAsync(inserted!.id, url, metadata.title || "", metadata.description || "", userId);
+          // AI-Analyse im Hintergrund (volle Logik: Tags, Ordner, Summary)
+          if (isAiConfiguredForUser(userId)) {
+            analyzeAndUpdateBookmark(inserted!.id, userId, url, metadata.title || null, metadata.description || null)
+              .then(({ folderNames }) => {
+                if (folderNames.length > 0) {
+                  const folderText = folderNames.map(f => `📂 ${f}`).join(", ");
+                  ctx.api.editMessageText(
+                    sentMsg.chat.id,
+                    sentMsg.message_id,
+                    `✅ Gespeichert: <a href="${escapeHtml(url)}">${escapeHtml(metadata.title || url)}</a>\n${folderText}`,
+                    { parse_mode: "HTML", link_preview_options: { is_disabled: true } }
+                  ).catch(() => {});
+                }
+              })
+              .catch((err) => console.error("AI-Analyse (Telegram) fehlgeschlagen:", err));
+          }
         } catch (err) {
           console.error("Telegram Bookmark-Fehler:", err);
           await ctx.reply(`❌ Fehler beim Speichern von ${url}`);
@@ -289,37 +304,4 @@ function escapeHtml(str: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
-}
-
-async function analyzeBookmarkAsync(
-  bookmarkId: number,
-  url: string,
-  title: string,
-  description: string,
-  userId: string
-) {
-  try {
-    const existingTags = await db
-      .select()
-      .from(tags)
-      .where(eq(tags.userId, userId));
-
-    const existingFolders = await db
-      .select()
-      .from(folders)
-      .where(eq(folders.userId, userId));
-
-    const result = await analyzeBookmark(url, title, description, existingTags, existingFolders);
-    if (result) {
-      await db
-        .update(bookmarks)
-        .set({
-          aiSummary: result.summary,
-          updatedAt: new Date(),
-        })
-        .where(eq(bookmarks.id, bookmarkId));
-    }
-  } catch (err) {
-    console.error("AI-Analyse (Telegram) fehlgeschlagen:", err);
-  }
 }
