@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Keepomat – Bookmark Saver
 // @namespace    keepomat
-// @version      1.3.0
+// @version      1.3.1
 // @description  Save bookmarks to your Keepomat instance with one click or Alt+K
 // @author       Keepomat
 // @match        *://*/*
@@ -24,6 +24,7 @@
     serverUrl: "keepomat_server_url",
     apiKey: "keepomat_api_key",
     autoDock: "keepomat_auto_dock",
+    aiHintDismissed: "keepomat_ai_hint_dismissed",
   };
 
   function getConfig() {
@@ -364,6 +365,35 @@
       background: #eef2ff;
       color: #4338ca;
     }
+
+    /* AI Hint */
+    .km-ai-hint {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-top: 6px;
+      font-size: 11px;
+      color: #1e40af;
+      line-height: 1.4;
+    }
+    .km-ai-hint-text { flex: 1; }
+    .km-ai-hint-close {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #93c5fd;
+      font-size: 14px;
+      line-height: 1;
+      padding: 0 2px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      transition: color 0.15s;
+    }
+    .km-ai-hint-close:hover { color: #1e40af; }
 
     /* FAB Button */
     #keepomat-fab {
@@ -782,11 +812,11 @@
           <div class="km-field">
             <label>Ordner</label>
             <div class="km-folder-mode" id="km-folder-mode">
-              <label><input type="radio" name="km-fm" value="manual" checked /><span>Manuell</span></label>
-              <label><input type="radio" name="km-fm" value="ai-sort" /><span>AI Einsortieren</span></label>
-              <label><input type="radio" name="km-fm" value="ai-create" /><span>AI Ordner</span></label>
+              <label><input type="radio" name="km-fm" value="ai" checked /><span>AI Einsortieren</span></label>
+              <label><input type="radio" name="km-fm" value="manual" /><span>Manuell</span></label>
             </div>
-            <div class="km-select-wrapper" id="km-folder-wrapper">
+            <div id="km-ai-hint-area"></div>
+            <div class="km-select-wrapper" id="km-folder-wrapper" style="display:none">
               <button type="button" class="km-select-trigger" id="km-folder-trigger">
                 <span class="km-select-placeholder">Kein Ordner</span>
                 <svg class="km-chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -813,14 +843,30 @@
     });
 
     // Folder mode toggle
-    let folderMode = "manual";
+    let folderMode = "ai";
     const folderWrapper = overlayEl.querySelector("#km-folder-wrapper");
+    const hintArea = overlayEl.querySelector("#km-ai-hint-area");
     overlayEl.querySelectorAll('input[name="km-fm"]').forEach((radio) => {
       radio.addEventListener("change", (e) => {
         folderMode = e.target.value;
         folderWrapper.style.display = folderMode === "manual" ? "" : "none";
+        hintArea.style.display = folderMode === "ai" ? "" : "none";
       });
     });
+
+    // AI hint (dismissable, state persisted)
+    if (!GM_getValue(CONFIG_KEYS.aiHintDismissed, false)) {
+      hintArea.innerHTML = `
+        <div class="km-ai-hint">
+          <span class="km-ai-hint-text">Die AI sortiert dein Lesezeichen automatisch in einen passenden Ordner ein – oder erstellt einen neuen, wenn keiner passt.</span>
+          <button class="km-ai-hint-close" id="km-dismiss-hint" title="Hinweis ausblenden">&times;</button>
+        </div>
+      `;
+      hintArea.querySelector("#km-dismiss-hint").addEventListener("click", () => {
+        GM_setValue(CONFIG_KEYS.aiHintDismissed, true);
+        hintArea.innerHTML = "";
+      });
+    }
 
     // Ordner laden & Searchable Select aufbauen
     let selectedFolderId = "";
@@ -1063,11 +1109,8 @@
 
         if (folderMode === "manual") {
           if (folderId) body.folderIds = [Number(folderId)];
-        } else if (folderMode === "ai-sort") {
-          body.aiCreateFolders = false;
-        } else if (folderMode === "ai-create") {
-          body.aiCreateFolders = true;
         }
+        // AI mode: no folderIds, no skipAi — server uses AI with user settings
 
         await apiRequest("POST", "/api/bookmarks", body);
         statusArea.innerHTML = '<div class="km-status km-status-success">Lesezeichen gespeichert! ✓</div>';
