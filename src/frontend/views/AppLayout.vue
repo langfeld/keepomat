@@ -78,67 +78,42 @@
             </button>
           </div>
 
-          <!-- AI Drop Target (beim Draggen oder während AI arbeitet sichtbar) -->
+          <!-- AI Drop Target (unified: sort or create, Shift = sort only) -->
           <Transition
             enter-active-class="transition-all duration-200 ease-out"
             enter-from-class="opacity-0 -translate-y-2 max-h-0"
-            enter-to-class="opacity-100 translate-y-0 max-h-16"
+            enter-to-class="opacity-100 translate-y-0 max-h-20"
             leave-active-class="transition-all duration-200 ease-in"
-            leave-from-class="opacity-100 translate-y-0 max-h-16"
+            leave-from-class="opacity-100 translate-y-0 max-h-20"
             leave-to-class="opacity-0 -translate-y-2 max-h-0"
           >
             <div
-              v-if="isDraggingBookmark || aiCreatingFolder"
-              @dragover.prevent="onAiDropOver"
-              @dragleave="onAiDropLeave"
-              @drop.prevent="onAiDrop"
+              v-if="isDraggingBookmark || aiWorking"
+              @dragover.prevent="onAiDragOver"
+              @dragleave="onAiDragLeave"
+              @drop.prevent="onAiUnifiedDrop"
               :class="[
-                'flex items-center gap-2 mx-1 mb-1 px-3 py-2 rounded-lg text-sm border-2 border-dashed transition-all overflow-hidden',
-                aiCreatingFolder
-                  ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 text-amber-700 dark:text-amber-300 animate-pulse cursor-wait'
-                  : aiDropOver
-                    ? 'border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 text-amber-700 dark:text-amber-300 scale-[1.02]'
+                'flex flex-col gap-0.5 mx-1 mb-1 px-3 py-2 rounded-lg text-sm border-2 border-dashed transition-all overflow-hidden',
+                aiWorking
+                  ? (shiftHeld
+                      ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-500 text-primary-700 dark:text-primary-300 animate-pulse cursor-wait'
+                      : 'border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 text-amber-700 dark:text-amber-300 animate-pulse cursor-wait')
+                  : aiDragOver
+                    ? (shiftHeld
+                        ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-500 text-primary-700 dark:text-primary-300 scale-[1.02]'
+                        : 'border-amber-400 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-500 text-amber-700 dark:text-amber-300 scale-[1.02]')
                     : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 cursor-pointer'
               ]"
             >
-              <span :class="['text-base shrink-0', aiCreatingFolder ? 'animate-bounce' : '']">🤖</span>
-              <span class="truncate font-medium">{{ aiCreatingFolder ? t('folders.aiDropCreating') : t('folders.aiDropLabel') }}</span>
-              <svg v-if="aiCreatingFolder" class="w-4 h-4 animate-spin shrink-0 ml-auto text-amber-500" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
-            </div>
-          </Transition>
-
-          <!-- AI Sort Drop Target (in bestehenden Ordner einsortieren) -->
-          <Transition
-            enter-active-class="transition-all duration-200 ease-out delay-75"
-            enter-from-class="opacity-0 -translate-y-2 max-h-0"
-            enter-to-class="opacity-100 translate-y-0 max-h-16"
-            leave-active-class="transition-all duration-150 ease-in"
-            leave-from-class="opacity-100 translate-y-0 max-h-16"
-            leave-to-class="opacity-0 -translate-y-2 max-h-0"
-          >
-            <div
-              v-if="(isDraggingBookmark || aiSorting) && foldersStore.tree.length"
-              @dragover.prevent="onAiSortOver"
-              @dragleave="onAiSortLeave"
-              @drop.prevent="onAiSortDrop"
-              :class="[
-                'flex items-center gap-2 mx-1 mb-1 px-3 py-2 rounded-lg text-sm border-2 border-dashed transition-all overflow-hidden',
-                aiSorting
-                  ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-500 text-primary-700 dark:text-primary-300 animate-pulse cursor-wait'
-                  : aiSortOver
-                    ? 'border-primary-400 bg-primary-50 dark:bg-primary-900/30 dark:border-primary-500 text-primary-700 dark:text-primary-300 scale-[1.02]'
-                    : 'border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800/50 text-gray-500 dark:text-gray-400 cursor-pointer'
-              ]"
-            >
-              <span :class="['text-base shrink-0', aiSorting ? 'animate-bounce' : '']">📂</span>
-              <span class="truncate font-medium">{{ aiSorting ? t('folders.aiSortWorking') : t('folders.aiSortLabel') }}</span>
-              <svg v-if="aiSorting" class="w-4 h-4 animate-spin shrink-0 ml-auto text-primary-500" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-              </svg>
+              <div class="flex items-center gap-2">
+                <span :class="['text-base shrink-0', aiWorking ? 'animate-bounce' : '']">{{ shiftHeld ? '📂' : '🤖' }}</span>
+                <span class="truncate font-medium">{{ aiWorking ? t('folders.aiWorking') : (shiftHeld ? t('folders.aiSortOnlyLabel') : t('folders.aiLabel')) }}</span>
+                <svg v-if="aiWorking" class="w-4 h-4 animate-spin shrink-0 ml-auto" :class="shiftHeld ? 'text-primary-500' : 'text-amber-500'" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+              </div>
+              <span v-if="!aiWorking" class="text-[10px] opacity-60 pl-6">⇧ {{ t('folders.aiShiftHint') }}</span>
             </div>
           </Transition>
 
@@ -287,10 +262,9 @@ const showAddBookmark = ref(false);
 const showNewFolder = ref(false);
 const editingFolder = ref<any>(null);
 const isDraggingBookmark = ref(false);
-const aiDropOver = ref(false);
-const aiCreatingFolder = ref(false);
-const aiSortOver = ref(false);
-const aiSorting = ref(false);
+const aiDragOver = ref(false);
+const aiWorking = ref(false);
+const shiftHeld = ref(false);
 let dragEnterCount = 0;
 
 const userInitials = computed(() => {
@@ -382,102 +356,77 @@ function onGlobalDragLeave() {
   if (dragEnterCount <= 0) {
     dragEnterCount = 0;
     isDraggingBookmark.value = false;
-    aiDropOver.value = false;
+    aiDragOver.value = false;
   }
 }
 
 function onGlobalDrop() {
   dragEnterCount = 0;
   isDraggingBookmark.value = false;
-  aiDropOver.value = false;
-  aiSortOver.value = false;
+  aiDragOver.value = false;
 }
 
 function onGlobalDragEnd() {
   dragEnterCount = 0;
   isDraggingBookmark.value = false;
-  aiDropOver.value = false;
-  aiSortOver.value = false;
+  aiDragOver.value = false;
 }
 
-// AI Drop-Target Handlers
-function onAiDropOver(event: DragEvent) {
+// Shift-Key tracking during drag
+function onKeyDown(e: KeyboardEvent) {
+  if (e.key === "Shift") shiftHeld.value = true;
+}
+function onKeyUp(e: KeyboardEvent) {
+  if (e.key === "Shift") shiftHeld.value = false;
+}
+
+// Unified AI Drop-Target Handlers
+function onAiDragOver(event: DragEvent) {
   if (event.dataTransfer?.types.includes("application/x-bookmark-id")) {
-    aiDropOver.value = true;
+    aiDragOver.value = true;
+    shiftHeld.value = event.shiftKey;
     event.dataTransfer.dropEffect = "move";
   }
 }
 
-function onAiDropLeave() {
-  aiDropOver.value = false;
+function onAiDragLeave() {
+  aiDragOver.value = false;
 }
 
-async function onAiDrop(event: DragEvent) {
-  aiDropOver.value = false;
+async function onAiUnifiedDrop(event: DragEvent) {
+  aiDragOver.value = false;
   const bookmarkId = event.dataTransfer?.getData("application/x-bookmark-id");
-  if (!bookmarkId || aiCreatingFolder.value) return;
+  if (!bookmarkId || aiWorking.value) return;
 
-  aiCreatingFolder.value = true;
+  const sortOnly = event.shiftKey;
+  aiWorking.value = true;
+  // Keep shiftHeld so the working state shows the correct visual
+  shiftHeld.value = sortOnly;
+
   try {
-    const res = await fetch(`/api/bookmarks/${bookmarkId}/ai-folder`, {
+    const endpoint = sortOnly
+      ? `/api/bookmarks/${bookmarkId}/ai-sort`
+      : `/api/bookmarks/${bookmarkId}/ai-folder`;
+    const res = await fetch(endpoint, {
       method: "POST",
       credentials: "include",
     });
     if (res.ok) {
       const { folder } = await res.json();
-      await foldersStore.fetchTree();
-      toast.success(t('folders.aiDropSuccess', { folder: folder.name }));
+      if (!sortOnly) await foldersStore.fetchTree();
+      toast.success(t('folders.aiSuccess', { folder: folder.name }));
       if (route.path === "/bookmarks" || route.path.startsWith("/folders/")) {
         await bookmarksStore.fetchBookmarks();
       }
     } else {
       const err = await res.json().catch(() => null);
-      toast.error(err?.error || t('folders.aiDropError'));
+      toast.error(err?.error || t('folders.aiError'));
     }
   } catch {
-    toast.error(t('folders.aiDropError'));
+    toast.error(t('folders.aiError'));
   } finally {
-    aiCreatingFolder.value = false;
-  }
-}
-
-// AI Sort Drop-Target Handlers
-function onAiSortOver(event: DragEvent) {
-  if (event.dataTransfer?.types.includes("application/x-bookmark-id")) {
-    aiSortOver.value = true;
-    event.dataTransfer.dropEffect = "move";
-  }
-}
-
-function onAiSortLeave() {
-  aiSortOver.value = false;
-}
-
-async function onAiSortDrop(event: DragEvent) {
-  aiSortOver.value = false;
-  const bookmarkId = event.dataTransfer?.getData("application/x-bookmark-id");
-  if (!bookmarkId || aiSorting.value) return;
-
-  aiSorting.value = true;
-  try {
-    const res = await fetch(`/api/bookmarks/${bookmarkId}/ai-sort`, {
-      method: "POST",
-      credentials: "include",
-    });
-    if (res.ok) {
-      const { folder } = await res.json();
-      toast.success(t('folders.aiSortSuccess', { folder: folder.name }));
-      if (route.path === "/bookmarks" || route.path.startsWith("/folders/")) {
-        await bookmarksStore.fetchBookmarks();
-      }
-    } else {
-      const err = await res.json().catch(() => null);
-      toast.error(err?.error || t('folders.aiSortError'));
-    }
-  } catch {
-    toast.error(t('folders.aiSortError'));
-  } finally {
-    aiSorting.value = false;
+    aiWorking.value = false;
+    shiftHeld.value = false;
   }
 }
 
@@ -504,6 +453,8 @@ onMounted(async () => {
   document.addEventListener("dragleave", onGlobalDragLeave);
   document.addEventListener("drop", onGlobalDrop);
   document.addEventListener("dragend", onGlobalDragEnd);
+  document.addEventListener("keydown", onKeyDown);
+  document.addEventListener("keyup", onKeyUp);
 
   await Promise.all([
     foldersStore.fetchTree(),
@@ -516,5 +467,7 @@ onUnmounted(() => {
   document.removeEventListener("dragleave", onGlobalDragLeave);
   document.removeEventListener("drop", onGlobalDrop);
   document.removeEventListener("dragend", onGlobalDragEnd);
+  document.removeEventListener("keydown", onKeyDown);
+  document.removeEventListener("keyup", onKeyUp);
 });
 </script>
