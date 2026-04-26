@@ -23,6 +23,8 @@ export interface Bookmark {
   isRead: boolean;
   isFavorite: boolean;
   isDeadLink: boolean;
+  notes: string | null;
+  rating: number | null;
   lastCheckedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;

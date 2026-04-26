@@ -8,6 +8,8 @@ export const createBookmarkSchema = z.object({
   folderId: z.number().int().positive().optional(),
   folderIds: z.array(z.number().int().positive()).optional(),
   tags: z.array(z.string().min(1).max(50)).optional(),
+  notes: z.string().max(5000).optional(),
+  rating: z.number().int().min(1).max(5).optional(),
   skipAi: z.boolean().optional(),
   aiCreateFolders: z.boolean().optional(),
 });
@@ -18,6 +20,8 @@ export const updateBookmarkSchema = z.object({
   url: z.string().url().optional(),
   isRead: z.boolean().optional(),
   isFavorite: z.boolean().optional(),
+  notes: z.string().max(5000).optional(),
+  rating: z.number().int().min(1).max(5).optional(),
   folderId: z.number().int().positive().optional(),
   folderIds: z.array(z.number().int().positive()).optional(),
   tags: z.array(z.string().min(1).max(50)).optional(),

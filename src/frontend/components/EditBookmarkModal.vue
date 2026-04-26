@@ -41,6 +41,21 @@
           </div>
 
           <div>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('editBookmark.notes') }}</label>
+            <textarea
+              v-model="form.notes"
+              rows="3"
+              :placeholder="t('editBookmark.notesPlaceholder')"
+              class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition resize-none placeholder-gray-400"
+            />
+          </div>
+
+          <div>
+            <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('editBookmark.rating') }}</label>
+            <StarRating v-model="form.rating" />
+          </div>
+
+          <div>
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('editBookmark.tags') }}</label>
             <input
               v-model="tagsInput"
@@ -140,6 +155,7 @@ import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 import { useToast } from "../composables/useToast";
 import SearchableSelect from "./SearchableSelect.vue";
+import StarRating from "./StarRating.vue";
 import type { SelectOption } from "./SearchableSelect.vue";
 
 const props = defineProps<{ bookmark: any }>();
@@ -158,6 +174,8 @@ const form = ref({
   isFavorite: !!props.bookmark.isFavorite,
   isRead: !!props.bookmark.isRead,
   aiSummary: props.bookmark.aiSummary || "",
+  notes: props.bookmark.notes || "",
+  rating: props.bookmark.rating || null as number | null,
 });
 
 const tagsInput = ref(
@@ -280,6 +298,8 @@ async function handleSubmit() {
       description: form.value.description,
       isFavorite: form.value.isFavorite,
       isRead: form.value.isRead,
+      notes: form.value.notes,
+      rating: form.value.rating,
       tags,
     };
 

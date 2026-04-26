@@ -224,6 +224,7 @@ export default {
   // Bookmark Detail
   "bookmarkDetail.description": "Beschreibung",
   "bookmarkDetail.previewImage": "Vorschaubild",
+  "bookmarkDetail.notes": "Notizen",
   "bookmarkDetail.metadata": "Metadaten",
   "bookmarkDetail.createdAt": "Erstellt",
   "bookmarkDetail.updatedAt": "Aktualisiert",
@@ -241,6 +242,9 @@ export default {
   "addBookmark.folder": "Ordner",
   "addBookmark.tags": "Tags (kommagetrennt)",
   "addBookmark.tagsPlaceholder": "web, tools, dev",
+  "addBookmark.notes": "Notizen",
+  "addBookmark.notesPlaceholder": "Deine Gedanken zu dieser Seite...",
+  "addBookmark.rating": "Bewertung",
   "addBookmark.details": "Details",
   "addBookmark.addFolder": "Ordner hinzufügen…",
 
@@ -249,6 +253,9 @@ export default {
   "editBookmark.url": "URL",
   "editBookmark.titleLabel": "Titel",
   "editBookmark.description": "Beschreibung",
+  "editBookmark.notes": "Notizen",
+  "editBookmark.notesPlaceholder": "Deine Gedanken zu dieser Seite...",
+  "editBookmark.rating": "Bewertung",
   "editBookmark.tags": "Tags (kommagetrennt)",
   "editBookmark.tagsPlaceholder": "web, tools, dev",
   "editBookmark.folder": "Ordner",

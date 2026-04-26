@@ -81,6 +81,8 @@ export const bookmarks = sqliteTable("bookmarks", {
   isRead: integer("is_read", { mode: "boolean" }).default(false).notNull(),
   isFavorite: integer("is_favorite", { mode: "boolean" }).default(false).notNull(),
   isDeadLink: integer("is_dead_link", { mode: "boolean" }).default(false).notNull(),
+  notes: text("notes"),
+  rating: integer("rating"),
   lastCheckedAt: integer("last_checked_at", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).default(sql`(unixepoch())`).notNull(),

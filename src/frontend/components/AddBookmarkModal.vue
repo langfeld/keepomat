@@ -103,6 +103,23 @@
                 class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition placeholder-gray-400"
               />
             </div>
+
+            <!-- Notizen -->
+            <div>
+              <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.notes') }}</label>
+              <textarea
+                v-model="notes"
+                rows="3"
+                :placeholder="t('addBookmark.notesPlaceholder')"
+                class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 focus:border-transparent dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white transition resize-none placeholder-gray-400"
+              />
+            </div>
+
+            <!-- Bewertung -->
+            <div>
+              <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('addBookmark.rating') }}</label>
+              <StarRating v-model="rating" />
+            </div>
           </div>
 
           <div v-if="error" class="bg-red-50 dark:bg-red-900/20 p-3 border border-red-200 dark:border-red-800 rounded-xl text-red-600 dark:text-red-400 text-sm">
@@ -143,6 +160,7 @@ import { useSettingsStore } from "../stores/settings";
 import { useI18n } from "../composables/useI18n";
 import { useToast } from "../composables/useToast";
 import SearchableSelect from "./SearchableSelect.vue";
+import StarRating from "./StarRating.vue";
 import type { SelectOption } from "./SearchableSelect.vue";
 
 const emit = defineEmits(["close"]);
@@ -157,6 +175,8 @@ const title = ref("");
 const singleFolderId = ref("");
 const selectedFolderIds = ref<number[]>([]);
 const tagsInput = ref("");
+const notes = ref("");
+const rating = ref<number | null>(null);
 const error = ref("");
 const loading = ref(false);
 const showDetails = ref(false);
@@ -279,6 +299,8 @@ async function handleSubmit() {
     const body: Record<string, any> = { url: url.value };
     if (title.value) body.title = title.value;
     if (tags.length) body.tags = tags;
+    if (notes.value.trim()) body.notes = notes.value.trim();
+    if (rating.value) body.rating = rating.value;
 
     if (isMultiFolder.value) {
       if (selectedFolderIds.value.length) body.folderIds = selectedFolderIds.value;

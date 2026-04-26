@@ -41,18 +41,21 @@
             <h1 class="font-bold text-gray-900 dark:text-white text-xl leading-snug">
               {{ bookmark.title || bookmark.url }}
             </h1>
-            <a
-              :href="bookmark.url"
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-1 mt-1 text-primary-500 hover:text-primary-600 text-sm break-all transition"
-              @click="markAsRead"
-            >
-              {{ bookmark.url }}
-              <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
+            <div class="flex items-center gap-3 mt-1">
+              <a
+                :href="bookmark.url"
+                target="_blank"
+                rel="noopener"
+                class="inline-flex items-center gap-1 text-primary-500 hover:text-primary-600 text-sm break-all transition"
+                @click="markAsRead"
+              >
+                {{ bookmark.url }}
+                <svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+              </a>
+              <StarRating v-if="bookmark.rating" :model-value="bookmark.rating" readonly show-value />
+            </div>
           </div>
 
           <!-- Aktionen -->
@@ -136,6 +139,12 @@
             <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ bookmark.aiSummary }}</p>
           </div>
 
+          <!-- Notizen -->
+          <div v-if="bookmark.notes" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+            <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.notes') }}</h2>
+            <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed whitespace-pre-wrap">{{ bookmark.notes }}</p>
+          </div>
+
           <!-- Screenshot -->
           <div v-if="bookmark.screenshot" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <div class="flex justify-between items-center mb-3">
@@ -162,6 +171,14 @@
             <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
               <img :src="bookmark.ogImage" :alt="bookmark.title || ''" class="w-full" loading="lazy" />
+            </div>
+          </div>
+
+          <!-- Fallback-Bild -->
+          <div v-if="!bookmark.screenshot && !bookmark.ogImage" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+            <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
+            <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
+              <img :src="fallbackImage" :alt="bookmark.title || ''" class="w-full" loading="lazy" />
             </div>
           </div>
         </div>
@@ -251,7 +268,9 @@ import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
 import { useSettingsStore } from "../stores/settings";
+import { getFallbackImage } from "../utils/fallbackImage";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
+import StarRating from "../components/StarRating.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -270,6 +289,10 @@ const hostname = computed(() => {
   } catch {
     return bookmark.value?.url || "";
   }
+});
+
+const fallbackImage = computed(() => {
+  return bookmark.value ? getFallbackImage(bookmark.value.id) : "";
 });
 
 function formatDate(date: string | Date | null): string {

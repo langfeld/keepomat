@@ -178,6 +178,14 @@ exportRoutes.get("/pdf", async (c) => {
         doc.fontSize(9).font("Helvetica").fillColor("#666666").text(bm.description);
         doc.fillColor("#000000");
       }
+      if (bm.notes) {
+        doc.fontSize(8).font("Helvetica-Oblique").fillColor("#555555").text(`Notes: ${bm.notes}`);
+        doc.fillColor("#000000");
+      }
+      if (bm.rating) {
+        doc.fontSize(9).font("Helvetica").fillColor("#d97706").text(`Rating: ${'★'.repeat(bm.rating)}${'☆'.repeat(5 - bm.rating)} (${bm.rating}/5)`);
+        doc.fillColor("#000000");
+      }
       if (bm.aiSummary) {
         doc.fontSize(8).font("Helvetica-Oblique").fillColor("#888888").text(`AI: ${bm.aiSummary}`);
         doc.fillColor("#000000");
@@ -248,6 +256,8 @@ exportRoutes.get("/json", async (c) => {
       ogImage: bm.ogImage,
       favicon: bm.favicon,
       aiSummary: bm.aiSummary,
+      notes: bm.notes,
+      rating: bm.rating,
       isRead: bm.isRead,
       isFavorite: bm.isFavorite,
       createdAt: bm.createdAt.toISOString(),
@@ -422,6 +432,8 @@ exportRoutes.post("/import-json", async (c) => {
       ogImage: bm.ogImage || null,
       favicon: bm.favicon || null,
       aiSummary: bm.aiSummary || null,
+      notes: bm.notes || null,
+      rating: bm.rating || null,
       isRead: bm.isRead || false,
       isFavorite: bm.isFavorite || false,
     }).returning().get();

@@ -258,6 +258,8 @@ bookmarkRoutes.post("/", async (c) => {
       description: data.description || metadata.description,
       ogImage: metadata.ogImage,
       favicon: metadata.favicon,
+      notes: data.notes,
+      rating: data.rating,
     })
     .returning()
     .get();
@@ -341,6 +343,8 @@ bookmarkRoutes.patch("/:id", async (c) => {
   if (data.url !== undefined) updateData.url = data.url;
   if (data.isRead !== undefined) updateData.isRead = data.isRead;
   if (data.isFavorite !== undefined) updateData.isFavorite = data.isFavorite;
+  if (data.notes !== undefined) updateData.notes = data.notes;
+  if (data.rating !== undefined) updateData.rating = data.rating;
 
   const updated = db
     .update(schema.bookmarks)
