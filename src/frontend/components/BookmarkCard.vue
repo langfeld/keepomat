@@ -23,10 +23,13 @@
       </div>
     </div>
 
-    <!-- Favicon / Screenshot-Thumbnail (Kompakt-Ansicht) -->
-    <div v-if="compact && showScreenshot && screenshotUrl" class="bg-gray-100 dark:bg-gray-800 rounded-xl w-16 h-10 overflow-hidden shrink-0">
+    <!-- Vorschaubild (Kompakt-Ansicht) -->
+    <div
+      v-if="compact && showScreenshot"
+      class="bg-gray-100 dark:bg-gray-800 rounded-xl w-16 h-10 overflow-hidden shrink-0 flex justify-center items-center"
+    >
       <img
-        :src="screenshotUrl"
+        :src="screenshotUrl || fallbackImageUrl"
         :alt="bookmark.title"
         class="w-full h-full object-cover"
         loading="lazy"
@@ -214,11 +217,13 @@ const screenshotUrl = computed(() => {
   return null;
 });
 
+const fallbackImageUrl = computed(() => getFallbackImage(props.bookmark.id));
+
 const displayImage = computed(() => {
   if (props.showScreenshot && screenshotUrl.value) {
     return screenshotUrl.value;
   }
-  return props.bookmark.ogImage || getFallbackImage(props.bookmark.id);
+  return props.bookmark.ogImage || fallbackImageUrl.value;
 });
 
 const hostname = computed(() => {
