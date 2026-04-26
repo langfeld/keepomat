@@ -25,30 +25,22 @@ const PALETTES = [
 ];
 
 const PATTERNS = [
-  // Diagonal stripes
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="20" fill="${c1}"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
-  // Dots
+    `<defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="10" height="20" fill="${c1}"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="3" fill="${c1}"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
-  // Grid
+    `<defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="3" fill="${c1}"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="${c1}" stroke-width="1.5"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
-  // Circles
+    `<defs><pattern id="p" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M 30 0 L 0 0 0 30" fill="none" stroke="${c1}" stroke-width="1.5"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="12" fill="none" stroke="${c1}" stroke-width="1.5"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
-  // Gradient (no pattern)
+    `<defs><pattern id="p" width="40" height="40" patternUnits="userSpaceOnUse"><circle cx="20" cy="20" r="12" fill="none" stroke="${c1}" stroke-width="1.5"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
   (c1: string, c2: string) =>
-    `<defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></defs><rect width="100%" height="100%" fill="url(#g)"/>`,
-  // Radial circles
+    `<defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#g)"/>`,
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="6" fill="${c1}" opacity="0.35"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
-  // Zigzag
+    `<defs><pattern id="p" width="24" height="24" patternUnits="userSpaceOnUse"><circle cx="12" cy="12" r="6" fill="${c1}" opacity="0.35"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 L10 0 L20 10 L10 20 Z" fill="${c1}" opacity="0.25"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
-  // Waves
+    `<defs><pattern id="p" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M0 10 L10 0 L20 10 L10 20 Z" fill="${c1}" opacity="0.25"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
   (c1: string, c2: string) =>
-    `<defs><pattern id="p" width="40" height="10" patternUnits="userSpaceOnUse"><path d="M0 5 Q10 0 20 5 T40 5" fill="none" stroke="${c1}" stroke-width="1.5"/></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
+    `<defs><pattern id="p" width="40" height="10" patternUnits="userSpaceOnUse"><path d="M0 5 Q10 0 20 5 T40 5" fill="none" stroke="${c1}" stroke-width="1.5"/></pattern></defs><rect width="100%" height="100%" fill="${c2}"/><rect width="100%" height="100%" fill="url(#p)"/>`,
 ];
 
 export function getFallbackImage(id: number): string {
