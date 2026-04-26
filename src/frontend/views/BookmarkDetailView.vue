@@ -178,7 +178,7 @@
           </div>
 
           <!-- OG-Image -->
-          <div v-if="bookmark.ogImage && !bookmark.screenshot && !ogImageFailed" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <div v-if="bookmark.ogImage && (screenshotFailed || !bookmark.screenshot) && !ogImageFailed" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
               <img
