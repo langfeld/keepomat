@@ -156,7 +156,7 @@
           </div>
 
           <!-- Screenshot -->
-          <div v-if="bookmark.screenshot" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <div v-if="bookmark.screenshot && !screenshotFailed" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <div class="flex justify-between items-center mb-3">
               <h2 class="font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmark.screenshot') }}</h2>
               <button
@@ -172,20 +172,27 @@
                 :alt="bookmark.title || 'Screenshot'"
                 class="w-full"
                 loading="lazy"
+                @error="screenshotFailed = true"
               />
             </div>
           </div>
 
           <!-- OG-Image -->
-          <div v-if="bookmark.ogImage && !bookmark.screenshot" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <div v-if="bookmark.ogImage && !bookmark.screenshot && !ogImageFailed" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
-              <img :src="bookmark.ogImage" :alt="bookmark.title || ''" class="w-full" loading="lazy" />
+              <img
+                :src="bookmark.ogImage"
+                :alt="bookmark.title || ''"
+                class="w-full"
+                loading="lazy"
+                @error="ogImageFailed = true"
+              />
             </div>
           </div>
 
           <!-- Fallback-Bild -->
-          <div v-if="!bookmark.screenshot && !bookmark.ogImage" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <div v-if="(!bookmark.screenshot || screenshotFailed) && (!bookmark.ogImage || ogImageFailed)" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
               <img :src="fallbackImage" :alt="bookmark.title || ''" class="w-full" loading="lazy" />
@@ -302,6 +309,8 @@ const bookmark = ref<any>(null);
 const loading = ref(true);
 const editingBookmark = ref<any>(null);
 const quickEditingBookmark = ref<any>(null);
+const screenshotFailed = ref(false);
+const ogImageFailed = ref(false);
 
 const hostname = computed(() => {
   try {
@@ -332,6 +341,8 @@ async function loadBookmark() {
   if (!id) return;
 
   loading.value = true;
+  screenshotFailed.value = false;
+  ogImageFailed.value = false;
   try {
     const res = await fetch(`/api/bookmarks/${id}`, { credentials: "include" });
     if (res.ok) {

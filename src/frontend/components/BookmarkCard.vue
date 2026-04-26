@@ -13,13 +13,8 @@
         :alt="bookmark.title"
         class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         loading="lazy"
-        @error="imgError = true"
+        @error="onImageError"
       />
-      <div v-if="imgError" class="absolute inset-0 flex justify-center items-center bg-gray-100 dark:bg-gray-800">
-        <svg class="w-8 h-8 text-gray-300 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
       <!-- Screenshot-Badge -->
       <div v-if="showScreenshot && bookmark.screenshot" class="absolute top-2 left-2 flex items-center gap-1 bg-black/20 backdrop-blur-sm px-2 py-1 rounded-lg text-white text-xs" :title="t('bookmark.screenshot')">
         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -35,6 +30,7 @@
         :alt="bookmark.title"
         class="w-full h-full object-cover"
         loading="lazy"
+        @error="onImageError"
       />
     </div>
     <div v-else-if="compact" class="flex justify-center items-center bg-gray-100 dark:bg-gray-800 rounded-xl w-10 h-10 overflow-hidden shrink-0">
@@ -210,7 +206,6 @@ const props = defineProps<{
 const emit = defineEmits(["edit", "quickEdit", "delete", "toggleFavorite", "toggleRead", "retakeScreenshot"]);
 
 const cardRef = ref<HTMLElement>();
-const imgError = ref(false);
 
 const screenshotUrl = computed(() => {
   if (props.bookmark.screenshot) {
@@ -233,6 +228,13 @@ const hostname = computed(() => {
     return props.bookmark.url;
   }
 });
+
+function onImageError(e: Event) {
+  const target = e.target as HTMLImageElement;
+  if (target && target.src !== getFallbackImage(props.bookmark.id)) {
+    target.src = getFallbackImage(props.bookmark.id);
+  }
+}
 
 async function markAsRead() {
   if (!props.bookmark.isRead) {
