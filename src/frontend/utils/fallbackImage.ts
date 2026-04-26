@@ -57,5 +57,8 @@ export function getFallbackImage(id: number): string {
   const [c1, c2] = PALETTES[paletteIndex];
   const patternSvg = PATTERNS[patternIndex](c1, c2);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300" viewBox="0 0 400 300">${patternSvg}</svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  const base64 = typeof Buffer !== "undefined"
+    ? Buffer.from(svg).toString("base64")
+    : btoa(svg);
+  return `data:image/svg+xml;base64,${base64}`;
 }
