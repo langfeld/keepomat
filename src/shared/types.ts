@@ -120,7 +120,7 @@ export interface AiSuggestion {
 export interface SystemSettings {
   moonshot_api_key?: string;
   ai_model?: string;
-  ai_provider?: "kimi" | "openai" | "anthropic" | "ollama";
+  ai_provider?: "kimi" | "openai" | "anthropic" | "ollama" | "deepseek";
   ai_thinking_enabled?: string;
   ai_shared_enabled?: string;
   ollama_url?: string;

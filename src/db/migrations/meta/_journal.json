@@ -50,6 +50,13 @@
       "when": 1777194791722,
       "tag": "0006_slimy_gamora",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1777205849484,
+      "tag": "0007_amazing_firebrand",
+      "breakpoints": true
     }
   ]
 }

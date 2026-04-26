@@ -108,9 +108,8 @@ adminRoutes.get("/settings", async (c) => {
   const settings = db.select().from(schema.systemSettings).all();
   const settingsMap: Record<string, string> = {};
   for (const s of settings) {
-    settingsMap[s.key] = s.key.includes("key") || s.key.includes("token")
-      ? s.value ? "***configured***" : ""
-      : s.value;
+    const isSecret = s.key.includes("_api_key") || s.key.includes("_token") || s.key.includes("moonshot_api_key");
+    settingsMap[s.key] = s.value && isSecret ? "***configured***" : s.value;
   }
   return c.json(settingsMap);
 });

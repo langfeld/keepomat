@@ -41,6 +41,8 @@ function getBaseURLForProvider(provider: string, customBaseUrl?: string | null):
       return "https://api.mistral.ai/v1";
     case "ollama":
       return getSystemSetting("ollama_url") || process.env.OLLAMA_URL || "http://localhost:11434/v1";
+    case "deepseek":
+      return "https://api.deepseek.com";
     case "kimi":
     default:
       return "https://api.moonshot.ai/v1";
@@ -51,11 +53,19 @@ function getBaseURLForProvider(provider: string, customBaseUrl?: string | null):
 function getSystemAiConfig(): AiConfig {
   const provider = getSystemSetting("ai_provider") || process.env.AI_PROVIDER || "kimi";
   const model = getSystemSetting("ai_model") || process.env.AI_MODEL || "kimi-k2-turbo-preview";
-  const apiKey = getSystemSetting("moonshot_api_key") || process.env.MOONSHOT_API_KEY;
+  const apiKey = getSystemApiKey(provider);
   const thinkingEnabled = (getSystemSetting("ai_thinking_enabled") || process.env.AI_THINKING_ENABLED || "false") === "true";
   const baseURL = getBaseURLForProvider(provider);
 
   return { provider, model, apiKey, baseURL, thinkingEnabled };
+}
+
+// System API-Key für Provider lesen (per-Provider + Legacy-Fallback)
+function getSystemApiKey(provider: string): string | undefined {
+  const key = getSystemSetting(`${provider}_api_key`) || process.env[`${provider.toUpperCase()}_API_KEY`];
+  if (key) return key;
+  if (provider === "kimi") return getSystemSetting("moonshot_api_key") || process.env.MOONSHOT_API_KEY;
+  return undefined;
 }
 
 // User-spezifische AI-Konfiguration lesen (falls vorhanden)
@@ -67,18 +77,38 @@ export function getUserAiConfig(userId: string): AiConfig | null {
       .where(eq(schema.userSettings.userId, userId))
       .get();
 
-    if (!settings?.aiProvider || !settings?.aiApiKey) return null;
+    if (!settings?.aiProvider) return null;
+
+    const apiKey = getUserApiKey(settings as any, settings.aiProvider);
+    if (!apiKey) return null;
 
     return {
       provider: settings.aiProvider,
       model: settings.aiModel || getDefaultModelForProvider(settings.aiProvider),
-      apiKey: settings.aiApiKey,
+      apiKey,
       baseURL: getBaseURLForProvider(settings.aiProvider, settings.aiBaseUrl),
       thinkingEnabled: false, // User-KI: kein Thinking-Modus
     };
   } catch {
     return null;
   }
+}
+
+// Per-Provider API-Key lesen (neue Spalten + Legacy aiApiKey als Fallback)
+function getUserApiKey(settings: Record<string, any>, provider: string): string | undefined {
+  const colMap: Record<string, string> = {
+    openai: "openaiApiKey",
+    anthropic: "anthropicApiKey",
+    groq: "groqApiKey",
+    mistral: "mistralApiKey",
+    kimi: "kimiApiKey",
+    deepseek: "deepseekApiKey",
+    ollama: null as any,
+  };
+  const colName = colMap[provider];
+  if (colName && settings[colName]) return settings[colName];
+  if (settings.aiApiKey) return settings.aiApiKey;
+  return undefined;
 }
 
 // Standard-Modell je nach Provider
@@ -90,6 +120,7 @@ export function getDefaultModelForProvider(provider: string): string {
     case "mistral": return "mistral-small-latest";
     case "ollama": return "llama3.2";
     case "kimi": return "kimi-k2-turbo-preview";
+    case "deepseek": return "deepseek-v4-pro";
     default: return "gpt-4o-mini";
   }
 }
@@ -194,6 +225,9 @@ Tags sollen kleingeschrieben sein, ohne Sonderzeichen, ausschließlich auf ${lan
 
     if (config.provider === "kimi") {
       params.thinking = { type: config.thinkingEnabled ? "enabled" : "disabled" };
+    } else if (config.provider === "deepseek") {
+      params.thinking = { type: config.thinkingEnabled ? "enabled" : "disabled" };
+      if (config.thinkingEnabled) params.reasoning_effort = "high";
     } else {
       params.temperature = 0.3;
     }
@@ -272,6 +306,9 @@ Antworte mit einem JSON-Array, ein Objekt pro Bookmark in der gleichen Reihenfol
 
     if (config.provider === "kimi") {
       params.thinking = { type: config.thinkingEnabled ? "enabled" : "disabled" };
+    } else if (config.provider === "deepseek") {
+      params.thinking = { type: config.thinkingEnabled ? "enabled" : "disabled" };
+      if (config.thinkingEnabled) params.reasoning_effort = "high";
     } else {
       params.temperature = 0.3;
     }
@@ -357,6 +394,8 @@ export async function testAiConnection(overrideConfig?: AiConfig): Promise<{ suc
     if (config.provider === "kimi") {
       params.thinking = { type: "disabled" };
       delete params.max_tokens;
+    } else if (config.provider === "deepseek") {
+      params.thinking = { type: "disabled" };
     } else {
       params.temperature = 0;
     }

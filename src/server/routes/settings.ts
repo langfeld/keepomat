@@ -15,6 +15,26 @@ function maskApiKey(key: string | null): string | null {
   return "****" + key.slice(-4);
 }
 
+// AI-Provider Key-Spalten-Mapping
+const aiKeyColumns: Record<string, string> = {
+  openai: "openaiApiKey",
+  anthropic: "anthropicApiKey",
+  groq: "groqApiKey",
+  mistral: "mistralApiKey",
+  kimi: "kimiApiKey",
+  deepseek: "deepseekApiKey",
+};
+
+// Alle AI-Keys eines User-Settings-Objekts maskieren
+function maskAllAiKeys(settings: any): any {
+  const result = { ...settings };
+  for (const col of Object.values(aiKeyColumns)) {
+    if (result[col]) result[col] = maskApiKey(result[col]);
+  }
+  if (result.aiApiKey) result.aiApiKey = maskApiKey(result.aiApiKey);
+  return result;
+}
+
 // Einstellungen abrufen
 settingsRoutes.get("/", async (c) => {
   const user = c.get("user" as never) as any;
@@ -36,8 +56,7 @@ settingsRoutes.get("/", async (c) => {
 
   // API-Key maskiert zurückgeben
   return c.json({
-    ...settings,
-    aiApiKey: maskApiKey(settings.aiApiKey),
+    ...maskAllAiKeys(settings),
     telegramBotToken: maskApiKey(settings.telegramBotToken),
     telegramActive: isBotActive(user.id),
   });
@@ -64,6 +83,10 @@ settingsRoutes.patch("/", async (c) => {
   if (data.aiApiKey !== undefined) updateData.aiApiKey = data.aiApiKey;
   if (data.aiModel !== undefined) updateData.aiModel = data.aiModel;
   if (data.aiBaseUrl !== undefined) updateData.aiBaseUrl = data.aiBaseUrl;
+  // Per-Provider API-Key speichern (aus aiApiKey gemappt)
+  if (data.aiApiKey !== undefined && typeof data.aiProvider === "string" && aiKeyColumns[data.aiProvider]) {
+    updateData[aiKeyColumns[data.aiProvider]] = data.aiApiKey;
+  }
   if (data.showAiSummary !== undefined) updateData.showAiSummary = data.showAiSummary;
   if (data.aiCreateFolders !== undefined) updateData.aiCreateFolders = data.aiCreateFolders;
   // Telegram Bot Token
@@ -93,8 +116,7 @@ settingsRoutes.patch("/", async (c) => {
   }
 
   return c.json({
-    ...settings,
-    aiApiKey: maskApiKey(settings.aiApiKey),
+    ...maskAllAiKeys(settings),
     telegramBotToken: maskApiKey(settings.telegramBotToken),
     telegramActive: isBotActive(user.id),
   });

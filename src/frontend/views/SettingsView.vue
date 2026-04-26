@@ -623,6 +623,7 @@ const aiProviderOptions: SelectOption[] = [
   { value: 'mistral', label: 'Mistral' },
   { value: 'ollama', label: 'Ollama (lokal)' },
   { value: 'kimi', label: 'Kimi (Moonshot)' },
+  { value: 'deepseek', label: 'DeepSeek' },
 ];
 const aiApiKey = ref("");
 const aiModel = ref("");
@@ -637,6 +638,7 @@ const defaultModels: Record<string, string> = {
   mistral: "mistral-small-latest",
   ollama: "llama3.2",
   kimi: "kimi-k2-turbo-preview",
+  deepseek: "deepseek-v4-pro",
 };
 
 const aiModelPlaceholder = computed(() => {
@@ -657,12 +659,10 @@ const themes = computed(() => [
 onMounted(async () => {
   await settingsStore.fetchSettings();
   language.value = settingsStore.settings?.language || "de";
-  // AI-Einstellungen laden
   aiProvider.value = settingsStore.settings?.aiProvider || "";
-  aiApiKey.value = settingsStore.settings?.aiApiKey || ""; // Maskierter Wert z.B. "****5678"
   aiModel.value = settingsStore.settings?.aiModel || "";
   aiBaseUrl.value = settingsStore.settings?.aiBaseUrl || "";
-  // Telegram-Status laden
+  loadUserApiKey();
   telegramActive.value = !!(settingsStore.settings as any)?.telegramActive;
   await loadApiKeys();
   await loadTelegramStatus();
@@ -842,11 +842,44 @@ function formatDate(dateStr: string) {
 
 // ── AI-Einstellungen ──
 
+const aiKeyCols: Record<string, string> = {
+  openai: "openaiApiKey",
+  anthropic: "anthropicApiKey",
+  groq: "groqApiKey",
+  mistral: "mistralApiKey",
+  kimi: "kimiApiKey",
+  deepseek: "deepseekApiKey",
+};
+
+function loadUserApiKey() {
+  const settings = settingsStore.settings as any;
+  const colName = aiProvider.value ? aiKeyCols[aiProvider.value] : null;
+  if (colName && settings?.[colName]) {
+    aiApiKey.value = settings[colName];
+  } else {
+    aiApiKey.value = settingsStore.settings?.aiApiKey || "";
+  }
+}
+
 function onAiProviderChange() {
   aiModel.value = "";
-  aiApiKey.value = "";
   aiBaseUrl.value = "";
   aiTestResult.value = null;
+  const settings = settingsStore.settings as any;
+  if (settings) {
+    const colMap: Record<string, string> = {
+      openai: "openaiApiKey",
+      anthropic: "anthropicApiKey",
+      groq: "groqApiKey",
+      mistral: "mistralApiKey",
+      kimi: "kimiApiKey",
+      deepseek: "deepseekApiKey",
+    };
+    const colName = colMap[aiProvider.value];
+    aiApiKey.value = colName && settings[colName] ? settings[colName] : "";
+  } else {
+    aiApiKey.value = "";
+  }
 }
 
 async function saveAiSettings() {

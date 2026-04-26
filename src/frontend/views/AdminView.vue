@@ -172,7 +172,7 @@
             <SearchableSelect
               :model-value="aiProvider"
               :options="aiProviderOptions"
-              @update:model-value="aiProvider = String($event); updateSystemSetting('ai_provider', aiProvider)"
+              @update:model-value="onAiProviderChange(String($event))"
             />
           </div>
 
@@ -182,7 +182,7 @@
               v-model="aiApiKey"
               type="password"
               placeholder="sk-..."
-              @blur="updateSystemSetting('moonshot_api_key', aiApiKey)"
+              @blur="saveSystemApiKey()"
               class="bg-gray-50 dark:bg-gray-800 px-4 py-2.5 border border-gray-300 dark:border-gray-700 rounded-xl outline-none focus:ring-2 focus:ring-primary-500 w-full text-gray-900 dark:text-white"
             />
           </div>
@@ -198,8 +198,8 @@
             />
           </div>
 
-          <!-- AI Thinking Toggle (nur bei Kimi) -->
-          <div v-if="aiProvider === 'kimi'">
+          <!-- AI Thinking Toggle (nur bei Kimi und DeepSeek) -->
+          <div v-if="aiProvider === 'kimi' || aiProvider === 'deepseek'">
             <label class="block mb-1 font-medium text-gray-700 dark:text-gray-300 text-sm">{{ t('admin.aiThinking') }}</label>
             <div class="flex items-center gap-3">
               <button
@@ -309,6 +309,7 @@ const aiProviderOptions: SelectOption[] = [
   { value: 'kimi', label: 'Moonshot (Kimi)' },
   { value: 'openai', label: 'OpenAI' },
   { value: 'anthropic', label: 'Anthropic' },
+  { value: 'deepseek', label: 'DeepSeek' },
   { value: 'ollama', label: 'Ollama (lokal)' },
 ];
 const aiApiKey = ref("");
@@ -317,6 +318,31 @@ const aiThinkingEnabled = ref(false);
 const aiTesting = ref(false);
 const aiTestResult = ref<{ success: boolean; message: string; duration: number } | null>(null);
 const cookieBannerSelectors = ref("");
+let systemSettingsCache: Record<string, string> = {};
+
+function getSystemApiKeyName(provider: string): string {
+  return `${provider}_api_key`;
+}
+
+function loadSystemApiKey(settingsData: Record<string, string>) {
+  systemSettingsCache = settingsData;
+  const keyName = getSystemApiKeyName(aiProvider.value);
+  aiApiKey.value = settingsData[keyName]
+    || (aiProvider.value === "kimi" ? settingsData.moonshot_api_key : "")
+    || "";
+}
+
+async function onAiProviderChange(newProvider: string) {
+  aiProvider.value = newProvider;
+  await updateSystemSetting("ai_provider", newProvider);
+  loadSystemApiKey(systemSettingsCache);
+}
+
+async function saveSystemApiKey() {
+  const keyName = getSystemApiKeyName(aiProvider.value);
+  await updateSystemSetting(keyName, aiApiKey.value);
+  systemSettingsCache[keyName] = aiApiKey.value;
+}
 
 function getInitials(name: string) {
   return name
@@ -348,10 +374,10 @@ async function loadData() {
       registrationEnabled.value = data.registration_enabled !== "false";
       aiSharedEnabled.value = data.ai_shared_enabled !== "false";
       aiProvider.value = data.ai_provider || "kimi";
-      aiApiKey.value = data.moonshot_api_key || "";
       aiModel.value = data.ai_model || "";
       aiThinkingEnabled.value = data.ai_thinking_enabled === "true";
       cookieBannerSelectors.value = data.cookie_banner_selectors || "";
+      loadSystemApiKey(data);
     }
   } catch (e) {
     console.error("Admin-Daten laden fehlgeschlagen:", e);

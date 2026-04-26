@@ -66,7 +66,7 @@ export const updateSettingsSchema = z.object({
   language: z.string().min(2).max(5).optional(),
   defaultFolderId: z.number().int().positive().nullable().optional(),
   // User-eigene AI-Konfiguration
-  aiProvider: z.enum(["openai", "anthropic", "groq", "mistral", "ollama", "kimi"]).nullable().optional(),
+  aiProvider: z.enum(["openai", "anthropic", "groq", "mistral", "ollama", "kimi", "deepseek"]).nullable().optional(),
   aiApiKey: z.string().max(500).nullable().optional(),
   aiModel: z.string().max(100).nullable().optional(),
   aiBaseUrl: z.string().url().max(500).nullable().optional(),
@@ -119,8 +119,14 @@ export const shareFolderSchema = z.object({
 // ── System Settings (Admin) ──
 export const updateSystemSettingsSchema = z.object({
   moonshot_api_key: z.string().optional(),
+  openai_api_key: z.string().optional(),
+  anthropic_api_key: z.string().optional(),
+  deepseek_api_key: z.string().optional(),
+  kimi_api_key: z.string().optional(),
+  groq_api_key: z.string().optional(),
+  mistral_api_key: z.string().optional(),
   ai_model: z.string().optional(),
-  ai_provider: z.enum(["kimi", "openai", "anthropic", "ollama"]).optional(),
+  ai_provider: z.enum(["kimi", "openai", "anthropic", "ollama", "deepseek"]).optional(),
   ai_thinking_enabled: z.enum(["true", "false"]).optional(),
   ai_shared_enabled: z.enum(["true", "false"]).optional(),
   ollama_url: z.string().url().optional(),

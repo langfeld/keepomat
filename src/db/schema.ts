@@ -135,6 +135,13 @@ export const userSettings = sqliteTable("user_settings", {
   aiApiKey: text("ai_api_key"),
   aiModel: text("ai_model"),
   aiBaseUrl: text("ai_base_url"),
+  // Per-Provider API keys (persistiert beim Wechseln des Providers)
+  openaiApiKey: text("openai_api_key"),
+  anthropicApiKey: text("anthropic_api_key"),
+  groqApiKey: text("groq_api_key"),
+  mistralApiKey: text("mistral_api_key"),
+  kimiApiKey: text("kimi_api_key"),
+  deepseekApiKey: text("deepseek_api_key"),
   showAiSummary: integer("show_ai_summary", { mode: "boolean" }).default(true).notNull(),
   aiCreateFolders: integer("ai_create_folders", { mode: "boolean" }).default(true).notNull(),
   // User-eigener Telegram-Bot
