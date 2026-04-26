@@ -123,6 +123,7 @@
           @toggleRead="handleToggleRead"
           @retakeScreenshot="handleRetakeScreenshot"
           @edit="handleEdit"
+          @quickEdit="handleQuickEdit"
           @delete="handleDelete"
         />
       </div>
@@ -153,6 +154,7 @@
           @toggleRead="handleToggleRead"
           @retakeScreenshot="handleRetakeScreenshot"
           @edit="handleEdit"
+          @quickEdit="handleQuickEdit"
           @delete="handleDelete"
         />
       </div>
@@ -165,6 +167,14 @@
       @close="editingBookmark = null"
       @saved="handleBookmarkSaved"
     />
+
+    <!-- Quick Edit Modal -->
+    <QuickEditModal
+      v-if="quickEditingBookmark"
+      :bookmark="quickEditingBookmark"
+      @close="quickEditingBookmark = null"
+      @saved="handleQuickEditSaved"
+    />
   </div>
 </template>
 
@@ -172,6 +182,7 @@
 import { ref, onMounted } from "vue";
 import BookmarkCard from "../components/BookmarkCard.vue";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
+import QuickEditModal from "../components/QuickEditModal.vue";
 import { useI18n } from "../composables/useI18n";
 import { useConfirm } from "../composables/useConfirm";
 import { useToast } from "../composables/useToast";
@@ -186,6 +197,7 @@ const recentBookmarks = ref<any[]>([]);
 const favorites = ref<any[]>([]);
 
 const editingBookmark = ref<any>(null);
+const quickEditingBookmark = ref<any>(null);
 const quickStartDismissed = useLocalStorage("keepomat-quickstart-dismissed", false);
 const showQuickStart = ref(!quickStartDismissed.value);
 
@@ -262,6 +274,15 @@ async function handleRetakeScreenshot(bookmark: any) {
 
 function handleEdit(bookmark: any) {
   editingBookmark.value = { ...bookmark };
+}
+
+function handleQuickEdit(bookmark: any) {
+  quickEditingBookmark.value = { ...bookmark };
+}
+
+function handleQuickEditSaved() {
+  quickEditingBookmark.value = null;
+  loadDashboardData();
 }
 
 async function handleDelete(id: number) {

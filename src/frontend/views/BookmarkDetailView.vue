@@ -81,6 +81,16 @@
               </svg>
             </button>
             <button
+              @click="quickEditingBookmark = { ...bookmark }"
+              :class="bookmark.notes || bookmark.rating ? 'text-primary-400 hover:text-primary-500' : 'text-gray-300 hover:text-primary-500 dark:text-gray-600'"
+              class="p-2 rounded-lg transition"
+              :title="t('bookmark.quickEdit')"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </button>
+            <button
               @click="editingBookmark = { ...bookmark }"
               class="p-2 rounded-lg text-gray-300 hover:text-primary-500 dark:text-gray-600 transition"
               :title="t('common.edit')"
@@ -258,6 +268,14 @@
       @close="editingBookmark = null"
       @saved="handleSaved"
     />
+
+    <!-- Quick Edit Modal -->
+    <QuickEditModal
+      v-if="quickEditingBookmark"
+      :bookmark="quickEditingBookmark"
+      @close="quickEditingBookmark = null"
+      @saved="handleQuickEditSaved"
+    />
   </div>
 </template>
 
@@ -270,6 +288,7 @@ import { useToast } from "../composables/useToast";
 import { useSettingsStore } from "../stores/settings";
 import { getFallbackImage } from "../utils/fallbackImage";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
+import QuickEditModal from "../components/QuickEditModal.vue";
 import StarRating from "../components/StarRating.vue";
 
 const route = useRoute();
@@ -282,6 +301,7 @@ const settingsStore = useSettingsStore();
 const bookmark = ref<any>(null);
 const loading = ref(true);
 const editingBookmark = ref<any>(null);
+const quickEditingBookmark = ref<any>(null);
 
 const hostname = computed(() => {
   try {
@@ -412,6 +432,11 @@ async function handleDelete() {
 
 function handleSaved() {
   editingBookmark.value = null;
+  loadBookmark();
+}
+
+function handleQuickEditSaved() {
+  quickEditingBookmark.value = null;
   loadBookmark();
 }
 

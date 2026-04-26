@@ -148,6 +148,7 @@
         :showScreenshot="showScreenshots"
         :showAiSummary="showAiSummary"
         @edit="editBookmark"
+        @quickEdit="quickEditBookmark"
         @delete="deleteBookmark"
         @toggleFavorite="handleToggleFavorite"
         @toggleRead="handleToggleRead"
@@ -186,6 +187,14 @@
       @close="editingBookmark = null"
       @saved="handleBookmarkSaved"
     />
+
+    <!-- Quick Edit Modal -->
+    <QuickEditModal
+      v-if="quickEditingBookmark"
+      :bookmark="quickEditingBookmark"
+      @close="quickEditingBookmark = null"
+      @saved="handleQuickEditSaved"
+    />
   </div>
 </template>
 
@@ -200,6 +209,7 @@ import { useToast } from "../composables/useToast";
 import { useLocalStorage } from "../composables/useLocalStorage";
 import BookmarkCard from "../components/BookmarkCard.vue";
 import EditBookmarkModal from "../components/EditBookmarkModal.vue";
+import QuickEditModal from "../components/QuickEditModal.vue";
 import SearchableSelect from "../components/SearchableSelect.vue";
 import type { SelectOption } from "../components/SearchableSelect.vue";
 
@@ -240,6 +250,7 @@ const exportMenuRef = ref<HTMLElement>();
 const importHtmlInput = ref<HTMLInputElement>();
 const importJsonInput = ref<HTMLInputElement>();
 const editingBookmark = ref<any>(null);
+const quickEditingBookmark = ref<any>(null);
 const currentFolder = ref<any>(null);
 
 // Ordner aus Route
@@ -297,6 +308,15 @@ async function loadTags() {
 
 function editBookmark(bookmark: any) {
   editingBookmark.value = { ...bookmark };
+}
+
+function quickEditBookmark(bookmark: any) {
+  quickEditingBookmark.value = { ...bookmark };
+}
+
+function handleQuickEditSaved() {
+  quickEditingBookmark.value = null;
+  loadBookmarks();
 }
 
 async function deleteBookmark(id: number) {

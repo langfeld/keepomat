@@ -220,6 +220,14 @@ export default {
   "bookmark.retakeScreenshot": "Screenshot neu erstellen",
   "bookmark.drag": "In Ordner ziehen",
   "bookmark.viewDetails": "Details anzeigen",
+  "bookmark.quickEdit": "Notiz & Bewertung",
+
+  // Quick Edit
+  "quickEdit.title": "Notiz & Bewertung",
+  "quickEdit.rating": "Bewertung",
+  "quickEdit.notes": "Notizen",
+  "quickEdit.notesPlaceholder": "Deine Gedanken zu dieser Seite...",
+  "quickEdit.saved": "Gespeichert",
 
   // Bookmark Detail
   "bookmarkDetail.description": "Beschreibung",

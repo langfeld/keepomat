@@ -220,8 +220,15 @@ export default {
   "bookmark.retakeScreenshot": "Retake screenshot",
   "bookmark.drag": "Drag to folder",
   "bookmark.viewDetails": "View details",
+  "bookmark.quickEdit": "Note & Rating",
 
   // Bookmark Detail
+  "quickEdit.title": "Note & Rating",
+  "quickEdit.rating": "Rating",
+  "quickEdit.notes": "Notes",
+  "quickEdit.notesPlaceholder": "Your thoughts on this page...",
+  "quickEdit.saved": "Saved",
+
   "bookmarkDetail.description": "Description",
   "bookmarkDetail.previewImage": "Preview image",
   "bookmarkDetail.notes": "Notes",

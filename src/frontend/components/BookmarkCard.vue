@@ -127,6 +127,16 @@
         </svg>
       </button>
       <button
+        @click="$emit('quickEdit', bookmark)"
+        :class="bookmark.notes || bookmark.rating ? 'text-primary-400 hover:text-primary-500' : 'text-gray-300 hover:text-primary-500 dark:text-gray-600'"
+        class="p-1.5 rounded-lg transition"
+        :title="t('bookmark.quickEdit')"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </button>
+      <button
         @click="$emit('toggleFavorite', bookmark)"
         :class="bookmark.isFavorite ? 'text-amber-500' : 'text-gray-300 dark:text-gray-600 hover:text-amber-500'"
         class="p-1.5 rounded-lg transition"
@@ -197,7 +207,7 @@ const props = defineProps<{
   showAiSummary?: boolean;
 }>();
 
-const emit = defineEmits(["edit", "delete", "toggleFavorite", "toggleRead", "retakeScreenshot"]);
+const emit = defineEmits(["edit", "quickEdit", "delete", "toggleFavorite", "toggleRead", "retakeScreenshot"]);
 
 const cardRef = ref<HTMLElement>();
 const imgError = ref(false);
