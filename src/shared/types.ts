@@ -17,6 +17,7 @@ export interface Bookmark {
   title: string | null;
   description: string | null;
   ogImage: string | null;
+  ogImageFile: string | null;
   favicon: string | null;
   aiSummary: string | null;
   screenshot: string | null;

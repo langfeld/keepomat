@@ -3,6 +3,7 @@ import { db } from "../../db";
 import * as schema from "../../db/schema";
 import { eq, and, desc, inArray } from "drizzle-orm";
 import { getScreenshotPath } from "../services/screenshot";
+import { getOgImagePath } from "../services/og-image";
 import { existsSync, writeFileSync, mkdirSync } from "fs";
 import { resolve } from "path";
 import PDFDocument from "pdfkit";
@@ -268,13 +269,19 @@ exportRoutes.get("/json", async (c) => {
     if (includeImages && bm.screenshot) {
       const filepath = getScreenshotPath(bm.screenshot);
       if (existsSync(filepath)) {
-        const fileData = Bun.file(filepath);
-        const buffer = new Uint8Array(fileData.size);
-        const reader = fileData.stream().getReader();
-        // Synchron einlesen via Bun.file
         try {
           const bytes = require("fs").readFileSync(filepath);
           entry.screenshotBase64 = Buffer.from(bytes).toString("base64");
+        } catch {}
+      }
+    }
+
+    if (includeImages && bm.ogImageFile) {
+      const filepath = getOgImagePath(bm.ogImageFile);
+      if (existsSync(filepath)) {
+        try {
+          const bytes = require("fs").readFileSync(filepath);
+          entry.ogImageBase64 = Buffer.from(bytes).toString("base64");
         } catch {}
       }
     }
@@ -405,9 +412,11 @@ exportRoutes.post("/import-json", async (c) => {
     }
   }
 
-  // Screenshots-Verzeichnis
+  // Bildverzeichnisse
   const screenshotsDir = resolve(process.cwd(), "data/screenshots");
+  const ogImagesDir = resolve(process.cwd(), "data/og-images");
   if (!existsSync(screenshotsDir)) mkdirSync(screenshotsDir, { recursive: true });
+  if (!existsSync(ogImagesDir)) mkdirSync(ogImagesDir, { recursive: true });
 
   for (const bm of data.bookmarks) {
     if (!bm.url) continue;
@@ -424,6 +433,7 @@ exportRoutes.post("/import-json", async (c) => {
 
     // Screenshot aus Base64 speichern
     let screenshotFilename: string | null = null;
+    let ogImageFilename: string | null = null;
     const bookmark = db.insert(schema.bookmarks).values({
       userId: user.id,
       url: bm.url,
@@ -449,6 +459,22 @@ exportRoutes.post("/import-json", async (c) => {
           .run();
       } catch {
         screenshotFilename = null;
+      }
+    }
+
+    if (bm.ogImageBase64) {
+      try {
+        // Dateiendung aus dem Original versuchen zu ermitteln, Fallback webp
+        const ext = bm.ogImageFile?.split('.').pop() || 'webp';
+        ogImageFilename = `${bookmark.id}.${ext}`;
+        const buffer = Buffer.from(bm.ogImageBase64, "base64");
+        writeFileSync(resolve(ogImagesDir, ogImageFilename), buffer);
+        db.update(schema.bookmarks)
+          .set({ ogImageFile: ogImageFilename })
+          .where(eq(schema.bookmarks.id, bookmark.id))
+          .run();
+      } catch {
+        ogImageFilename = null;
       }
     }
 

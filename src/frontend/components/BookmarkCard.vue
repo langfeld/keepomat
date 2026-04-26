@@ -217,13 +217,20 @@ const screenshotUrl = computed(() => {
   return null;
 });
 
+const ogImageUrl = computed(() => {
+  if (props.bookmark.ogImageFile) {
+    return `/api/bookmarks/${props.bookmark.id}/og-image?t=${props.bookmark.updatedAt || ''}`;
+  }
+  return props.bookmark.ogImage || null;
+});
+
 const fallbackImageUrl = computed(() => getFallbackImage(props.bookmark.id, props.bookmark.title));
 
 const displayImage = computed(() => {
   if (props.showScreenshot && screenshotUrl.value) {
     return screenshotUrl.value;
   }
-  return props.bookmark.ogImage || fallbackImageUrl.value;
+  return ogImageUrl.value || fallbackImageUrl.value;
 });
 
 const hostname = computed(() => {

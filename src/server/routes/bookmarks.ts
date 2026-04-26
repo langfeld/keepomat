@@ -6,8 +6,9 @@ import { createBookmarkSchema, updateBookmarkSchema } from "../../shared/validat
 import { fetchMetadata } from "../services/metadata";
 import { analyzeBookmark, isAiConfigured, getEffectiveAiConfig, isAiConfiguredForUser } from "../services/ai";
 import { captureScreenshot, getScreenshotPath } from "../services/screenshot";
+import { downloadOgImage, getOgImagePath, getOgImageMimeType } from "../services/og-image";
 import { validateUrlForFetch } from "../utils/url-validation";
-import { existsSync } from "fs";
+import { existsSync, unlinkSync } from "fs";
 import { safeParseInt } from "../utils/parse";
 
 export const bookmarkRoutes = new Hono();
@@ -149,6 +150,35 @@ bookmarkRoutes.get("/:id/screenshot", async (c) => {
   return new Response(file, {
     headers: {
       "Content-Type": "image/webp",
+      "Cache-Control": "public, max-age=31536000, immutable",
+    },
+  });
+});
+
+// OG-Image eines Bookmarks servieren
+bookmarkRoutes.get("/:id/og-image", async (c) => {
+  const user = c.get("user" as never) as any;
+  const id = parseInt(c.req.param("id"));
+
+  const bookmark = db
+    .select({ ogImageFile: schema.bookmarks.ogImageFile, userId: schema.bookmarks.userId })
+    .from(schema.bookmarks)
+    .where(and(eq(schema.bookmarks.id, id), eq(schema.bookmarks.userId, user.id)))
+    .get();
+
+  if (!bookmark?.ogImageFile) {
+    return c.json({ error: "Kein OG-Image vorhanden" }, 404);
+  }
+
+  const filepath = getOgImagePath(bookmark.ogImageFile);
+  if (!existsSync(filepath)) {
+    return c.json({ error: "OG-Image-Datei nicht gefunden" }, 404);
+  }
+
+  const file = Bun.file(filepath);
+  return new Response(file, {
+    headers: {
+      "Content-Type": getOgImageMimeType(bookmark.ogImageFile),
       "Cache-Control": "public, max-age=31536000, immutable",
     },
   });
@@ -310,6 +340,11 @@ bookmarkRoutes.post("/", async (c) => {
   // Screenshot (async, nicht blockierend)
   captureAndSaveScreenshot(bookmark.id, data.url);
 
+  // OG-Image herunterladen (async, nicht blockierend)
+  if (metadata.ogImage) {
+    downloadAndSaveOgImage(bookmark.id, metadata.ogImage);
+  }
+
   return c.json(bookmark, 201);
 });
 
@@ -352,6 +387,32 @@ bookmarkRoutes.patch("/:id", async (c) => {
     .where(eq(schema.bookmarks.id, id))
     .returning()
     .get();
+
+  // Bei URL-Änderung: OG-Image neu herunterladen
+  if (data.url && data.url !== existing.url) {
+    // Altes OG-Image löschen
+    if (existing.ogImageFile) {
+      const oldPath = getOgImagePath(existing.ogImageFile);
+      if (existsSync(oldPath)) {
+        try { unlinkSync(oldPath); } catch {}
+      }
+      db.update(schema.bookmarks)
+        .set({ ogImageFile: null })
+        .where(eq(schema.bookmarks.id, id))
+        .run();
+    }
+
+    const metadata = await fetchMetadata(data.url);
+    if (metadata.ogImage) {
+      downloadAndSaveOgImage(id, metadata.ogImage);
+    }
+    if (metadata.ogImage !== undefined) {
+      db.update(schema.bookmarks)
+        .set({ ogImage: metadata.ogImage })
+        .where(eq(schema.bookmarks.id, id))
+        .run();
+    }
+  }
 
   // Tags aktualisieren
   if (data.tags !== undefined) {
@@ -416,6 +477,20 @@ bookmarkRoutes.delete("/:id", async (c) => {
 
   if (!existing) {
     return c.json({ error: "Bookmark nicht gefunden" }, 404);
+  }
+
+  // Lokale Bilddateien aufräumen
+  if (existing.screenshot) {
+    const screenshotPath = getScreenshotPath(existing.screenshot);
+    if (existsSync(screenshotPath)) {
+      try { unlinkSync(screenshotPath); } catch {}
+    }
+  }
+  if (existing.ogImageFile) {
+    const ogImagePath = getOgImagePath(existing.ogImageFile);
+    if (existsSync(ogImagePath)) {
+      try { unlinkSync(ogImagePath); } catch {}
+    }
   }
 
   db.delete(schema.bookmarks).where(eq(schema.bookmarks.id, id)).run();
@@ -627,6 +702,24 @@ bookmarkRoutes.post("/:id/ai-sort", async (c) => {
 
   return c.json({ folder: targetFolder });
 });
+
+// OG-Image async herunterladen und speichern
+async function downloadAndSaveOgImage(bookmarkId: number, ogImageUrl: string): Promise<string | null> {
+  try {
+    const filename = await downloadOgImage(ogImageUrl, bookmarkId);
+    if (filename) {
+      db.update(schema.bookmarks)
+        .set({ ogImageFile: filename, updatedAt: new Date() })
+        .where(eq(schema.bookmarks.id, bookmarkId))
+        .run();
+      return filename;
+    }
+    return null;
+  } catch (error) {
+    console.error(`❌ OG-Image save failed for bookmark #${bookmarkId}:`, error);
+    return null;
+  }
+}
 
 // AI-Analyse async durchführen
 async function captureAndSaveScreenshot(bookmarkId: number, url: string): Promise<string | null> {

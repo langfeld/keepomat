@@ -75,6 +75,7 @@ export const bookmarks = sqliteTable("bookmarks", {
   title: text("title"),
   description: text("description"),
   ogImage: text("og_image"),
+  ogImageFile: text("og_image_file"),
   favicon: text("favicon"),
   aiSummary: text("ai_summary"),
   screenshot: text("screenshot"),

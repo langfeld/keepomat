@@ -178,11 +178,11 @@
           </div>
 
           <!-- OG-Image -->
-          <div v-if="bookmark.ogImage && (screenshotFailed || !bookmark.screenshot) && !ogImageFailed" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <div v-if="ogImageUrl && (screenshotFailed || !bookmark.screenshot) && !ogImageFailed" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
               <img
-                :src="bookmark.ogImage"
+                :src="ogImageUrl"
                 :alt="bookmark.title || ''"
                 class="w-full"
                 loading="lazy"
@@ -192,7 +192,7 @@
           </div>
 
           <!-- Fallback-Bild -->
-          <div v-if="(!bookmark.screenshot || screenshotFailed) && (!bookmark.ogImage || ogImageFailed)" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
+          <div v-if="(!bookmark.screenshot || screenshotFailed) && (!ogImageUrl || ogImageFailed)" class="bg-white dark:bg-gray-900 p-6 border border-gray-200 dark:border-gray-800 rounded-2xl">
             <h2 class="mb-3 font-semibold text-gray-900 dark:text-white text-sm">{{ t('bookmarkDetail.previewImage') }}</h2>
             <div class="bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden">
               <img :src="fallbackImage" :alt="bookmark.title || ''" class="w-full" loading="lazy" />
@@ -311,6 +311,14 @@ const editingBookmark = ref<any>(null);
 const quickEditingBookmark = ref<any>(null);
 const screenshotFailed = ref(false);
 const ogImageFailed = ref(false);
+
+const ogImageUrl = computed(() => {
+  if (!bookmark.value) return null;
+  if (bookmark.value.ogImageFile) {
+    return `/api/bookmarks/${bookmark.value.id}/og-image?t=${bookmark.value.updatedAt || ''}`;
+  }
+  return bookmark.value.ogImage || null;
+});
 
 const hostname = computed(() => {
   try {
