@@ -321,7 +321,7 @@ const hostname = computed(() => {
 });
 
 const fallbackImage = computed(() => {
-  return bookmark.value ? getFallbackImage(bookmark.value.id) : "";
+  return bookmark.value ? getFallbackImage(bookmark.value.id, bookmark.value.title) : "";
 });
 
 function formatDate(date: string | Date | null): string {

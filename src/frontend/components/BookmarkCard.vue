@@ -217,7 +217,7 @@ const screenshotUrl = computed(() => {
   return null;
 });
 
-const fallbackImageUrl = computed(() => getFallbackImage(props.bookmark.id));
+const fallbackImageUrl = computed(() => getFallbackImage(props.bookmark.id, props.bookmark.title));
 
 const displayImage = computed(() => {
   if (props.showScreenshot && screenshotUrl.value) {
@@ -236,8 +236,8 @@ const hostname = computed(() => {
 
 function onImageError(e: Event) {
   const target = e.target as HTMLImageElement;
-  if (target && target.src !== getFallbackImage(props.bookmark.id)) {
-    target.src = getFallbackImage(props.bookmark.id);
+  if (target && target.src !== getFallbackImage(props.bookmark.id, props.bookmark.title)) {
+    target.src = getFallbackImage(props.bookmark.id, props.bookmark.title);
   }
 }
 
