@@ -32,6 +32,8 @@ const BROWSER_ARGS = [
   "--disable-background-networking",
   "--disable-default-apps",
   "--no-first-run",
+  // Wichtig für Docker/non-root: explizites User-Data-Verzeichnis
+  "--user-data-dir=/tmp/chromium-data",
 ];
 
 /**
@@ -42,21 +44,56 @@ const BLANK_SCREENSHOT_THRESHOLD = 10_240; // 10 KB
 
 /**
  * Findet den Chrome/Chromium-Binary-Pfad auf dem System.
+ * Prüft zuerst Umgebungsvariable, dann bekannte Pfade, dann which/whereis.
  */
 function findChromePath(): string | null {
+  // 1. Umgebungsvariable (für Docker/Container)
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    if (existsSync(process.env.PUPPETEER_EXECUTABLE_PATH)) {
+      return process.env.PUPPETEER_EXECUTABLE_PATH;
+    }
+  }
+
   const candidates = [
     "/usr/bin/google-chrome",
     "/usr/bin/google-chrome-stable",
     "/usr/bin/chromium-browser",
     "/usr/bin/chromium",
+    "/usr/bin/chromium-browser-puppeteer",
     "/snap/bin/chromium",
+    "/usr/local/bin/chrome",
+    "/usr/local/bin/chromium",
+    // Debian/Ubuntu Chromium (alternative Pfade)
+    "/usr/lib/chromium/chromium",
+    "/usr/lib/chromium-browser/chromium-browser",
+    // Alpine
+    "/usr/bin/chromium-browser",
     // macOS
     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
+    // Windows (WSL/cross-platform)
+    "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe",
+    "/mnt/c/Program Files (x86)/Google/Chrome/Application/chrome.exe",
   ];
 
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;
+  }
+
+  // 2. which/whereis als Fallback
+  try {
+    const { execSync } = require("child_process");
+    const whichPaths = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser"];
+    for (const bin of whichPaths) {
+      try {
+        const path = execSync(`which ${bin}`, { encoding: "utf-8", stdio: ["pipe", "pipe", "ignore"] }).trim();
+        if (path && existsSync(path)) return path;
+      } catch {
+        // which nicht gefunden
+      }
+    }
+  } catch {
+    // execSync nicht verfügbar
   }
 
   return null;
@@ -83,9 +120,13 @@ export async function captureScreenshot(
 
   const chromePath = findChromePath();
   if (!chromePath) {
-    console.warn("⚠️ Kein Chrome/Chromium gefunden – Screenshot übersprungen");
+    console.warn(
+      "⚠️ Kein Chrome/Chromium gefunden – Screenshot übersprungen. " +
+      "Setze PUPPETEER_EXECUTABLE_PATH oder installiere Chrome/Chromium."
+    );
     return null;
   }
+  console.log(`🔍 Verwende Chrome/Chromium: ${chromePath}`);
 
   const filename = `${bookmarkId}.webp`;
   const filepath = resolve(SCREENSHOTS_DIR, filename);
@@ -141,7 +182,8 @@ export async function captureScreenshot(
     console.log(`📸 Screenshot erstellt: ${filename}`);
     return filename;
   } catch (error) {
-    console.error(`❌ Screenshot fehlgeschlagen für ${url}:`, error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Screenshot fehlgeschlagen für ${url}: ${msg}`);
     return null;
   } finally {
     if (browser) {
@@ -195,7 +237,8 @@ async function captureWithoutAdblocker(
     console.log(`📸 Screenshot erstellt (Consent-Wall-Retry): ${filename}`);
     return filename;
   } catch (error) {
-    console.error(`❌ Screenshot (Retry) fehlgeschlagen für ${url}:`, error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Screenshot (Retry) fehlgeschlagen für ${url}: ${msg}`);
     return null;
   } finally {
     if (browser) {

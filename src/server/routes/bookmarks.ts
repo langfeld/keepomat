@@ -199,10 +199,12 @@ bookmarkRoutes.post("/:id/screenshot", async (c) => {
     return c.json({ error: "Bookmark nicht gefunden" }, 404);
   }
 
+  console.log(`📸 Screenshot-Request für Bookmark #${bookmark.id} (${bookmark.url})`);
   const filename = await captureAndSaveScreenshot(bookmark.id, bookmark.url);
   if (filename) {
     return c.json({ success: true, screenshot: filename });
   }
+  console.error(`❌ Screenshot-Endpunkt: Kein Filename für Bookmark #${bookmark.id}`);
   return c.json({ error: "Screenshot konnte nicht erstellt werden" }, 500);
 });
 
@@ -732,9 +734,11 @@ async function captureAndSaveScreenshot(bookmarkId: number, url: string): Promis
         .run();
       return filename;
     }
+    console.warn(`⚠️ Screenshot für Bookmark #${bookmarkId} (${url}) lieferte null`);
     return null;
   } catch (error) {
-    console.error(`❌ Screenshot save failed for bookmark #${bookmarkId}:`, error);
+    const msg = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Screenshot save failed for bookmark #${bookmarkId}: ${msg}`);
     return null;
   }
 }
