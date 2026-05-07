@@ -39,17 +39,7 @@ bookmarkRoutes.get("/", async (c) => {
   if (isFavorite !== undefined) conditions.push(eq(schema.bookmarks.isFavorite, isFavorite === "true"));
   if (isDeadLink !== undefined) conditions.push(eq(schema.bookmarks.isDeadLink, isDeadLink === "true"));
 
-  const bookmarkList = db
-    .select()
-    .from(schema.bookmarks)
-    .where(and(...conditions))
-    .orderBy(orderFn(sortColumn))
-    .limit(limit)
-    .offset(offset)
-    .all();
-
   // Filter nach Folder
-  let filteredBookmarks = bookmarkList;
   if (folderId) {
     const folderBookmarkIds = db
       .select({ bookmarkId: schema.bookmarkFolders.bookmarkId })
@@ -58,7 +48,11 @@ bookmarkRoutes.get("/", async (c) => {
       .all()
       .map((r) => r.bookmarkId);
 
-    filteredBookmarks = bookmarkList.filter((b) => folderBookmarkIds.includes(b.id));
+    if (folderBookmarkIds.length === 0) {
+      return c.json({ data: [], total: 0, limit, offset, hasMore: false });
+    }
+
+    conditions.push(inArray(schema.bookmarks.id, folderBookmarkIds));
   }
 
   // Filter nach Tag
@@ -70,11 +64,24 @@ bookmarkRoutes.get("/", async (c) => {
       .all()
       .map((r) => r.bookmarkId);
 
-    filteredBookmarks = filteredBookmarks.filter((b) => tagBookmarkIds.includes(b.id));
+    if (tagBookmarkIds.length === 0) {
+      return c.json({ data: [], total: 0, limit, offset, hasMore: false });
+    }
+
+    conditions.push(inArray(schema.bookmarks.id, tagBookmarkIds));
   }
 
+  const bookmarkList = db
+    .select()
+    .from(schema.bookmarks)
+    .where(and(...conditions))
+    .orderBy(orderFn(sortColumn))
+    .limit(limit)
+    .offset(offset)
+    .all();
+
   // Tags und Folders für jeden Bookmark laden
-  const bookmarksWithRelations = filteredBookmarks.map((bookmark) => {
+  const bookmarksWithRelations = bookmarkList.map((bookmark) => {
     const bookmarkTagRows = db
       .select({ tagId: schema.bookmarkTags.tagId })
       .from(schema.bookmarkTags)
@@ -114,7 +121,7 @@ bookmarkRoutes.get("/", async (c) => {
   const total = db
     .select({ count: sql<number>`count(*)` })
     .from(schema.bookmarks)
-    .where(eq(schema.bookmarks.userId, user.id))
+    .where(and(...conditions))
     .get();
 
   return c.json({
